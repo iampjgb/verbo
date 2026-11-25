@@ -1870,8 +1870,8 @@ details.tr-lic summary{cursor:pointer;font-weight:600;color:var(--ink)}
 .pwa-card .pwa-inst{padding:0;border:0;margin:0}
 /* ===== v17: tablets ===== */
 /* iPad landscape (1024–1199): the study panel sits beside the text instead of covering it */
-@media (min-width:1024px) and (max-width:1199px){
-  .reader.with-panel{grid-template-columns:minmax(0,1fr) 340px!important}
+@media (min-width:900px) and (max-width:1199px){
+  .reader.with-panel{grid-template-columns:minmax(0,1fr) clamp(300px,30vw,340px)!important}
   .reader.with-panel>.panel,.reader.with-panel .panel{position:static!important;width:auto!important;box-shadow:none!important;border-left:1px solid var(--border);top:auto;bottom:auto}
 }
 /* iPad portrait and small tablets: comfortable line length (about 70 characters) */
@@ -2007,6 +2007,10 @@ html.gs-ask .gsearch input{border-color:var(--link)}
 @media (min-width:900px){.app.lay-compare .reader-col,.reader-col:has(.c3-c){padding-right:64px}}
 .ilx-off{margin-top:8px;padding:10px 12px;border:1px solid var(--border);border-radius:10px}
 [data-theme=dark] .gs-item[data-more],[data-theme=dark] .gs-more,[data-theme=dark] .gs-item .t{color:var(--text)}
+/* the + button on phones sits above the bottom bar */
+@media (max-width:899px){.fab,.notes-fab,[data-action="newNote"].fab{bottom:calc(76px + env(safe-area-inset-bottom, 0px))!important}}
+/* print a note: just the note */
+@media print{.wmeta,.wtpl,.wtpl-g,.wtop,.wbar,.wsaved,.wdate,.qn,.trash-link,.plan-next{display:none!important}}
 </style>
 <script id="verbo-redesign-2026-11-js">/* ===== Verbo UX v2: simple navigation, study panel, desktop tabs ===== */
 (() => {
@@ -4129,7 +4133,7 @@ html.gs-ask .gsearch input{border-color:var(--link)}
   } catch {}
 
   /* ---------- 3. Aa: text size right in the reader ---------- */
-  const UIZ = [[1, "Normal"], [1.1, "Large"], [1.2, "Larger"], [1.32, "Largest"]];
+  const UIZ = (typeof UI_SIZES !== "undefined" && UI_SIZES.length) ? UI_SIZES : [[0.92, "Small"], [1, "Normal"], [1.1, "Large"], [1.2, "Larger"]];
   function aaHTML() {
     return `<h2 style="margin-bottom:12px">Text size</h2>
       <div class="aa-row"><div><b>Bible text</b><div class="muted small">The words you read</div></div><div class="aa-ctl"><button class="btn" data-aa="-1" aria-label="Smaller Bible text">A−</button><span class="aa-v">${S.reading.font}</span><button class="btn" data-aa="1" aria-label="Bigger Bible text">A+</button></div></div>
@@ -4660,6 +4664,60 @@ setTimeout(() => { try { if (typeof refresh === "function") refresh(); } catch (
   /* Beliefs: categories with nothing in them are hidden */
   const hideEmpty = () => { if (ui.page !== "theology") return; document.querySelectorAll(".main .chip, .main .pill, .main .li").forEach((c) => { if (/\b0\s*(articles?)?\s*$/.test((c.textContent || "").trim()) || /\(0\)\s*$/.test(c.textContent || "")) c.style.display = "none"; }); };
   let heT = 0; new MutationObserver(() => { if (!heT) heT = setTimeout(() => { heT = 0; hideEmpty(); }, 100); }).observe(document.body, { childList: true, subtree: true });
+})();
+
+/* ===== v22c: regular-tester fixes ===== */
+(() => {
+  /* a quick-note draft belongs to its verse: tapping another verse keeps each draft with its own verse */
+  ui.qnDrafts = ui.qnDrafts || {};
+  let qnFor = null;
+  const _ph = window.panelHTML;
+  if (typeof _ph === "function") panelHTML = function () {
+    if (ui.sel !== qnFor) {
+      if (qnFor && (ui.qnText || "").trim()) ui.qnDrafts[qnFor] = { text: ui.qnText, tags: ui.qnTags || [] };
+      const d = ui.sel && ui.qnDrafts[ui.sel];
+      ui.qnText = d ? d.text : ""; ui.qnTags = d ? d.tags : [];
+      if (!d) ui.qnOpen = false; else ui.qnOpen = true;
+      qnFor = ui.sel;
+    }
+    return _ph.apply(this, arguments);
+  };
+  const _qs = A.qnSave; if (_qs) A.qnSave = function () { const k = ui.sel; const r = _qs.apply(this, arguments); if (k) delete ui.qnDrafts[k]; return r; };
+  const _qc = A.qnCancel; if (_qc) A.qnCancel = function () { if (ui.sel) delete ui.qnDrafts[ui.sel]; return _qc.apply(this, arguments); };
+
+  /* Enter right after typing uses what you typed, never the previous results */
+  window.addEventListener("keydown", (e) => {
+    const i = document.getElementById("gs"); if (!i || e.target !== i || e.key !== "Enter") return;
+    try { if (typeof gsAct === "undefined" || gsAct < 0) gsRender(); } catch {}
+  }, true);
+
+  /* no empty "Untitled" notes: not when the app is closed mid-note, and old ones are tidied at start */
+  const isEmpty = (n) => n && n.type !== "trash" && !String(n.title || "").trim() && !String(n.body || "").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim() && !(n.files || []).length && !(n.ink || n.strokes);
+  const sweep = (keepCurrent) => { const cur = keepCurrent && typeof wNote === "function" ? wNote() : null; const before = S.notes.length; S.notes = S.notes.filter((n) => n === cur || !isEmpty(n)); if (S.notes.length !== before) save(); };
+  sweep(true);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && ui.page === "write") sweep(false); });
+  window.addEventListener("pagehide", () => sweep(false));
+
+  /* share a note as plain text, not Markdown */
+  const toText = (html) => { const d = document.createElement("div"); d.innerHTML = String(html || "").replace(/<\/(p|div|h\d|li|blockquote)>/g, "\n").replace(/<br\s*\/?>/g, "\n").replace(/<li>/g, "• "); return (d.textContent || "").replace(/\n{3,}/g, "\n\n").trim(); };
+  A.shareNote = async () => {
+    const n = typeof wNote === "function" ? wNote() : null; if (!n) return;
+    const text = `${n.title ? n.title + "\n" : ""}${n.ref ? n.ref + "\n" : ""}\n${toText(n.body)}`.trim();
+    try { if (navigator.share) { await navigator.share({ title: n.title || "Note", text }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+    try { await navigator.clipboard.writeText(text); toast("Copied. Paste it into a message."); } catch { modal("Share", `<textarea class="input" readonly style="min-height:160px">${esc(text)}</textarea>`); }
+  };
+
+  /* phones: Share and Print / PDF are in the note's ⋯ menu */
+  const _wm = window.wMenuHTML;
+  if (typeof _wm === "function") wMenuHTML = function () {
+    const h = _wm.apply(this, arguments);
+    return `<button class="mi" data-action="shareNote">${icon("share")}Share as text</button><button class="mi" data-action="printNote">${icon("print")}Print or save as PDF</button>` + h;
+  };
+
+  /* plainer words for "Claude" */
+  const PL = [[/Needs Claude/g, "Works in the Claude app"], [/needs Claude/g, "works in the Claude app"], [/Ask Claude/g, "Ask AI"]];
+  const pl = (h) => { if (typeof h !== "string") return h; for (const [a, b] of PL) h = h.replace(a, b); return h; };
+  const _ps = window.pageSafe; if (typeof _ps === "function") pageSafe = function () { return pl(_ps.apply(this, arguments)); };
 })();
 </script>
 <!-- ===== end of Verbo redesign ===== -->
