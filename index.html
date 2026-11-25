@@ -2003,6 +2003,10 @@ html.gs-ask .gsearch input{border-color:var(--link)}
 .dv-hero .dv-verse,.dv-hero .dv-top,.dv-hero .dv-ref{text-shadow:0 1px 2px rgba(0,0,0,.45)}
 .dv-hero .dv-kicker{color:#fff!important;opacity:.92;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 .dv-actions{flex-wrap:wrap;row-gap:8px}
+/* the floating chapter arrows never cover the last column in Compare */
+@media (min-width:900px){.app.lay-compare .reader-col,.reader-col:has(.c3-c){padding-right:64px}}
+.ilx-off{margin-top:8px;padding:10px 12px;border:1px solid var(--border);border-radius:10px}
+[data-theme=dark] .gs-item[data-more],[data-theme=dark] .gs-more,[data-theme=dark] .gs-item .t{color:var(--text)}
 </style>
 <script id="verbo-redesign-2026-11-js">/* ===== Verbo UX v2: simple navigation, study panel, desktop tabs ===== */
 (() => {
@@ -2164,7 +2168,8 @@ html.gs-ask .gsearch input{border-color:var(--link)}
     if (s.page === "verse-study" && s.studyRef) return s.studyRef;
     const k = { topics: "topic", characters: "character", places: "place", theology: "doctrine" }[s.page];
     const extra = k && typeof s[k] === "string" ? s[k] : "";
-    return extra ? extra.replace(/[-_]/g, " ").replace(/^./, (c) => c.toUpperCase()) : T[s.page] || "Verbo";
+    if (extra && k === "doctrine") { try { const d = (typeof DOCTRINES !== "undefined" ? DOCTRINES : []).find((x) => x.id === extra); if (d && (d.t || d.title || d.name)) return d.t || d.title || d.name; } catch {} }
+    return extra ? extra.replace(/^d-/, "").replace(/[-_]/g, " ").replace(/^./, (c) => c.toUpperCase()) : T[s.page] || "Verbo";
   };
   const tabIcon = (p) => ({ reader: "book", "verse-study": "filesearch", dashboard: "home", explore: "compass", learn: "cap", "word-study": "languages", notes: "note", write: "note", topics: "tag", factbook: "users", plans: "calcheck" }[p] || (zoneOf(p) === "library" ? "library" : zoneOf(p) === "learn" ? "cap" : zoneOf(p) === "explore" ? "compass" : "pages"));
   const saveTabs = () => { try { localStorage.setItem(TK, JSON.stringify(TB)); } catch {} };
@@ -3798,11 +3803,13 @@ html.gs-ask .gsearch input{border-color:var(--link)}
   /* ---------- 4. corrected data reaches people who already have Verbo ---------- */
   // data-hashes.json lists a short hash for every data file. When one changes, the saved copy in this browser
   // (IndexedDB) is dropped, so the next read fetches the new file.
-  const idbKeyFor = (path) => {
-    let m = path.match(/^bible\/ilx\/(lex|conc|stats)\/(\w+)\.json$/); if (m) return "ILX" + m[1] + ":" + m[2];
-    m = path.match(/^bible\/ilx\/c(\d+)\.json$/); if (m) return null;
-    m = path.match(/^bible\/([a-z]+)\/(\d+)\.json$/); if (m) return m[1].toUpperCase() + ":" + m[2];
-    return null;
+  // which saved (IndexedDB) entries a data file feeds, so a changed file replaces them all
+  const idbKeysFor = (path) => {
+    let m = path.match(/^bible\/ilx\/(lex|conc|stats)\/(\w+)\.json$/); if (m) return ["ILX" + m[1] + ":" + m[2]];
+    m = path.match(/^bible\/([a-z]+)\/c(\d+)\.json$/);
+    if (m) { const D = m[1].toUpperCase(), n = +m[2], out = []; for (let i = 0; i < 11; i++) out.push(D + ":" + (n * 11 + i)); return out.concat(["RES:" + path.slice(6)]); }
+    m = path.match(/^bible\/([a-z]+)\/(\d+)\.json$/); if (m) return [m[1].toUpperCase() + ":" + m[2], "RES:" + path.slice(6)];
+    return path.startsWith("bible/") ? ["RES:" + path.slice(6)] : [];
   };
   async function refreshData() {
     if (!/^https?:$/.test(location.protocol)) return;
@@ -3811,7 +3818,10 @@ html.gs-ask .gsearch input{border-color:var(--link)}
     if (was) {
       const changed = Object.keys(now).filter((k) => was[k] && was[k] !== now[k]);
       if (changed.length && typeof idbReq === "function") {
-        for (const p of changed) { const k = idbKeyFor(p); if (k) await idbReq("readwrite", (s) => s.delete(k)).catch(() => {}); }
+        for (const p of changed) for (const k of idbKeysFor(p)) await idbReq("readwrite", (s) => s.delete(k)).catch(() => {});
+        // what is already in memory this session is dropped too
+        try { for (const p of changed) { const m = p.match(/^bible\/([a-z]+)\/c?(\d+)\.json$/); if (m && typeof BIB !== "undefined" && BIB[m[1].toUpperCase()]) { const D = m[1].toUpperCase(); if (/\/c\d+/.test(p)) for (let i = 0; i < 11; i++) delete BIB[D][+m[2] * 11 + i]; else delete BIB[D][+m[2]]; } } } catch {}
+        if (changed.length) setTimeout(() => { try { refresh(); } catch {} }, 300);
         if (typeof ILXC !== "undefined") for (const p of changed) { const m = p.match(/^bible\/ilx\/(lex|conc|stats)\/(\w+)\.json$/); if (m && ILXC[m[1]]) delete ILXC[m[1]][m[2]]; }
         try { const c = await caches.open("verbo-data-v1"); await Promise.all(changed.map((p) => c.delete(p))); } catch {}
       }
@@ -4570,6 +4580,86 @@ setTimeout(() => { try { if (typeof refresh === "function") refresh(); } catch (
     if (n && /^(chapters|verses|notes|days|highlights|bookmarks)\b/.test(n.textContent.trim())) n.textContent = n.textContent.replace(/^(\s*)(chapter|verse|note|day|highlight|bookmark)s/, "$1$2");
   });
   let pt = 0; new MutationObserver(() => { if (!pt) pt = setTimeout(() => { pt = 0; fixPlural(); }, 120); }).observe(document.body, { childList: true, subtree: true });
+})();
+
+/* ===== v22b: advanced-tester fixes ===== */
+(() => {
+  /* double-tap / double-click a word: works even though the first click redraws the verse */
+  let first = null;
+  const wordAt = (x, y) => {
+    const r = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null;
+    if (!r || r.startContainer.nodeType !== 3) return "";
+    const t = r.startContainer.textContent; let a = r.startOffset, b = r.startOffset;
+    while (a > 0 && /[A-Za-z'’-]/.test(t[a - 1])) a--; while (b < t.length && /[A-Za-z'’-]/.test(t[b])) b++;
+    return t.slice(a, b);
+  };
+  document.addEventListener("pointerdown", (e) => {
+    if (e.button && e.button !== 0) return;
+    const v = e.target.closest && e.target.closest(".scripture .v");
+    const now = Date.now();
+    if (first && now - first.t < 450 && Math.abs(e.clientX - first.x) < 24 && Math.abs(e.clientY - first.y) < 24) {
+      const f = first; first = null;
+      if (f.key && f.word && typeof A.wordLookup === "function") { e.preventDefault(); setTimeout(() => A.wordLookup({ dataset: { key: f.key, w: f.word } }), 30); }
+      return;
+    }
+    first = v && v.dataset.key ? { t: now, x: e.clientX, y: e.clientY, key: v.dataset.key, word: wordAt(e.clientX, e.clientY) } : null;
+  }, true);
+  A.wordLookup = async (e) => {
+    const key = e.dataset.key, sel = String(e.dataset.w || "").toLowerCase().replace(/[^a-z'’-]/g, "");
+    const r = parseRef(key); if (!r || !sel) return;
+    const bi = BOOKS.findIndex((b) => b.n === r.book);
+    try { await loadBook("ILX", bi); } catch {}
+    let ws = null; try { ws = ilxWords(r.book, r.ch, r.v1); } catch {}
+    if (!ws || !ws.length) { toast(navigator.onLine ? "The Hebrew and Greek for this verse is still loading. Try again in a moment." : "Hebrew and Greek words need the internet, or save them in Settings › Offline library."); return; }
+    const words = (w) => String(w[2] || "").toLowerCase().replace(/[[\]<>.,;:!?]/g, " ").split(/\s+/);
+    let i = ws.findIndex((w) => words(w).includes(sel));
+    if (i < 0) i = ws.findIndex((w) => String(w[2] || "").toLowerCase().includes(sel.replace(/(s|es|ed|ing|eth|est)$/, "")));
+    if (i < 0) { toast(`“${sel}” has no single Hebrew or Greek word behind it here. Open Words in the study panel to see them all.`); return; }
+    try { getSelection().removeAllRanges(); } catch {}
+    ilxWordSheet(key, i);
+  };
+
+  /* Strong's numbers in search: Enter opens the word study */
+  A.wsOpenStrong = (e) => {
+    const s = e.dataset ? e.dataset.s : e.s;
+    try { $("#gsPop").classList.remove("show"); $("#gs").blur(); appEl.classList.remove("msearch"); } catch {}
+    ui.ilxS = s; ui.wsSel = null; nav("word-study");
+  };
+  window.addEventListener("keydown", (e) => {
+    const i = document.getElementById("gs"); if (!i || e.target !== i || e.key !== "Enter") return;
+    const act = typeof gsAct !== "undefined" ? gsAct : -1, first = (gsRes || [])[0];
+    if (act < 0 && first && first.kind === "Word" && first.act) { e.preventDefault(); e.stopImmediatePropagation(); A[first.act[0]]({ dataset: first.act[1] }); }
+  }, true);
+
+  /* stray backslashes before Hebrew punctuation (sof pasuq, maqaf) in word cards */
+  const deslash = (h) => typeof h === "string" ? h.replace(/\\(?=[׃־׀])/g, "") : h;
+  const _md = window.modal; if (typeof _md === "function") modal = function (a, b, c) { return _md.call(this, deslash(a), deslash(b), c); };
+  let dsT = 0; new MutationObserver(() => { if (dsT) return; dsT = setTimeout(() => { dsT = 0; const m = document.getElementById("modal"); if (!m) return; const w = document.createTreeWalker(m, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) if (/\\[׃־׀]/.test(n.textContent)) n.textContent = deslash(n.textContent); }, 60); }).observe(document.body, { childList: true, subtree: true, characterData: true });
+
+  /* pop-up lists never run off the bottom of the screen */
+  const fitPop = () => { const p = document.getElementById("pop"); if (!p || !p.offsetParent) return; const r = p.getBoundingClientRect(); if (r.bottom > innerHeight - 8) { p.style.maxHeight = Math.max(160, innerHeight - r.top - 12) + "px"; p.style.overflowY = "auto"; } };
+  new MutationObserver(() => setTimeout(fitPop, 0)).observe(document.body, { childList: true, subtree: false });
+  document.addEventListener("click", () => setTimeout(fitPop, 30), true);
+
+  /* keyboard focus follows the panel: Enter on a verse moves focus into the panel; Esc brings it back */
+  let lastVerse = null;
+  document.addEventListener("keydown", (e) => {
+    const v = e.target.closest && e.target.closest(".scripture .v");
+    if (v && (e.key === "Enter" || e.key === " ")) { lastVerse = v.dataset.key; setTimeout(() => { const t = document.querySelector(".panel .ptitle, .panel h2, .panel h3, .panel [data-action]"); if (t) { if (!t.hasAttribute("tabindex") && !/^(BUTTON|A|INPUT)$/.test(t.tagName)) t.setAttribute("tabindex", "-1"); t.focus(); } }, 120); }
+    if (e.key === "Escape" && lastVerse) setTimeout(() => { if (ui.sel) return; const el = document.querySelector('.v[data-key="' + CSS.escape(lastVerse) + '"]'); if (el) { if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "0"); el.focus(); } }, 120);
+  }, true);
+
+  /* offline: say why Words is empty */
+  const _ph = window.panelHTML;
+  if (typeof _ph === "function") panelHTML = function () {
+    let h = _ph.apply(this, arguments);
+    if (!navigator.onLine && /Tap a word/.test(h) && !/ilx-off/.test(h)) h = h.replace(/(Tap a word[^<]*)/, '$1</div><div class="ilx-off muted small">You\'re offline. To see Hebrew and Greek words without the internet, save “Hebrew and Greek word study” in Settings › Offline library.');
+    return h;
+  };
+
+  /* Beliefs: categories with nothing in them are hidden */
+  const hideEmpty = () => { if (ui.page !== "theology") return; document.querySelectorAll(".main .chip, .main .pill, .main .li").forEach((c) => { if (/\b0\s*(articles?)?\s*$/.test((c.textContent || "").trim()) || /\(0\)\s*$/.test(c.textContent || "")) c.style.display = "none"; }); };
+  let heT = 0; new MutationObserver(() => { if (!heT) heT = setTimeout(() => { heT = 0; hideEmpty(); }, 100); }).observe(document.body, { childList: true, subtree: true });
 })();
 </script>
 <!-- ===== end of Verbo redesign ===== -->
