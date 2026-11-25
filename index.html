@@ -1936,6 +1936,23 @@ details.tr-lic summary{cursor:pointer;font-weight:600;color:var(--ink)}
 .streak-card>b{font-size:28px;line-height:1;color:var(--link);min-width:36px;text-align:center}
 .streak-card .t{font-weight:600}
 .pfoot{flex-wrap:wrap;gap:8px}
+/* ===== v21: Ask AI in search ===== */
+.gsearch .si{display:none!important}
+.gs-mode{position:absolute;left:5px;top:4px;z-index:2;display:flex;gap:2px;padding:2px;border-radius:8px;background:transparent}
+.gs-mode button{width:28px;height:24px;display:grid;place-items:center;border:0;border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;padding:0}
+.gs-mode button.on{background:var(--surface);color:var(--link);box-shadow:inset 0 0 0 1.5px var(--link)}
+.gs-mode button:focus-visible{outline:2px solid var(--link);outline-offset:1px}
+.gsearch input{padding-left:72px!important}
+html.gs-ask .gsearch input{border-color:var(--link)}
+.gs-item .gs-kind{white-space:nowrap}
+/* phone search sheet */
+@media (max-width:899px){
+  .gs-mode{left:56px;top:14px}
+  .gs-mode button{width:34px;height:32px}
+  .gsearch input{padding-left:84px!important}
+}
+.gs-item[data-ask] svg,.gs-pop .gs-item:has(.gs-kind) svg{flex:none}
+#gsPop .gs-item .i[data-ic="sparkles"]{color:var(--link)}
 </style>
 <script id="verbo-redesign-2026-11-js">/* ===== Verbo UX v2: simple navigation, study panel, desktop tabs ===== */
 (() => {
@@ -4372,6 +4389,104 @@ details.tr-lic summary{cursor:pointer;font-weight:600;color:var(--ink)}
   // the install invitation never sits on top of an open study panel
   const hideBarWithPanel = () => { const b = document.querySelector(".pwa-bar"); if (b) b.style.display = (ui.sel && innerWidth < 900) ? "none" : ""; };
   setInterval(hideBarWithPanel, 800);
+})();
+
+/* ===== v21: Ask AI inside the global search ===== */
+(() => {
+  const ASK = (window.VerboAsk = { mode: "search" });
+  const root = document.documentElement;
+  const box = () => document.getElementById("gsearch"), inp = () => document.getElementById("gs");
+  const PH = { search: "Search or go to…", ask: "Ask anything about the Bible…" };
+  const isQuestion = (q) => /\?\s*$/.test(q) || /^(who|what|why|how|when|where|which|whose|is|are|was|were|does|do|did|can|could|should|would|will|explain|tell me|help me|meaning of|what's)\b/i.test(q) || (q.split(/\s+/).length >= 6 && !parseRef(q));
+  const aiReady = () => typeof SAMPLE !== "undefined" && !!SAMPLE;
+  const ctx = () => { try { return ctxRef && ctxRef(); } catch { return null; } };
+
+  // the two-way switch at the left of the box: magnifier = search, sparkle = ask AI
+  function mountToggle() {
+    const b = box(); if (!b || b.querySelector(".gs-mode")) return;
+    b.insertAdjacentHTML("afterbegin", `<div class="gs-mode" role="radiogroup" aria-label="Search or ask AI">
+      <button type="button" role="radio" data-m="search" aria-label="Search" title="Search">${icon("search", 15)}</button>
+      <button type="button" role="radio" data-m="ask" aria-label="Ask AI" title="Ask AI (Tab)">${icon("sparkles", 15)}</button></div>`);
+    b.querySelector(".gs-mode").addEventListener("mousedown", (e) => e.preventDefault()); // keep focus in the box
+    b.querySelector(".gs-mode").addEventListener("click", (e) => { const m = e.target.closest("[data-m]"); if (m) setMode(m.dataset.m, true); });
+    paint();
+  }
+  function paint() {
+    const b = box(); if (!b) return;
+    root.classList.toggle("gs-ask", ASK.mode === "ask");
+    b.querySelectorAll(".gs-mode [data-m]").forEach((x) => { const on = x.dataset.m === ASK.mode; x.classList.toggle("on", on); x.setAttribute("aria-checked", on); });
+    const i = inp(); if (i) { i.placeholder = PH[ASK.mode]; i.setAttribute("aria-label", ASK.mode === "ask" ? "Ask AI" : "Global search"); }
+  }
+  function setMode(m, focus) {
+    ASK.mode = m; paint();
+    const i = inp(); if (focus && i) i.focus();
+    try { gsAct = -1; gsRender(); $("#gsPop").classList.add("show"); } catch {}
+  }
+  A.gsMode = (e) => setMode((e && e.dataset && e.dataset.m) || (ASK.mode === "ask" ? "search" : "ask"), true);
+
+  // the Ask AI row
+  function askItem(q, first) {
+    const c = ctx();
+    const s = !aiReady() ? "Works when Verbo is open in the Claude app; here you'll see a sample answer"
+      : c ? `Knows you're reading ${c}` : "Answers point you back to the Bible text";
+    return { t: q ? `Ask AI: “${q.length > 60 ? q.slice(0, 60) + "…" : q}”` : "Ask AI", s, icon: "sparkles", act: ["gsAskAI", { q }], keep: 1, kind: "AI", _s: first ? 100 : 0, ask: 1 };
+  }
+  const _gs = gsSearch;
+  gsSearch = function (q) {
+    const t = String(q || "").trim();
+    if (ASK.mode === "ask") {
+      if (!t) return [["Ask AI", [{ t: "Type a question, then press Enter", s: "For example: Why did Jesus speak in parables?", icon: "sparkles", noop: 1 }]]];
+      const others = _gs.apply(this, arguments).flatMap((g) => g[1] || []).filter((i) => !i.noop && !i.ask && !/Searching/.test(i.t)).slice(0, 4);
+      return [["Ask AI", [askItem(t, true)]], ...(others.length ? [["Or open", others]] : [])];
+    }
+    const groups = _gs.apply(this, arguments);
+    if (t.length < 2) return groups;
+    if (parseRef(t)) return [...groups, ["Ask AI", [askItem(t, false)]]];
+    return isQuestion(t) ? [["Ask AI", [askItem(t, true)]], ...groups] : [...groups, ["Ask AI", [askItem(t, false)]]];
+  };
+
+  A.gsAskAI = (e) => {
+    const q = String((e && e.dataset && e.dataset.q) || (inp() && inp().value) || "").trim(); if (!q) return;
+    try { $("#gsPop").classList.remove("show"); inp().blur(); inp().value = ""; appEl.classList.remove("msearch"); } catch {}
+    ui.convId = null; nav("assistant");
+    setTimeout(() => { try { ask(q); } catch { toast("Ask AI couldn't start"); } }, 60);
+    ASK.mode = "search"; paint();
+  };
+
+  // keys: Tab switches when there is text; Enter asks in Ask mode (or when the question row is first)
+  window.addEventListener("keydown", (e) => {
+    const i = inp(); if (!i || e.target !== i) return;
+    if (e.key === "Tab" && !e.shiftKey && i.value.trim()) { e.preventDefault(); e.stopImmediatePropagation(); setMode(ASK.mode === "ask" ? "search" : "ask", true); return; }
+    if (e.key === "Enter" && !e.isComposing) {
+      const act = typeof gsAct !== "undefined" ? gsAct : -1, q = i.value.trim(); if (!q) return;
+      const first = (gsRes || [])[0];
+      if (act < 0 && (ASK.mode === "ask" || (first && first.ask && first._s >= 100))) { e.preventDefault(); e.stopImmediatePropagation(); A.gsAskAI({ dataset: { q } }); }
+    }
+    if (e.key === "Escape" && ASK.mode === "ask" && !i.value) { ASK.mode = "search"; paint(); }
+  }, true);
+
+  // open search already in Ask mode (from the sidebar "Ask AI", or the phone search sheet)
+  A.gsOpenAsk = () => {
+    if (innerWidth < 900 && A.msearch) A.msearch();
+    setTimeout(() => { setMode("ask", true); }, 40);
+  };
+  document.addEventListener("focusout", (e) => { if (e.target === inp() && !inp().value.trim()) setTimeout(() => { if (document.activeElement !== inp()) { ASK.mode = "search"; paint(); } }, 200); });
+
+  // the Home "Ask AI" card is no longer needed on phones: the search sheet has it
+  const _dash = PAGES.dashboard;
+  if (_dash) PAGES.dashboard = function () { return _dash.apply(this, arguments).replace(/<button class="ask-card only-m"[\s\S]*?<\/button>/, ""); };
+
+  // footer hint: Tab switches to Ask AI
+  const _gr = gsRender;
+  gsRender = function () {
+    const r = _gr.apply(this, arguments);
+    const f = document.querySelector("#gsPop .gs-foot");
+    if (f && !f.querySelector(".gs-tab")) { const g = f.querySelector(".grow"); g && g.insertAdjacentHTML("beforebegin", `<span class="gs-tab"><kbd>Tab</kbd> ${ASK.mode === "ask" ? "search" : "ask AI"}</span>`); }
+    return r;
+  };
+
+  mountToggle(); setTimeout(mountToggle, 500);
+  const _rs = window.renderShell; if (typeof _rs === "function") renderShell = function () { const r = _rs.apply(this, arguments); mountToggle(); paint(); return r; };
 })();
 </script>
 <!-- ===== end of Verbo redesign ===== -->
