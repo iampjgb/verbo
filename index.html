@@ -1966,6 +1966,43 @@ html.gs-ask .gsearch input{border-color:var(--link)}
 .topbar,.sidebar{zoom:1!important}
 /* page content clears the taller bar on an installed iPhone */
 @media (max-width:899px){.main{padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px))}}
+/* ===== v22: round 2 test fixes: installed iPhone and phones ===== */
+@media (max-width:899px){
+  /* the top bar grows by the notch / status-bar height instead of being squashed by it */
+  .topbar{height:calc(56px + env(safe-area-inset-top, 0px))!important;padding-top:env(safe-area-inset-top, 0px)!important;
+    padding-left:max(10px, env(safe-area-inset-left, 0px))!important;padding-right:max(8px, env(safe-area-inset-right, 0px))!important;box-sizing:border-box}
+  /* page content starts below the taller bar */
+  .main{padding-top:env(safe-area-inset-top, 0px)}
+  .app.lay-read .main,.app:has(.reader) .main{padding-top:0}
+  /* the reader header and the search sheet start below the clock and Dynamic Island */
+  .rtop{padding-top:calc(8px + env(safe-area-inset-top, 0px))!important;padding-left:max(10px, env(safe-area-inset-left, 0px))!important;padding-right:max(10px, env(safe-area-inset-right, 0px))!important}
+  .app.msearch .gsearch{padding-top:calc(10px + env(safe-area-inset-top, 0px))!important;padding-left:calc(52px + env(safe-area-inset-left, 0px))!important;padding-right:max(10px, env(safe-area-inset-right, 0px))!important}
+  .app.msearch .gs-mode{top:calc(14px + env(safe-area-inset-top, 0px));left:calc(56px + env(safe-area-inset-left, 0px))}
+  .app.msearch .gs-close{top:calc(10px + env(safe-area-inset-top, 0px))!important;left:calc(8px + env(safe-area-inset-left, 0px))!important}
+  .app.msearch .gsearch .gs-clr{top:calc(30px + env(safe-area-inset-top, 0px))!important}
+  .app.msearch .gs-pop{top:calc(60px + env(safe-area-inset-top, 0px))!important;padding-bottom:env(safe-area-inset-bottom, 0px)}
+  /* sideways: content stays inside the rounded corners and camera */
+  .main .page,.reader-col .scripture,.reader-col .rhead{padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+  /* the verse panel sits on top of the bottom bar, never over its icons; with the bar hidden it reaches the bottom */
+  .panel{bottom:calc(62px + env(safe-area-inset-bottom, 0px))!important}
+  .app.bars-hidden .panel{bottom:0!important;padding-bottom:env(safe-area-inset-bottom, 0px)}
+  /* messages appear above the bottom bar */
+  .toast{bottom:calc(76px + env(safe-area-inset-bottom, 0px))!important}
+  .app.bars-hidden ~ .toast,body:has(.app.bars-hidden) .toast{bottom:calc(20px + env(safe-area-inset-bottom, 0px))!important}
+  .undo-toast{bottom:calc(76px + env(safe-area-inset-bottom, 0px))!important}
+  /* dialogs keep their buttons clear of the home bar */
+  #modal,.modal{padding-bottom:env(safe-area-inset-bottom, 0px)}
+  .modal-f,#modal .modal-f{padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px))}
+  .pwa-sheet{padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px))}
+  /* note editor header fits: "Notes" becomes a back arrow on phones */
+  .wtop [data-action="wBack"]{font-size:0!important;min-width:40px;padding:0 8px!important;justify-content:center}
+  .wtop [data-action="wBack"] svg{width:20px;height:20px}
+}
+/* daily verse card: readable on any sky (WCAG 4.5:1 or better) */
+.dv-scrim{background:linear-gradient(180deg,rgba(8,18,28,.50) 0%,rgba(8,18,28,.56) 50%,rgba(8,18,28,.74) 100%)!important;opacity:1!important}
+.dv-hero .dv-verse,.dv-hero .dv-top,.dv-hero .dv-ref{text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.dv-hero .dv-kicker{color:#fff!important;opacity:.92;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.dv-actions{flex-wrap:wrap;row-gap:8px}
 </style>
 <script id="verbo-redesign-2026-11-js">/* ===== Verbo UX v2: simple navigation, study panel, desktop tabs ===== */
 (() => {
@@ -4440,7 +4477,7 @@ html.gs-ask .gsearch input{border-color:var(--link)}
   // the Ask AI row
   function askItem(q, first) {
     const c = ctx();
-    const s = !aiReady() ? "Works when Verbo is open in the Claude app; here you'll see a sample answer"
+    const s = !aiReady() ? "Sample answer here · full answers in the Claude app"
       : c ? `Knows you're reading ${c}` : "Answers point you back to the Bible text";
     return { t: q ? `Ask AI: “${q.length > 60 ? q.slice(0, 60) + "…" : q}”` : "Ask AI", s, icon: "sparkles", act: ["gsAskAI", { q }], keep: 1, kind: "AI", _s: first ? 100 : 0, ask: 1 };
   }
@@ -4504,6 +4541,36 @@ html.gs-ask .gsearch input{border-color:var(--link)}
 
 /* ===== the first screen is drawn before the layers above load: draw it again once, so it uses all of them ===== */
 setTimeout(() => { try { if (typeof refresh === "function") refresh(); } catch (e) { console.warn(e); } }, 0);
+
+/* ===== v22: round 2 test fixes ===== */
+(() => {
+  // the bottom bar comes back whenever you land on a new chapter or page (it hid while you scrolled the last one)
+  const _r = window.render;
+  if (typeof _r === "function") render = function () {
+    const before = (S.reading && S.reading.book + ":" + S.reading.ch) + ":" + ui.page;
+    const out = _r.apply(this, arguments);
+    const after = (S.reading && S.reading.book + ":" + S.reading.ch) + ":" + ui.page;
+    if (before !== after && typeof fvShow === "function") fvShow();
+    return out;
+  };
+  // and when the page is too short to scroll, so there is no way to bring it back
+  setInterval(() => {
+    try {
+      if (!appEl.classList.contains("bars-hidden")) return;
+      const sc = document.querySelector(".reader-col") || document.querySelector(".main");
+      if (sc && sc.scrollHeight <= sc.clientHeight + 4) fvShow();
+    } catch {}
+  }, 1000);
+  // one message at a time: a new toast clears the Undo toast
+  const _t = window.toast;
+  if (typeof _t === "function") toast = function () { const u = document.getElementById("undoToast"); if (u && u.classList.contains("show") && !/Undo/.test(arguments[0] || "")) u.classList.remove("show"); return _t.apply(this, arguments); };
+  // "1 chapter", not "1 chapters", wherever the number sits in its own tag
+  const fixPlural = () => document.querySelectorAll(".main b, .main strong, .main .big, .main .num").forEach((b) => {
+    if (b.textContent.trim() !== "1") return; const n = b.nextSibling && b.nextSibling.nodeType === 1 ? b.nextSibling : b.nextElementSibling;
+    if (n && /^(chapters|verses|notes|days|highlights|bookmarks)\b/.test(n.textContent.trim())) n.textContent = n.textContent.replace(/^(\s*)(chapter|verse|note|day|highlight|bookmark)s/, "$1$2");
+  });
+  let pt = 0; new MutationObserver(() => { if (!pt) pt = setTimeout(() => { pt = 0; fixPlural(); }, 120); }).observe(document.body, { childList: true, subtree: true });
+})();
 </script>
 <!-- ===== end of Verbo redesign ===== -->
 </body></html>
