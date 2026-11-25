@@ -4490,6 +4490,9 @@ html.gs-ask .gsearch input{border-color:var(--link)}
   mountToggle(); setTimeout(mountToggle, 500);
   const _rs = window.renderShell; if (typeof _rs === "function") renderShell = function () { const r = _rs.apply(this, arguments); mountToggle(); paint(); return r; };
 })();
+
+/* ===== the first screen is drawn before the layers above load: draw it again once, so it uses all of them ===== */
+setTimeout(() => { try { if (typeof refresh === "function") refresh(); } catch (e) { console.warn(e); } }, 0);
 </script>
 <!-- ===== end of Verbo redesign ===== -->
 </body></html>
