@@ -2011,6 +2011,112 @@ html.gs-ask .gsearch input{border-color:var(--link)}
 @media (max-width:899px){.fab,.notes-fab,[data-action="newNote"].fab{bottom:calc(76px + env(safe-area-inset-bottom, 0px))!important}}
 /* print a note: just the note */
 @media print{.wmeta,.wtpl,.wtpl-g,.wtop,.wbar,.wsaved,.wdate,.qn,.trash-link,.plan-next{display:none!important}}
+/* v23: tabs on phone and tablet, link sets, split screen */
+.tabs-btn .tcount{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 3px;border:2px solid currentColor;border-radius:6px;font:600 12px/1 var(--sans);letter-spacing:0;box-sizing:border-box}
+.tabs-btn .tcount.many{font-size:11px}
+.tabstrip .tvall{flex:0 0 auto;display:grid;place-items:center;width:32px;height:32px;border-radius:8px;color:var(--text2);background:none;border:0;cursor:pointer}
+.tabstrip .tvall:hover{background:var(--surface2);color:var(--text)}
+.lk{display:inline-grid;place-items:center;flex:0 0 auto;width:18px;height:18px;border-radius:5px;background:var(--link);color:#fff;font:600 11px/1 var(--sans)}
+.lk.big{width:30px;height:30px;border-radius:8px;font-size:15px}
+.tabstrip .tb .lk{margin-right:-2px}
+
+/* overview */
+.tv{position:fixed;inset:0;z-index:160;background:var(--bg);color:var(--text);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tv-open #toast,.tv-open .undo-toast{z-index:260!important}
+.tv-open .bottomnav,.tv-open .pwa-bar{visibility:hidden}
+.tv-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.tv-h h2{margin:0;font:600 20px/1.2 var(--sans)}
+.tv-n{color:var(--text2);font-weight:400;margin-left:4px}
+.tv-hint{margin:0;padding:10px 16px 0;color:var(--text2);font-size:13px;line-height:1.4}
+.tv-grid{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px 16px 20px;align-content:start}
+@media (min-width:600px){.tv-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:16px 20px 24px}}
+@media (min-width:1000px){.tv-grid{grid-template-columns:repeat(4,minmax(0,1fr));max-width:1200px;width:100%;margin:0 auto}.tv-h,.tv-hint,.tv-f{max-width:1200px;width:100%;margin-left:auto;margin-right:auto;box-sizing:border-box}}
+.tv-card{position:relative;display:flex;flex-direction:column;min-height:206px;background:var(--surface);border:1px solid var(--border);border-radius:14px;touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:transform .16s ease,opacity .16s ease,box-shadow .16s ease}
+.tv-card.on{border-color:var(--link);box-shadow:0 0 0 1px var(--link)}
+.tv-card.dragging{z-index:5;transition:none;box-shadow:0 12px 32px rgba(0,0,0,.18),0 0 0 1px var(--link);cursor:grabbing}
+.tv-card.swiping{transition:none}
+.is-dragging .tv-card:not(.dragging){transition:transform .16s ease}
+.tv-ct{display:flex;align-items:center;gap:6px;padding:8px 4px 2px 12px;min-height:40px}
+.tv-ct>svg{flex:0 0 auto;color:var(--text2)}
+.tv-ct b{flex:1;min-width:0;font:600 15px/1.25 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv-x{flex:0 0 auto;display:grid;place-items:center;width:36px;height:36px;border:0;background:none;border-radius:10px;color:var(--text2);cursor:pointer}
+.tv-x:hover{background:var(--surface2);color:var(--text)}
+.tv-sub{padding:0 12px;color:var(--text2);font-size:12px;line-height:1.3}
+.tv-prev{flex:1;display:flex;align-items:flex-start;width:100%;margin:0;padding:8px 12px 4px;border:0;background:none;color:var(--text2);text-align:left;font:400 13px/1.5 var(--scripture,Georgia,serif);overflow:hidden;cursor:pointer;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent);max-height:120px}
+.tv-pt{display:block}
+.tv-prev sup{font:600 9px var(--sans);margin-right:2px;color:var(--text2)}
+.tv-prev:focus-visible{outline:2px solid var(--link);outline-offset:-2px;border-radius:8px}
+.tv-skel{display:block;height:10px;border-radius:5px;background:var(--surface2);margin:6px 0;width:90%}
+.tv-cf{display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px 10px}
+.tv-chip{display:inline-flex;align-items:center;gap:5px;min-height:34px;padding:0 10px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text2);font:600 13px/1 var(--sans);cursor:pointer}
+.tv-chip .lk{width:20px;height:20px}
+.tv-chip span:not(.lk){font-weight:600}
+.tv-chip.on{color:var(--link);border-color:var(--link)}
+.tv-new{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:206px;border:1.5px dashed var(--border);border-radius:14px;background:none;color:var(--link);font:600 15px var(--sans);cursor:pointer}
+.tv-new:hover{background:var(--surface2)}
+.tv-f{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border)}
+.tv-f .linkish{min-height:40px}
+
+/* sheets */
+.tvs-scrim{z-index:220}
+.tvs h2{font:600 19px/1.3 var(--sans)}
+.tvs .label{font:600 12px var(--sans);color:var(--text2);text-transform:none;letter-spacing:0;margin-bottom:4px}
+.tvs-list{display:flex;flex-direction:column;margin-top:8px}
+.tvs-scroll{max-height:38vh;overflow:auto;overscroll-behavior:contain}
+.tvs-row{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:8px 4px;border:0;border-bottom:1px solid var(--border);background:none;color:var(--text);text-align:left;font:inherit;cursor:pointer}
+.tvs-row:last-child{border-bottom:0}
+.tvs-row>svg:first-child{flex:0 0 auto;color:var(--link)}
+.tvs-row>span{flex:1;min-width:0}
+.tvs-row b{display:block;font:600 15px/1.3 var(--sans)}
+.tvs-row span span{display:block;color:var(--text2);font-size:13px;line-height:1.35;margin-top:1px}
+.tvs-row.on>svg:last-child{color:var(--link)}
+.tvs-row.static{cursor:default}
+.tvs-row:not(.static):hover{background:var(--surface2)}
+.tvs-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.tvs-l{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:84px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);text-align:left;font:inherit;cursor:pointer}
+.tvs-l>b:not(.lk){font:600 15px/30px var(--sans)}
+.tvs-l>span{color:var(--text2);font-size:12px;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tvs-l.on{border-color:var(--link);box-shadow:inset 0 0 0 1px var(--link)}
+.tvs-follow{display:flex;align-items:flex-start;gap:12px;margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:12px;cursor:pointer}
+.tvs-follow input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--link);flex:0 0 auto}
+.tvs-follow b{display:block;font:600 15px/1.3 var(--sans)}
+.tvs-follow span span{display:block;color:var(--text2);font-size:13px;line-height:1.35;margin-top:2px}
+.tv-li{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:none;border:0;font:inherit;color:inherit;cursor:pointer}
+.tv-li>svg:first-child{color:var(--link)}
+
+/* split screen */
+.reader.has-split>.reader-col{grid-column:1;grid-row:1;min-height:0}
+.reader.has-split>.spl{grid-row:1;grid-column:2}
+.reader.has-split>.panel{grid-row:1}
+.spl{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--bg);border-left:1px solid var(--border)}
+@media (min-width:700px){
+  .reader.has-split{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  .reader.has-split.with-panel{grid-template-columns:minmax(0,1fr) minmax(0,1fr) clamp(300px,28vw,390px)!important}
+  .reader.has-split.with-panel>.panel{grid-column:3}
+}
+@media (max-width:699px){
+  .reader.has-split{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) minmax(0,1fr)!important}
+  .reader.has-split>.spl{grid-row:2;grid-column:1;border-left:0;border-top:1px solid var(--border)}
+  .reader.has-split .rfloat{display:none!important}
+}
+.spane{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+.spane+.spane{border-top:1px solid var(--border)}
+.sp-h{display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 4px 4px 12px;border-bottom:1px solid var(--border);background:var(--surface)}
+.sp-pick.pill{display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 10px;font:600 13px var(--sans)}
+.sp-ref{flex:1;min-width:0;color:var(--text2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-lk{display:grid;place-items:center;color:var(--link)}
+.sp-x{width:40px;height:40px}
+.sp-b{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;position:relative;padding:10px 18px 0}
+.sp-b::after{content:"";display:block;height:30vh}
+.sp-v{margin:0 0 8px;font:400 17px/1.6 var(--scripture,Georgia,serif);color:var(--text)}
+.sp-v sup{font:600 10px var(--sans);color:var(--text2);margin-right:4px;vertical-align:super}
+.sp-com{font-size:15px;line-height:1.6}
+.sp-com .gd-sec{margin-bottom:14px}
+.sp-com .gd-vr{font:600 12px var(--sans);color:var(--text2);margin-bottom:2px}
+@media (max-width:899px){.tabs-btn{flex:0 0 auto}}
+@media (min-width:700px){.reader.has-split .rtop-i [data-action="cmpOpen"],.reader.has-split .rtop-i [data-action="tts"]{display:none!important}}
+.reader.has-split .rtop .pills{min-width:0}
+.tv-ro{margin-bottom:14px}
 </style>
 <script id="verbo-redesign-2026-11-js">/* ===== Verbo UX v2: simple navigation, study panel, desktop tabs ===== */
 (() => {
@@ -2176,6 +2282,7 @@ html.gs-ask .gsearch input{border-color:var(--link)}
     return extra ? extra.replace(/^d-/, "").replace(/[-_]/g, " ").replace(/^./, (c) => c.toUpperCase()) : T[s.page] || "Verbo";
   };
   const tabIcon = (p) => ({ reader: "book", "verse-study": "filesearch", dashboard: "home", explore: "compass", learn: "cap", "word-study": "languages", notes: "note", write: "note", topics: "tag", factbook: "users", plans: "calcheck" }[p] || (zoneOf(p) === "library" ? "library" : zoneOf(p) === "learn" ? "cap" : zoneOf(p) === "explore" ? "compass" : "pages"));
+  const tabKeep = (o) => (o ? { link: o.link || null, follow: !!o.follow, split: o.split || null } : {});
   const saveTabs = () => { try { localStorage.setItem(TK, JSON.stringify(TB)); } catch {} };
   function tabsRender() {
     let strip = $("#tabstrip");
@@ -2186,7 +2293,7 @@ html.gs-ask .gsearch input{border-color:var(--link)}
       strip = $("#tabstrip");
     }
     if (!TB.list.length) TB.list = [snap()];
-    if (!tabSwitching) { TB.list[TB.cur] = Object.assign(snap(), { scroll: TB.list[TB.cur] && TB.list[TB.cur].page === ui.page ? TB.list[TB.cur].scroll : 0 }); saveTabs(); }
+    if (!tabSwitching) { TB.list[TB.cur] = Object.assign(snap(), tabKeep(TB.list[TB.cur]), { scroll: TB.list[TB.cur] && TB.list[TB.cur].page === ui.page ? TB.list[TB.cur].scroll : 0 }); saveTabs(); }
     strip.innerHTML = TB.list.map((s, i) =>
       `<div class="tb${i === TB.cur ? " on" : ""}" role="tab" aria-selected="${i === TB.cur}" data-action="tabGo" data-i="${i}" title="${esc(tabTitle(s))}">${icon(tabIcon(s.page), 15)}<span>${esc(tabTitle(s))}</span>${TB.list.length > 1 ? `<button class="tbx" data-action="tabClose" data-i="${i}" aria-label="Close tab">${icon("x", 13)}</button>` : ""}</div>`
     ).join("") + `<button class="tbadd" data-action="tabNew" aria-label="New tab" title="New tab (Ctrl+T)">${icon("plus", 16)}</button>`;
@@ -2203,7 +2310,7 @@ html.gs-ask .gsearch input{border-color:var(--link)}
     tabsRender();
     requestAnimationFrame(() => { const sc = $(".reader-col") || mainEl; if (sc) sc.scrollTop = s.scroll || 0; });
   }
-  const tabStore = () => { TB.list[TB.cur] = snap(); };
+  const tabStore = () => { TB.list[TB.cur] = Object.assign(snap(), tabKeep(TB.list[TB.cur])); };
   A.tabGo = (e) => { const i = +e.dataset.i; if (i === TB.cur) return; tabStore(); TB.cur = i; saveTabs(); tabApply(TB.list[i]); };
   A.tabClose = (e) => {
     const i = +e.dataset.i;
@@ -2235,6 +2342,8 @@ html.gs-ask .gsearch input{border-color:var(--link)}
     if (k === "t") { ev.preventDefault(); tabNew(); }
     else if (k === "w" && TB.list.length > 1) { ev.preventDefault(); A.tabClose({ dataset: { i: TB.cur } }); }
   });
+
+  window.VTABS = { TB, snap, tabTitle, tabIcon, saveTabs, tabsRender, tabApply, tabStore, tabNew, desk, setCur: (i) => { TB.cur = i; } };
 
   /* ---------- per-render touches ---------- */
   const _render = render;
@@ -4718,6 +4827,516 @@ setTimeout(() => { try { if (typeof refresh === "function") refresh(); } catch (
   const PL = [[/Needs Claude/g, "Works in the Claude app"], [/needs Claude/g, "works in the Claude app"], [/Ask Claude/g, "Ask AI"]];
   const pl = (h) => { if (typeof h !== "string") return h; for (const [a, b] of PL) h = h.replace(a, b); return h; };
   const _ps = window.pageSafe; if (typeof _ps === "function") pageSafe = function () { return pl(_ps.apply(this, arguments)); };
+})();
+
+/* v23: tabs on phone and tablet (like Logos mobile): tab overview, add, arrange, close,
+   link sets A/B/C with follow-only, swipe the top bar to switch, split screen that follows the passage. */
+(() => {
+  const VT = window.VTABS; if (!VT) return;
+  const TB = VT.TB;
+  const q = (s, r) => (r || document).querySelector(s);
+  const qa = (s, r) => [...(r || document).querySelectorAll(s)];
+  Object.assign(IC, {
+    tabs: '<rect x="3" y="7" width="14" height="14" rx="2.5"/><path d="M7 3.5h10.5A3.5 3.5 0 0 1 21 7v10.5"/>',
+    rows: '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/>',
+  });
+  const LINKS = ["A", "B", "C"];
+  const TRN = { KJV: "King James", BSB: "Berean Standard", ASV: "American Standard", WEB: "World English", DRC: "Douay-Rheims", ADB: "Ang Dating Biblia", ASD: "Ang Salita ng Diyos", CEB: "Cebuano", OCCB: "Cebuano Contemporary" };
+  const SUB = { dashboard: "Your verse for today, plan and recent reading", explore: "Topics, people, places and words", learn: "Plans, lessons and quizzes", notes: "Your notes", bookmarks: "Saved verses", search: "Search results", assistant: "Ask AI", plans: "Reading plans", topics: "What the Bible says about a theme", "word-study": "Hebrew and Greek words", factbook: "People and places", me: "Your account and settings" };
+  const narrow = () => innerWidth < 700;
+  const maxPanes = () => (narrow() ? 1 : 3);
+  const canLink = (s) => s && (s.page === "reader" || s.page === "verse-study");
+  const cur = () => TB.list[TB.cur];
+  const persist = () => { VT.saveTabs(); try { S.tabsSaved = JSON.parse(JSON.stringify(TB)); save(); } catch {} };
+  // a backup carries the tabs; a fresh device restores them from it
+  try { if (TB.list.length <= 1 && S.tabsSaved && S.tabsSaved.list && S.tabsSaved.list.length > 1 && !localStorage.getItem("verbo.tabs.v1.seen")) { TB.list.splice(0, TB.list.length, ...S.tabsSaved.list); TB.cur = Math.min(S.tabsSaved.cur || 0, TB.list.length - 1); } localStorage.setItem("verbo.tabs.v1.seen", "1"); } catch {}
+
+  /* ---------- where a tab is in the Bible ---------- */
+  const readerCol = () => q(".main .reader-col");
+  const stickyH = (col) => { const r = col && q(".rtop", col); return r ? r.offsetHeight : 0; };
+  function topVerse() {
+    const col = readerCol(); if (!col) return null;
+    const top = col.getBoundingClientRect().top + stickyH(col) + 8;
+    for (const v of qa(".scripture .v", col)) { const r = v.getBoundingClientRect(); if (r.bottom > top) return +String(v.dataset.key || "").split(":")[1] || null; }
+    return null;
+  }
+  function scrollMainTo(v) {
+    const col = readerCol(); if (!col || !v) return;
+    const el = qa(".scripture .v", col).find((x) => +String(x.dataset.key || "").split(":")[1] === v);
+    if (!el) return;
+    mainProg = Date.now();
+    col.scrollTop += el.getBoundingClientRect().top - col.getBoundingClientRect().top - stickyH(col) - 12;
+  }
+  function posOf(s) {
+    if (!s) return null;
+    if (s.page === "reader" && s.reading) {
+      const v = s.topV || (s.sel ? +String(s.sel).split(":")[1] : null);
+      return { book: s.reading.book, ch: s.reading.ch, v: v || 1 };
+    }
+    if (s.page === "verse-study" && s.studyRef) { const r = parseRef(s.studyRef); if (r) return { book: r.book, ch: r.ch, v: r.v1 || r.v || 1 }; }
+    return null;
+  }
+  // store the visible tab and pass its place to the other tabs in its link set
+  function storeCur() {
+    VT.tabStore();
+    const c = cur(); if (c && ui.page === "reader") c.topV = topVerse();
+    propagate(TB.cur);
+  }
+  function propagate(i) {
+    const s = TB.list[i]; if (!s || !s.link || s.follow) return;
+    const p = posOf(s); if (!p) return;
+    TB.list.forEach((t, j) => {
+      if (j === i || t.link !== s.link) return;
+      if (t.page === "reader") { t.reading = Object.assign({}, t.reading || S.reading, { book: p.book, ch: p.ch }); t.scroll = 0; t.goV = p.v; t.topV = p.v; t.sel = null; }
+      else if (t.page === "verse-study") t.studyRef = `${p.book} ${p.ch}:${p.v}`;
+    });
+  }
+  function goTab(i, how) {
+    if (i < 0 || i >= TB.list.length) return;
+    if (i !== TB.cur) {
+      storeCur();
+      VT.setCur(i); persist();
+      const s = TB.list[i];
+      VT.tabApply(s);
+      if (s.goV) { const v = s.goV; delete s.goV; setTimeout(() => scrollMainTo(v), 140); setTimeout(() => scrollMainTo(v), 450); }
+    }
+    if (how === "swipe") toast(`Tab ${i + 1} of ${TB.list.length} · ${VT.tabTitle(TB.list[i])}`);
+    paint();
+  }
+  function newTab(s) {
+    storeCur();
+    const was = TB.list.length;
+    VT.tabNew(s);
+    persist(); paint();
+    if (was === 1) { try { if (!localStorage.getItem("verbo.tabs.tip")) { localStorage.setItem("verbo.tabs.tip", "1"); setTimeout(() => toast("Opened in a new tab. Tap the tabs button to switch."), 300); } } catch {} }
+  }
+
+  /* ---------- the tabs button (count in a square) ---------- */
+  const tabsBtn = () => `<button class="icon-btn tabs-btn" data-action="tvOpen" aria-label="Tabs, ${TB.list.length} open" title="Tabs"><span class="tcount${TB.list.length > 9 ? " many" : ""}">${TB.list.length > 99 ? ":)" : TB.list.length}</span></button>`;
+  function paint() {
+    const ri = q(".main .rtop-i");
+    if (ri) {
+      const old = q(".tabs-btn", ri); if (old) old.outerHTML = tabsBtn();
+      else { const ms = q('[data-action="msearch"]', ri); ms ? ms.insertAdjacentHTML("beforebegin", tabsBtn()) : ri.insertAdjacentHTML("afterbegin", tabsBtn()); }
+    }
+    const ta = q(".topbar .top-actions");
+    if (ta) { const old = q(".tabs-btn", ta); if (old) old.outerHTML = tabsBtn(); else ta.insertAdjacentHTML("afterbegin", tabsBtn()); const b = q(".tabs-btn", ta); if (b) b.classList.add("only-m"); }
+    const st = q("#tabstrip");
+    if (st) {
+      if (!q(".tvall", st)) st.insertAdjacentHTML("beforeend", `<button class="tvall" data-action="tvOpen" aria-label="All tabs" title="All tabs, links and split screen">${icon("tabs", 16)}</button>`);
+      qa(".tb[data-i]", st).forEach((el) => {
+        const t = TB.list[+el.dataset.i]; const lk = q(".lk", el);
+        if (t && t.link) { const h = `<span class="lk" title="${t.follow ? "Follows" : "Linked"} ${t.link}">${t.link}</span>`; if (!lk || lk.textContent !== t.link) { lk && lk.remove(); q("span", el) && q("span", el).insertAdjacentHTML("beforebegin", h); } }
+        else if (lk) lk.remove();
+      });
+    }
+  }
+  new MutationObserver(() => { const st = q("#tabstrip"); if (st && !q(".tvall", st)) paint(); }).observe(document.body, { childList: true, subtree: true });
+
+  /* ---------- tab overview ---------- */
+  let tv = null;
+  const preview = (s) => {
+    if (s.page === "reader" && s.reading) {
+      const tr = s.reading.tr || "KJV";
+      const ch = chFull(tr, s.reading.book, s.reading.ch) || chFull("KJV", s.reading.book, s.reading.ch);
+      if (!ch) { const bi = BOOKS.findIndex((b) => b.n === s.reading.book); if (bi >= 0) loadBook(tr, bi).then(() => tv && draw()).catch(() => {}); return `<span class="tv-skel"></span><span class="tv-skel" style="width:70%"></span>`; }
+      const from = Math.max(1, s.topV || 1);
+      const vs = Object.entries(ch.v).filter(([n, t]) => +n >= from && t).slice(0, 4);
+      return vs.map(([n, t]) => `<sup>${n}</sup>${esc(t)}`).join(" ");
+    }
+    if (s.page === "verse-study" && s.studyRef) { const p = posOf(s); const ch = p && chFull("KJV", p.book, p.ch); return ch && ch.v[p.v] ? `<sup>${p.v}</sup>${esc(ch.v[p.v])}` : "Verse study"; }
+    return esc(SUB[s.page] || (T[s.page] ? T[s.page] : "Verbo"));
+  };
+  const subOf = (s) => (s.page === "reader" && s.reading ? (s.reading.tr || "KJV") + (s.split && s.split.length ? " · split" : "") : s.page === "verse-study" ? "Study" : "");
+  function cardHTML(s, i) {
+    const on = i === TB.cur;
+    const lk = s.link ? `${icon("link", 14)}<span class="lk">${s.link}</span>${s.follow ? "<span>follows</span>" : ""}` : `${icon("link", 14)}<span>Link</span>`;
+    const sp = s.split && s.split.length ? `${icon("rows", 14)}<span>Split ${s.split.length + 1}</span>` : `${icon("rows", 14)}<span>Split</span>`;
+    return `<div class="tv-card${on ? " on" : ""}" data-i="${i}" role="listitem">
+      <div class="tv-ct">${icon(VT.tabIcon(s.page), 16)}<b>${esc(VT.tabTitle(s))}</b>${TB.list.length > 1 ? `<button class="tv-x" data-tv="close" aria-label="Close ${esc(VT.tabTitle(s))}">${icon("x", 16)}</button>` : ""}</div>
+      ${subOf(s) ? `<div class="tv-sub">${esc(subOf(s))}</div>` : ""}
+      <button class="tv-prev" data-tv="go" aria-label="Open ${esc(VT.tabTitle(s))}${on ? " (showing now)" : ""}"><span class="tv-pt">${preview(s)}</span></button>
+      <div class="tv-cf">${canLink(s) ? `<button class="tv-chip${s.link ? " on" : ""}" data-tv="link">${lk}</button>` : ""}${s.page === "reader" ? `<button class="tv-chip${s.split && s.split.length ? " on" : ""}" data-tv="split">${sp}</button>` : ""}</div>
+    </div>`;
+  }
+  function draw() {
+    if (!tv) return;
+    const n = TB.list.length;
+    const keep = q(".tv-grid", tv) ? q(".tv-grid", tv).scrollTop : 0;
+    tv.innerHTML = `<div class="tv-h"><h2>Tabs <span class="tv-n">${n}</span></h2><button class="btn sm primary" data-tv="done">Done</button></div>
+      <p class="tv-hint">Tap a tab to open it. Hold and drag to move it. Swipe it sideways to close it.</p>
+      <div class="tv-grid" role="list">${TB.list.map(cardHTML).join("")}<button class="tv-new" data-tv="new">${icon("plus", 22)}<span>New tab</span></button></div>
+      <div class="tv-f">${n > 1 ? `<button class="linkish" data-tv="closeall">Close all others</button>` : "<span></span>"}<span class="muted small">${n === 1 ? "One tab open" : n + " tabs open"}</span></div>`;
+    q(".tv-grid", tv).scrollTop = keep;
+  }
+  function openTV() {
+    if (tv) return;
+    storeCur(); persist();
+    tv = document.createElement("div"); tv.id = "tabsView"; tv.className = "tv"; tv.setAttribute("role", "dialog"); tv.setAttribute("aria-modal", "true"); tv.setAttribute("aria-label", "Tabs");
+    document.body.appendChild(tv); draw();
+    document.documentElement.classList.add("tv-open");
+    tv.addEventListener("click", onClick);
+    dragInit(tv);
+    requestAnimationFrame(() => { const c = q(".tv-card.on", tv); c && c.scrollIntoView({ block: "nearest" }); const d = q('[data-tv="done"]', tv); d && d.focus({ preventScroll: true }); });
+  }
+  function closeTV() { if (!tv) return; tv.remove(); tv = null; document.documentElement.classList.remove("tv-open"); paint(); }
+  A.tvOpen = openTV;
+  document.addEventListener("keydown", (e) => {
+    if (!tv) return;
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeTV(); }
+  }, true);
+  function closeTab(i) {
+    if (TB.list.length < 2) return;
+    const gone = TB.list[i], was = TB.cur;
+    if (i === TB.cur) {
+      TB.list.splice(i, 1); VT.setCur(Math.min(i, TB.list.length - 1)); persist(); VT.tabApply(TB.list[TB.cur]);
+    } else { TB.list.splice(i, 1); if (i < TB.cur) VT.setCur(TB.cur - 1); persist(); }
+    draw(); paint();
+    undoToast(`Closed ${VT.tabTitle(gone)}`, () => { TB.list.splice(i, 0, gone); if (i <= TB.cur && i !== was) VT.setCur(TB.cur + 1); persist(); draw(); paint(); });
+  }
+  function onClick(e) {
+    if (Date.now() - dragEndAt < 350) { e.preventDefault(); return; }
+    const b = e.target.closest("[data-tv]"); if (!b) return;
+    const card = b.closest(".tv-card"); const i = card ? +card.dataset.i : -1;
+    const k = b.dataset.tv;
+    if (k === "done") return closeTV();
+    if (k === "go") { closeTV(); return goTab(i); }
+    if (k === "close") return closeTab(i);
+    if (k === "new") return newSheet();
+    if (k === "link") return linkSheet(i);
+    if (k === "split") return splitSheet(i);
+    if (k === "closeall") {
+      if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Tap again to close the others"; setTimeout(() => { if (b.isConnected) { b.dataset.sure = ""; b.textContent = "Close all others"; } }, 3000); return; }
+      const keep = TB.list[TB.cur], gone = TB.list.slice();
+      TB.list.splice(0, TB.list.length, keep); VT.setCur(0); persist(); draw(); paint();
+      undoToast(`Closed ${gone.length - 1} tabs`, () => { TB.list.splice(0, TB.list.length, ...gone); VT.setCur(gone.indexOf(keep)); persist(); draw(); paint(); });
+    }
+  }
+
+  /* ---------- small sheets ---------- */
+  function sheet(label, html, onPick) {
+    qa(".tvs-scrim").forEach((x) => x.remove());
+    const s = document.createElement("div"); s.className = "pwa-scrim tvs-scrim";
+    s.innerHTML = `<div class="pwa-sheet tvs" role="dialog" aria-modal="true" aria-label="${label}">${html}</div>`;
+    s.addEventListener("click", (e) => {
+      if (e.target === s) return s.remove();
+      const b = e.target.closest("[data-pk]"); if (!b) return;
+      if (b.dataset.pk === "done") return s.remove();
+      onPick(b.dataset.pk, b, s);
+    });
+    document.body.appendChild(s);
+    const f = q("[data-pk]", s); f && f.focus({ preventScroll: true });
+    return s;
+  }
+  const row = (pk, ic, title, sub, on) => `<button class="tvs-row${on ? " on" : ""}" data-pk="${pk}"${on != null ? ` aria-pressed="${!!on}"` : ""}>${ic}<span><b>${title}</b>${sub ? `<span>${sub}</span>` : ""}</span>${on ? icon("check", 18) : ""}</button>`;
+  function newSheet() {
+    const p = S.reading;
+    const html = `<h2>New tab</h2><p class="muted small">What do you want to open?</p><div class="tvs-list">
+      ${row("reader", icon("book", 20), "Bible", `${esc(p.book)} ${p.ch} · ${esc(p.tr || "KJV")}`)}
+      ${row("search", icon("search", 20), "Search", "Find a verse, word or topic")}
+      ${row("dashboard", icon("home", 20), "Home", "")}
+      ${row("explore", icon("compass", 20), "Explore", "Topics, people, places and words")}
+      ${row("learn", icon("cap", 20), "Learn", "Plans and lessons")}
+      ${row("notes", icon("note", 20), "My notes", "")}</div>
+      <div class="pwa-acts" style="margin-top:14px"><button class="btn" data-pk="done">Cancel</button></div>`;
+    sheet("New tab", html, (k, b, s) => {
+      s.remove(); closeTV();
+      if (k === "reader") newTab(Object.assign(VT.snap(), { page: "reader", reading: Object.assign({}, S.reading), sel: null, scroll: 0 }));
+      else if (k === "search") { newTab({ page: "dashboard" }); setTimeout(() => { const m = q('[data-action="msearch"]') || q("#gs"); m && (m.click ? m.click() : 0); const g = q("#gs"); g && g.focus(); }, 200); }
+      else newTab({ page: k });
+    });
+  }
+  function linkSheet(i) {
+    const s = TB.list[i];
+    const who = (L) => TB.list.map((t, j) => (t.link === L && j !== i ? VT.tabTitle(t) : null)).filter(Boolean);
+    const draw2 = () => `<h2>Link ${esc(VT.tabTitle(s))}</h2><p class="muted small">Linked tabs stay on the same passage. When you move in one, the others follow.</p>
+      <div class="tvs-links" role="radiogroup" aria-label="Link set">
+        <button class="tvs-l${!s.link ? " on" : ""}" role="radio" aria-checked="${!s.link}" data-pk="none"><b>Off</b><span>Not linked</span></button>
+        ${LINKS.map((L) => { const w = who(L); return `<button class="tvs-l${s.link === L ? " on" : ""}" role="radio" aria-checked="${s.link === L}" data-pk="${L}"><b class="lk big">${L}</b><span>${w.length ? esc(w.join(", ")) : "No other tabs yet"}</span></button>`; }).join("")}
+      </div>
+      ${s.link ? `<label class="tvs-follow"><input type="checkbox" data-pk="follow" ${s.follow ? "checked" : ""}><span><b>Follow only</b><span>This tab moves with the others, but moving in it does not move them.</span></span></label>` : ""}
+      <div class="pwa-acts" style="margin-top:14px"><button class="btn primary" data-pk="done">Done</button></div>`;
+    sheet("Link tab", draw2(), (k, b, sh) => {
+      if (k === "follow") s.follow = b.checked;
+      else if (k === "none") { s.link = null; s.follow = false; }
+      else if (LINKS.includes(k)) {
+        s.link = k;
+        // joining a set: jump to where the set is, unless this tab is the only leader
+        const lead = TB.list.findIndex((t, j) => j !== i && t.link === k && !t.follow);
+        if (lead >= 0) propagate(lead);
+      }
+      persist(); draw(); paint();
+      if (k !== "follow") q(".tvs", sh).innerHTML = draw2();
+    });
+  }
+  function splitSheet(i) {
+    const s = TB.list[i]; s.split = s.split || [];
+    const lbl = (p) => (p.kind === "mhc" ? "Commentary · Matthew Henry" : `${TRN[p.tr] || p.tr} (${p.tr})`);
+    const draw2 = () => {
+      const max = maxPanes(), full = s.split.length >= max;
+      return `<h2>Split screen</h2><p class="muted small">${narrow() ? "Show a second view under the Bible. It follows the verse you are reading." : "Show up to 3 more views beside the Bible. They follow the verse you are reading."}</p>
+      ${s.split.length ? `<div class="label" style="margin-top:12px">Showing</div><div class="tvs-list">${s.split.map((p, k) => `<div class="tvs-row static">${icon(p.kind === "mhc" ? "notebook" : "book", 20)}<span><b>${esc(lbl(p))}</b></span><button class="icon-btn" data-pk="rm${k}" aria-label="Remove ${esc(lbl(p))}">${icon("x", 18)}</button></div>`).join("")}</div>` : ""}
+      <div class="label" style="margin-top:12px">${s.split.length && narrow() ? "Show instead" : full ? "Swap the last view for" : "Add a view"}</div>
+      <div class="tvs-list tvs-scroll">${row("mhc", icon("notebook", 20), "Commentary", "Matthew Henry, verse by verse")}${TR_TEXT.filter((t) => t !== (s.reading && s.reading.tr)).map((t) => row("tr" + t, icon("book", 20), TRN[t] || t, t)).join("")}</div>
+      <div class="pwa-acts" style="margin-top:14px"><button class="btn primary" data-pk="done">Done</button></div>`;
+    };
+    sheet("Split screen", draw2(), (k, b, sh) => {
+      if (k.startsWith("rm")) s.split.splice(+k.slice(2), 1);
+      else {
+        const p = k === "mhc" ? { kind: "mhc" } : { kind: "bible", tr: k.slice(2) };
+        if (s.split.length >= maxPanes()) s.split.pop();
+        s.split.push(p);
+        if (narrow()) { persist(); sh.remove(); closeTV(); if (i !== TB.cur) goTab(i); else mountSplit(); return; }
+      }
+      persist(); draw(); paint(); if (i === TB.cur) mountSplit();
+      q(".tvs", sh).innerHTML = draw2();
+    });
+  }
+
+  /* ---------- hold and drag to move, swipe sideways to close ---------- */
+  let dragEndAt = 0;
+  function dragInit(root) {
+    let st = null;
+    const end = () => { if (!st) return; clearTimeout(st.timer); const c = st.card; c.classList.remove("dragging", "swiping"); c.style.transform = ""; c.style.opacity = ""; root.classList.remove("is-dragging"); st = null; };
+    root.addEventListener("pointerdown", (e) => {
+      const card = e.target.closest(".tv-card"); if (!card || e.target.closest(".tv-x,.tv-chip")) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      st = { card, id: e.pointerId, x: e.clientX, y: e.clientY, mode: null, grabX: 0, grabY: 0 };
+      st.timer = setTimeout(() => {
+        if (!st || st.mode) return;
+        st.mode = "drag"; const r = card.getBoundingClientRect(); st.grabX = e.clientX - r.left; st.grabY = e.clientY - r.top;
+        card.classList.add("dragging"); root.classList.add("is-dragging");
+        try { card.setPointerCapture(st.id); } catch {}
+        try { navigator.vibrate && navigator.vibrate(12); } catch {}
+      }, 380);
+    });
+    root.addEventListener("pointermove", (e) => {
+      if (!st || e.pointerId !== st.id) return;
+      const dx = e.clientX - st.x, dy = e.clientY - st.y;
+      if (!st.mode) {
+        if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.3 && TB.list.length > 1) { st.mode = "swipe"; clearTimeout(st.timer); st.card.classList.add("swiping"); try { st.card.setPointerCapture(st.id); } catch {} }
+        else if (Math.hypot(dx, dy) > 8) { clearTimeout(st.timer); st = null; return; }
+      }
+      if (st.mode === "swipe") { st.card.style.transform = `translateX(${dx}px)`; st.card.style.opacity = String(Math.max(0.25, 1 - Math.abs(dx) / 260)); }
+      if (st.mode === "drag") {
+        const c = st.card;
+        c.style.transform = ""; const base = c.getBoundingClientRect();
+        c.style.transform = `translate(${e.clientX - st.grabX - base.left}px,${e.clientY - st.grabY - base.top}px) scale(1.03)`;
+        c.style.pointerEvents = "none"; const under = document.elementFromPoint(e.clientX, e.clientY); c.style.pointerEvents = "";
+        const o = under && under.closest(".tv-card");
+        if (o && o !== c) {
+          const r = o.getBoundingClientRect(); const after = (e.clientY - r.top) / r.height + (e.clientX - r.left) / r.width / 4 > 0.6;
+          const sib = after ? o.nextSibling : o;
+          if (sib !== c && sib !== c.nextSibling || !after && o.previousSibling === c) { o.parentNode.insertBefore(c, after ? o.nextSibling : o); }
+          c.style.transform = ""; const nb = c.getBoundingClientRect();
+          c.style.transform = `translate(${e.clientX - st.grabX - nb.left}px,${e.clientY - st.grabY - nb.top}px) scale(1.03)`;
+        }
+        const g = q(".tv-grid", root), gr = g.getBoundingClientRect();
+        if (e.clientY < gr.top + 40) g.scrollTop -= 12; else if (e.clientY > gr.bottom - 40) g.scrollTop += 12;
+      }
+    });
+    root.addEventListener("touchmove", (e) => { if (st && st.mode) e.preventDefault(); }, { passive: false });
+    const up = (e) => {
+      if (!st || e.pointerId !== st.id) return;
+      const s0 = st, dx = e.clientX - s0.x;
+      if (s0.mode === "drag") {
+        const order = qa(".tv-card", root).map((c) => +c.dataset.i);
+        const curObj = TB.list[TB.cur];
+        const moved = order.some((v, k) => v !== k);
+        if (moved) { const nl = order.map((k) => TB.list[k]); TB.list.splice(0, TB.list.length, ...nl); VT.setCur(TB.list.indexOf(curObj)); persist(); }
+        dragEndAt = Date.now(); end(); draw(); paint();
+        if (moved) toast("Tabs moved");
+        return;
+      }
+      if (s0.mode === "swipe") {
+        dragEndAt = Date.now();
+        const i = +s0.card.dataset.i;
+        if (Math.abs(dx) > 110) { s0.card.style.transform = `translateX(${dx > 0 ? 500 : -500}px)`; s0.card.style.opacity = "0"; st = null; setTimeout(() => closeTab(i), 160); return; }
+        end(); return;
+      }
+      end();
+    };
+    root.addEventListener("pointerup", up);
+    root.addEventListener("pointercancel", (e) => { if (st && e.pointerId === st.id) end(); });
+    // keyboard: Alt+arrows move the focused tab
+    root.addEventListener("keydown", (e) => {
+      const card = e.target.closest && e.target.closest(".tv-card"); if (!card || !e.altKey || !/Arrow(Left|Right|Up|Down)/.test(e.key)) return;
+      e.preventDefault();
+      const i = +card.dataset.i, j = i + (/Left|Up/.test(e.key) ? -1 : 1); if (j < 0 || j >= TB.list.length) return;
+      const curObj = TB.list[TB.cur]; const [m] = TB.list.splice(i, 1); TB.list.splice(j, 0, m); VT.setCur(TB.list.indexOf(curObj)); persist(); draw(); paint();
+      const nc = q(`.tv-card[data-i="${j}"] .tv-prev`, root); nc && nc.focus();
+    });
+  }
+
+  /* ---------- swipe the top bar to switch tabs (phone and tablet) ---------- */
+  let sw = null;
+  document.addEventListener("touchstart", (e) => {
+    sw = null;
+    if (tv || TB.list.length < 2 || VT.desk()) return;
+    const bar = e.target.closest && e.target.closest(".main .rtop, .topbar");
+    if (!bar || e.target.closest("input,textarea,.gsearch,.pills .pill:focus")) return;
+    const t = e.touches[0]; sw = { x: t.clientX, y: t.clientY, at: Date.now() };
+  }, { passive: true });
+  document.addEventListener("touchend", (e) => {
+    if (!sw) return; const t = e.changedTouches[0]; const dx = t.clientX - sw.x, dy = t.clientY - sw.y, quick = Date.now() - sw.at < 700; sw = null;
+    if (!quick || Math.abs(dx) < 60 || Math.abs(dy) > 40) return;
+    const j = TB.cur + (dx < 0 ? 1 : -1);
+    if (j < 0 || j >= TB.list.length) { toast(dx < 0 ? "This is the last tab" : "This is the first tab"); return; }
+    swallowClick = Date.now();
+    goTab(j, "swipe");
+  }, { passive: true });
+  let swallowClick = 0;
+  document.addEventListener("click", (e) => { if (Date.now() - swallowClick < 400 && e.target.closest(".rtop,.topbar")) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+  /* ---------- hold a link to open it in a new tab (phone and tablet) ---------- */
+  let lp = null, lpFired = 0;
+  const LPSEL = '.main [data-nav], .main .hrow, .main [data-action="openRef"], .main [data-action="openStudy"], .main [data-action="openTopic"], .main [data-action="openDoctrine"], .main [data-action="fbOpen"], .gs-pop [data-gs]';
+  document.addEventListener("touchstart", (e) => {
+    clearTimeout(lp && lp.t); lp = null;
+    if (VT.desk()) return;
+    const el = e.target.closest && e.target.closest(LPSEL); if (!el || el.closest(".bottomnav,#tabsView")) return;
+    const t = e.touches[0];
+    lp = { el, x: t.clientX, y: t.clientY, t: setTimeout(() => { lpFired = Date.now(); holdMenu(el); }, 520) };
+  }, { passive: true });
+  document.addEventListener("touchmove", (e) => { if (!lp) return; const t = e.touches[0]; if (Math.hypot(t.clientX - lp.x, t.clientY - lp.y) > 10) { clearTimeout(lp.t); lp = null; } }, { passive: true });
+  document.addEventListener("touchend", () => { if (lp) clearTimeout(lp.t); lp = null; }, { passive: true });
+  document.addEventListener("click", (e) => { if (Date.now() - lpFired < 700) { e.preventDefault(); e.stopImmediatePropagation(); lpFired = 0; } }, true);
+  document.addEventListener("contextmenu", (e) => { if (Date.now() - lpFired < 900 || (!VT.desk() && e.target.closest && e.target.closest(LPSEL))) e.preventDefault(); });
+  function holdMenu(el) {
+    const idx = qa(LPSEL).indexOf(el);
+    const name = (el.querySelector("b") || el).textContent.trim().replace(/\s+/g, " ").slice(0, 60);
+    sheet("Open", `<h2>${esc(name)}</h2><div class="tvs-list">${row("newtab", icon("tabs", 20), "Open in new tab", "Keep this page open too")}${row("open", icon("right", 20), "Open", "")}</div><div class="pwa-acts" style="margin-top:14px"><button class="btn" data-pk="done">Cancel</button></div>`, (k, b, s) => {
+      s.remove();
+      if (k === "newtab") { newTab(Object.assign(VT.snap(), { sel: null, scroll: 0, link: null, follow: false, split: null })); }
+      lpFired = 0;
+      setTimeout(() => { const t = el.isConnected ? el : qa(LPSEL)[idx]; t && t.click(); }, 60);
+    });
+  }
+
+  /* ---------- split screen in the reader ---------- */
+  let mainProg = 0, spRetry = 0;
+  const spLabel = (p) => (p.kind === "mhc" ? "Commentary" : p.tr);
+  function paneBody(p) {
+    const { book, ch } = S.reading;
+    const bi = BOOKS.findIndex((b) => b.n === book);
+    if (p.kind === "mhc") {
+      let h = ""; try { h = gdConcise(bookOrder(book), { book, ch }, 1, 999); } catch (e) { h = '<div class="muted small">Commentary is not available.</div>'; }
+      if (/class="skel/.test(h) && spRetry < 40) { spRetry++; setTimeout(fillPanes, 300); }
+      return `<div class="sp-com">${h}</div>`;
+    }
+    const c = chFull(p.tr, book, ch);
+    if (!c) { if (bi >= 0) loadBook(p.tr, bi).then(fillPanes).catch(() => {}); return '<div class="skel" style="width:85%"></div><div class="skel" style="width:70%"></div><div class="skel" style="width:78%"></div>'; }
+    const vs = Object.entries(c.v).filter(([, t]) => t);
+    return `<div class="sp-txt" lang="${(TR_LANG && TR_LANG[p.tr]) || "en"}">${vs.map(([n, t]) => `<p class="sp-v" data-pv="${n}"><sup>${n}</sup>${esc(t)}</p>`).join("")}</div>`;
+  }
+  function paneHTML(p, k) {
+    return `<section class="spane" data-k="${k}" aria-label="${esc(spLabel(p))}">
+      <div class="sp-h"><button class="pill sp-pick" data-spk="${k}" aria-label="Change this view">${esc(spLabel(p))}${icon("down", 14)}</button><span class="sp-ref">${esc(S.reading.book)} ${S.reading.ch}</span><span class="sp-lk" title="Follows the Bible above">${icon("link", 14)}</span><button class="icon-btn sp-x" data-spx="${k}" aria-label="Close this view">${icon("x", 18)}</button></div>
+      <div class="sp-b">${paneBody(p)}</div></section>`;
+  }
+  function fillPanes() {
+    const c = cur(); const box = q(".main .reader > .spl"); if (!box || !c || !c.split) return;
+    qa(".spane", box).forEach((el) => { const p = c.split[+el.dataset.k]; if (p) q(".sp-b", el).innerHTML = paneBody(p); });
+    syncPanes(true);
+  }
+  function mountSplit() {
+    const rd = q(".main .reader");
+    const c = cur();
+    if (!rd || ui.page !== "reader" || !c) return;
+    const sp = (c.split || []).slice(0, maxPanes());
+    rd.classList.toggle("has-split", !!sp.length);
+    rd.style.setProperty("--spn", sp.length);
+    let box = q(":scope > .spl", rd);
+    if (!sp.length) { box && box.remove(); return; }
+    const sig = JSON.stringify(sp) + S.reading.book + S.reading.ch;
+    if (box && box.dataset.sig === sig) return;
+    if (!box) { box = document.createElement("div"); box.className = "spl"; rd.appendChild(box); }
+    box.dataset.sig = sig; spRetry = 0;
+    box.innerHTML = sp.map(paneHTML).join("");
+    const col = readerCol();
+    if (col && !col.dataset.spl) { col.dataset.spl = "1"; col.addEventListener("scroll", onMainScroll, { passive: true }); }
+    qa(".sp-b", box).forEach((b) => b.addEventListener("scroll", onPaneScroll, { passive: true }));
+    syncPanes(true);
+  }
+  let raf = 0;
+  function onMainScroll() { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; if (Date.now() - mainProg > 120) syncPanes(); }); }
+  function syncPanes(force) {
+    const v = topVerse() || 1;
+    qa(".main .reader > .spl .spane").forEach((el) => {
+      const b = q(".sp-b", el); if (!b) return;
+      let tgt = q(`[data-pv="${v}"]`, b);
+      if (!tgt) { const secs = qa(".gd-sec", b); tgt = secs.filter((s) => { const m = (q(".gd-vr", s) || {}).textContent || ""; const n = +(m.split(":")[1] || "0").split(/[–-]/)[0]; return n && n <= v; }).pop() || null; }
+      if (!tgt) return;
+      const y = tgt.offsetTop - 6;
+      if (force || Math.abs(b.scrollTop - y) > 2) { b.dataset.prog = String(Date.now()); b.scrollTop = y; }
+    });
+  }
+  function onPaneScroll(e) {
+    const b = e.currentTarget;
+    if (Date.now() - +(b.dataset.prog || 0) < 160) return;
+    if (b.dataset.raf) return; b.dataset.raf = "1";
+    requestAnimationFrame(() => {
+      delete b.dataset.raf;
+      const top = b.getBoundingClientRect().top + 4;
+      const v = qa("[data-pv]", b).find((p) => p.getBoundingClientRect().bottom > top);
+      if (v) { scrollMainTo(+v.dataset.pv); qa(".main .reader > .spl .sp-b").forEach((o) => { if (o !== b) o.dataset.prog = "0"; }); syncOthers(b, +v.dataset.pv); }
+    });
+  }
+  function syncOthers(src, v) {
+    qa(".main .reader > .spl .sp-b").forEach((b) => { if (b === src) return; const t = q(`[data-pv="${v}"]`, b); if (t) { b.dataset.prog = String(Date.now()); b.scrollTop = t.offsetTop - 6; } });
+  }
+  document.addEventListener("click", (e) => {
+    const x = e.target.closest("[data-spx]"); const pk = e.target.closest("[data-spk]");
+    if (!x && !pk) return;
+    e.preventDefault(); e.stopPropagation();
+    const c = cur(); if (!c || !c.split) return;
+    if (x) { c.split.splice(+x.dataset.spx, 1); persist(); mountSplit(); paint(); return; }
+    splitSheet(TB.cur);
+  }, true);
+
+  function panelTab() {
+    const b = q('.pfoot [data-action="tabOpenStudy"]'); if (!b || b.dataset.m) return;
+    b.dataset.m = "1"; b.classList.remove("hide-m"); const sp = q("span", b); if (!sp) b.lastChild && b.lastChild.nodeType === 3 && (b.lastChild.textContent = "New tab");
+  }
+  const lastLead = {};
+  function liveLink() {
+    const c = cur(); if (!c || !c.link || c.follow || tv) return;
+    const p = posOf(c); if (!p) return;
+    const key = p.book + " " + p.ch;
+    if (lastLead[c.link] === key) return;
+    const first = lastLead[c.link] == null; lastLead[c.link] = key;
+    if (first && !TB.list.some((t, j) => j !== TB.cur && t.link === c.link && posOf(t) && (posOf(t).book !== p.book || posOf(t).ch !== p.ch))) return;
+    propagate(TB.cur); persist();
+    if (VT.desk()) setTimeout(() => { try { VT.tabsRender(); paint(); } catch {} }, 0);
+  }
+  /* ---------- after every draw ---------- */
+  const _render = render;
+  render = function () {
+    const r = _render.apply(this, arguments);
+    try { liveLink(); paint(); mountSplit(); panelTab(); } catch (e) { console.warn(e); }
+    return r;
+  };
+  const _rs = renderShell;
+  renderShell = function () { const r = _rs.apply(this, arguments); try { paint(); } catch {} return r; };
+  let lastW = innerWidth;
+  addEventListener("resize", () => { if ((lastW < 700) !== (innerWidth < 700)) { const b = q(".main .reader > .spl"); b && (b.dataset.sig = ""); mountSplit(); } lastW = innerWidth; });
+  // "Split screen" in the reader's options menu
+  const _rm = A.readerMore;
+  if (_rm) A.readerMore = function () {
+    const r = _rm.apply(this, arguments);
+    const mb = q("#modal .modal-b"), li = q("#modal .modal-b .list .li");
+    if (mb && !q('[data-action="tvSplit"]', mb)) {
+      const cls = li ? li.className : "li";
+      const sp = cur() && cur().split && cur().split.length;
+      mb.insertAdjacentHTML("afterbegin", `<h3 class="ro-sec">View</h3><div class="list tv-ro"><button class="${cls} tv-li" data-action="tvSplit">${icon("rows", 18)}<span class="grow">Split screen${sp ? ` <span class="muted">· on</span>` : ""}</span>${icon("right", 16)}</button><button class="${cls} tv-li" data-action="tvOpen">${icon("tabs", 18)}<span class="grow">Tabs <span class="muted">· ${TB.list.length} open</span></span>${icon("right", 16)}</button></div>`);
+    }
+    return r;
+  };
+  A.tvSplit = () => { try { closeModal(); } catch {} splitSheet(TB.cur); };
+  const _to = A.tvOpen; A.tvOpen = () => { try { closeModal(); } catch {} _to(); };
+  addEventListener("pagehide", () => { try { storeCur(); persist(); } catch {} });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) try { VT.tabStore(); const c = cur(); if (c && ui.page === "reader") c.topV = topVerse(); persist(); } catch {} });
+  setTimeout(() => { paint(); mountSplit(); }, 0);
 })();
 </script>
 <!-- ===== end of Verbo redesign ===== -->

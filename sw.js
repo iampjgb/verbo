@@ -1,5 +1,5 @@
 /* Verbo service worker: the app opens offline, and Bible text you have read stays available. */
-const VERSION = "7997a05273";
+const VERSION = "09f8869e28";
 const SHELL = "verbo-shell-" + VERSION;
 const DATA = "verbo-data-v1";      // Bible and library files: kept across app updates
 const FONTS = "verbo-fonts-v1";
