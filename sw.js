@@ -1,5 +1,5 @@
 /* Verbo service worker: the app opens offline, and Bible text you have read stays available. */
-const VERSION = "20ce1f9e2a";
+const VERSION = "f7eea1bd6e";
 const SHELL = "verbo-shell-" + VERSION;
 const DATA = "verbo-data-v1";      // Bible and library files: kept across app updates
 const FONTS = "verbo-fonts-v1";
@@ -141,7 +141,7 @@ async function remindCheck() {
     const c = await caches.open("verbo-meta");
     const r = await c.match("./__remind"); if (!r) return;
     const cfg = await r.json(); if (!cfg || !cfg.on) return;
-    const now = new Date(), day = now.toISOString().slice(0, 10);
+    const now = new Date(), p2 = (n) => String(n).padStart(2, "0"), day = `${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}`;
     const [h, m] = String(cfg.time || "07:00").split(":").map(Number);
     if (now.getHours() * 60 + now.getMinutes() < h * 60 + m) return;
     if (cfg.lastShown === day || cfg.readDay === day) return;
