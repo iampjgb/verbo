@@ -89,7 +89,8 @@ self.addEventListener("fetch", (e) => {
   if (req.mode === "navigate") {
     e.respondWith((async () => {
       try {
-        const res = await fetch(req);
+        // always ask the server (a quick "has it changed?" check), so a new version shows on the next open
+        const res = await fetch(req, { cache: "no-cache" });
         const c = await caches.open(SHELL); c.put("./index.html", res.clone());
         return res;
       } catch (_) {
