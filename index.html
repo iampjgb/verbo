@@ -1953,6 +1953,8 @@ html.gs-ask .gsearch input{border-color:var(--link)}
 }
 .gs-item[data-ask] svg,.gs-pop .gs-item:has(.gs-kind) svg{flex:none}
 #gsPop .gs-item .i[data-ic="sparkles"]{color:var(--link)}
+/* phone reader bar: the play button in the floating bar already reads aloud, so its icon goes and the book and version names fit */
+@media (max-width:899px){.rtop-i [data-action="tts"]{display:none!important}}
 </style>
 <script id="verbo-redesign-2026-11-js">/* ===== Verbo UX v2: simple navigation, study panel, desktop tabs ===== */
 (() => {
