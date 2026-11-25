@@ -1911,7 +1911,9 @@ details.tr-lic summary{cursor:pointer;font-weight:600;color:var(--ink)}
 .gloss dt{font-weight:600;margin-top:12px}.gloss dd{margin:2px 0 0;color:var(--text2);line-height:1.5}
 .help-steps li{margin:8px 0;line-height:1.5}
 /* App text size reaches the menus and bars too */
-.bottomnav,.sidebar,.topbar{zoom:var(--uiz,1)}
+/* App text size: bars grow their words a little, never their width */
+.bottomnav button{font-size:calc(var(--t-cap,12px) * min(var(--uiz,1),1.17))!important}
+.sidebar .nav-item{font-size:calc(15px * min(var(--uiz,1),1.2))}
 /* touch: every control at least 40px to hit, without changing how text lines up */
 @media (pointer:coarse){
   .icon-btn{min-width:40px;min-height:40px}
@@ -1955,6 +1957,15 @@ html.gs-ask .gsearch input{border-color:var(--link)}
 #gsPop .gs-item .i[data-ic="sparkles"]{color:var(--link)}
 /* phone reader bar: the play button in the floating bar already reads aloud, so its icon goes and the book and version names fit */
 @media (max-width:899px){.rtop-i [data-action="tts"]{display:none!important}}
+/* bottom bar: always exactly the screen's width, and on an installed iPhone the home-bar space is added below it, not taken from it */
+.bottomnav{zoom:1!important;left:0!important;right:0!important;width:auto!important;max-width:100%;box-sizing:border-box;overflow:hidden;
+  height:calc(62px + env(safe-area-inset-bottom, 0px))!important;padding-bottom:env(safe-area-inset-bottom, 0px)!important;
+  padding-left:env(safe-area-inset-left, 0px);padding-right:env(safe-area-inset-right, 0px)}
+.bottomnav button{flex:1 1 0!important;min-width:0!important;padding:0 2px;white-space:nowrap}
+.bottomnav .ni{width:min(54px,100%)!important}
+.topbar,.sidebar{zoom:1!important}
+/* page content clears the taller bar on an installed iPhone */
+@media (max-width:899px){.main{padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px))}}
 </style>
 <script id="verbo-redesign-2026-11-js">/* ===== Verbo UX v2: simple navigation, study panel, desktop tabs ===== */
 (() => {
