@@ -1,5 +1,5 @@
 /* Verbo service worker: the app opens offline, and Bible text you have read stays available. */
-const VERSION = "821342fe8f";
+const VERSION = "20ce1f9e2a";
 const SHELL = "verbo-shell-" + VERSION;
 const DATA = "verbo-data-v1";      // Bible and library files: kept across app updates
 const FONTS = "verbo-fonts-v1";
@@ -133,3 +133,29 @@ async function staleWhileRevalidate(req, name) {
   const net = fetch(req).then((res) => { if (res.ok || res.type === "opaque") c.put(req, res.clone()); return res; }).catch(() => hit);
   return hit || net;
 }
+
+/* Daily reading reminder. Chrome on Android can wake an installed app about once a day
+   (periodic background sync); other browsers get the reminder when the app opens. */
+async function remindCheck() {
+  try {
+    const c = await caches.open("verbo-meta");
+    const r = await c.match("./__remind"); if (!r) return;
+    const cfg = await r.json(); if (!cfg || !cfg.on) return;
+    const now = new Date(), day = now.toISOString().slice(0, 10);
+    const [h, m] = String(cfg.time || "07:00").split(":").map(Number);
+    if (now.getHours() * 60 + now.getMinutes() < h * 60 + m) return;
+    if (cfg.lastShown === day || cfg.readDay === day) return;
+    cfg.lastShown = day;
+    await c.put("./__remind", new Response(JSON.stringify(cfg), { headers: { "content-type": "application/json" } }));
+    await self.registration.showNotification(cfg.title || "Time for today's reading", { body: cfg.body || "Open Verbo to read today's chapter.", tag: "verbo-remind", icon: "icons/icon-192.png", badge: "icons/icon-192.png", data: { url: "./?a=read" } });
+  } catch (e) {}
+}
+self.addEventListener("periodicsync", (e) => { if (e.tag === "verbo-remind") e.waitUntil(remindCheck()); });
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || "./";
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((cs) => {
+    for (const c of cs) { if ("focus" in c) { c.postMessage({ type: "remind-open" }); return c.focus(); } }
+    return self.clients.openWindow(url);
+  }));
+});
