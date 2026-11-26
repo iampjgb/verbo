@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Verbo verse widget</title>
+<style>
+:root{--blue:#1D70B8;--ink:#1E2321;--muted:#5E6560;--line:#E3E5E3}
+*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;padding:calc(env(safe-area-inset-top) + 20px) 20px 40px}
+main{max-width:560px;margin:0 auto}h1{font:700 26px/1.2 Georgia,serif;margin:0 0 6px}p.lead{color:var(--muted);margin:0 0 22px}
+ol{padding-left:22px}li{margin:0 0 14px}b{font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:600;font-size:17px;font-family:inherit;text-decoration:none;cursor:pointer}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;width:100%;margin:6px 0 4px}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px;margin:18px 0}
+.ok{color:#0B7A3E;font-weight:600;min-height:22px}.muted{color:var(--muted);font-size:14px}
+a{color:var(--blue)}
+</style></head><body><main>
+<h1>Verse of the day on your Home Screen</h1>
+<p class="lead">The same verse as Verbo's Home each day. Tap it to open Verbo at that verse.</p>
+<div class="card">
+<ol>
+<li>Install the free app <b>Scriptable</b> from the App Store. <a href="https://apps.apple.com/app/scriptable/id1405459188">Open in App Store</a></li>
+<li>Tap <b>Copy the script</b> below.<br><button class="btn primary" id="copy">Copy the script</button><div class="ok" id="ok"></div></li>
+<li>Open Scriptable, tap <b>+</b>, paste, and name it <b>Verbo verse</b> (tap the title at the top).</li>
+<li>Go to your Home Screen, press and hold an empty spot, tap <b>Edit</b> › <b>Add Widget</b>, choose <b>Scriptable</b>, pick a size and tap <b>Add Widget</b>.</li>
+<li>Press and hold the new widget › <b>Edit Widget</b> › <b>Script</b> › <b>Verbo verse</b>. For the World English Bible instead of the KJV, type <b>WEB</b> in <b>Parameter</b>.</li>
+</ol>
+</div>
+<p class="muted">Apple only allows App Store apps to add their own widgets, so this uses Scriptable to show Verbo's verse. The verse text loads from Verbo once and is kept on your phone. <a href="verbo-verse-widget.js">View the script</a> · <a href="../">Back to Verbo</a></p>
+</main>
+<script>
+document.getElementById("copy").addEventListener("click", async () => {
+  const ok = document.getElementById("ok");
+  try { const t = await (await fetch("verbo-verse-widget.js", { cache: "no-store" })).text(); await navigator.clipboard.writeText(t); ok.textContent = "Copied. Now open Scriptable."; }
+  catch (e) { ok.textContent = "Could not copy. Tap “View the script”, then select all and copy."; }
+});
+</script>
+</body></html>
