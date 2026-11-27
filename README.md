@@ -21,3 +21,5 @@ AI features (Ask AI, written studies, cloud sync) work when Verbo runs inside Cl
 Hebrew and Greek dictionary entries: Translators Brief lexicons of Extended Strong's (TBESH, TBESG) by STEPBible.org, based on work at Tyndale House Cambridge, CC BY 4.0.
 
 Calvin's Commentary on Acts (translated by Henry Beveridge, public domain): text from the Christian Classics Ethereal Library (ccel.org), split into chapters and verses for Verbo.
+
+Words of Jesus (red letters): marked in the CrossWire KJV module (public domain), taken from the open-bibles collection (github.com/seven1m/open-bibles) and matched word by word to the KJV text in Verbo.
