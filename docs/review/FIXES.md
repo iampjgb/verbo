@@ -167,7 +167,9 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 </script>
 ```
 
-The service worker loads the page network-first (`sw.js`, navigate handler), so users get the new `index.html` on their next online visit. A `VERSION` bump in `sw.js` is not needed.
+## Release step: bump `VERSION` in `sw.js`
+
+`VERSION` in `sw.js` changed from `bcb3c4b585` to `fbb04c54de` (the first 10 characters of the SHA-1 of the new `index.html`; any new value works). This is required. The "A new version of Verbo is ready. Update" banner only appears when the `sw.js` file changes. Without the bump, installed users would get no banner and could keep the old offline copy. Tested by simulating a user on the old version and then deploying the new one: the banner appeared, and Update loaded the new code (`screenshots/after/update-banner.png`).
 
 ---
 

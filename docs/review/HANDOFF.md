@@ -58,7 +58,7 @@ Ask Zee before starting the larger items (6 and 7). They change how the app beha
 ## Notes
 
 - AI features (Ask AI, cloud sync) only work inside Claude. The reviewers did not count them as broken.
-- The service worker loads `index.html` network-first, so no `VERSION` bump is needed in `sw.js` for these fixes.
+- `sw.js` `VERSION` was bumped on this branch so the update banner shows. In Case B, set `VERSION` to a new value again after reapplying the fixes (for example the first 10 characters of `sha1sum index.html`).
 - Zee's writing style for any user-facing copy: short declarative sentences, plain words, no em-dashes.
 
 ## Preview
