@@ -1,6 +1,6 @@
 # Verbo UX and Accessibility Review (2026-11-28)
 
-Baseline review of commit `2922233`. Three reviewer agents (Sonnet 5.5) each played one type of user. They ran the live app in headless Chrome, took screenshots, and ran axe-core. They also tested keyboard-only use, dark mode, offline mode and 200% zoom. An Opus session merged the 63 raw findings into the 30 issues below and checked the serious ones against the code.
+Baseline review of commit `2922233`. Three reviewer agents (Sonnet 5.5) each played one type of user. They ran the live app in headless Chrome, took screenshots, and ran axe-core. They also tested keyboard-only use, dark mode, offline mode and 200% zoom. An Opus session merged the 63 raw findings into the 30 issues below. Issue 31 was added later from Zee's own phone test and checked the serious ones against the code.
 
 - **Beginner:** first-time Bible app user, phone. See `persona-reports/beginner.md` (B1 to B23).
 - **Regular:** daily reader, phone and tablet. See `persona-reports/regular.md` (R1 to R20).
@@ -30,6 +30,7 @@ Not tested: a real phone, a real screen reader, the native share sheet and the i
 | 4 | PARTIAL (F6) | Dialogs do not take focus, trap Tab or have a name. Focus drops to the body after a verse is selected, and the study panel cannot be reached by Tab. | R5, R6, A3, A5, B8, B21 | Done: name, focus in, focus back on close. Open: trap Tab, `inert` on `#app`, focus into the panel after a verse is selected. |
 | 5 | FIXED (F4) | Strong's search fails for every number under 1000 (G25, H430). The keys are zero-padded. | A1 | Pad to 4 digits before lookup. |
 | 6 | OPEN | The parallel view misaligns 65 DRC Psalms (superscription counted as v1). It hides extra verses (Ps 51 DRC v20 and v21, WEB Rom 14:24-26). Moved verses are labelled "not in this translation". | A2, A7 | Per-version offset map for Psalm titles. Add rows for verses only in the compare version. Separate wording for "moved" and "absent", with a link. |
+| 31 | FIXED (F8) | Comic mode is a dead end on phones. The Read/Study/Comic switcher is hidden, the comic version popover has no "Back to text", and More only appears after a comic exists. Outside Claude no comic can be made, so the user is stuck. Found by Zee on an iPhone after the persona reviews. | Zee | "Back to text" on the empty comic page and in the comic version popover. Open: bring back the mode switcher on phones. |
 | 7 | OPEN | The app does not keep your place. The hash is rewritten to `#reader`, so reload, Back and links lose the chapter and verse. Scroll is lost. "Continue reading" is unreliable. Ranges are ignored. | A4, B15, R8, B23 | Write `#Book.Ch.V-V&tr=` with `replaceState` (scroll) and `pushState` (chapter or panel). Save the top visible verse. Always show Continue on Today. |
 
 ## Medium

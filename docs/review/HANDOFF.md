@@ -9,7 +9,7 @@ This branch (`review-fixes`) was made by a Claude session on another account on 
 3. `docs/review/FIXES.md`: every code change as exact BEFORE and AFTER text, with test results.
 4. `docs/review/screenshots/`: before and after evidence for the main bugs.
 5. `docs/review/tests/`: Playwright scripts that check each fix.
-6. `index.html`: fixes F1 to F7, in separate commits.
+6. `index.html`: fixes F1 to F8, in separate commits. F8 (comic mode dead end) came from Zee's own iPhone test of the preview.
 
 Base commit: `2922233` on `main`. Nothing on `main` was changed. The live GitHub Pages site is untouched until this branch is merged.
 
@@ -40,6 +40,7 @@ pip install playwright && playwright install chromium
 cd docs/review/tests
 python3 test_fixes.py http://localhost:8110/
 python3 test_strongs.py
+python3 test_comic_escape.py
 ```
 
 Expected: every line in the FIXES.md test table passes, `page_errors => []`, and axe on the reader shows only `aria-required-children` (issue 15, still open).
@@ -59,3 +60,7 @@ Ask Zee before starting the larger items (6 and 7). They change how the app beha
 - AI features (Ask AI, cloud sync) only work inside Claude. The reviewers did not count them as broken.
 - The service worker loads `index.html` network-first, so no `VERSION` bump is needed in `sw.js` for these fixes.
 - Zee's writing style for any user-facing copy: short declarative sentences, plain words, no em-dashes.
+
+## Preview
+
+The branch can be previewed without deploying at https://raw.githack.com/iampjgb/verbo/review-fixes/index.html (tap "Open the page" on the first screen). It uses a different origin from the live site, so saved data does not carry over.

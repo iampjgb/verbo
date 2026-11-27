@@ -1664,6 +1664,10 @@ $1`).trim(),body=`<div class="wc">
   const _nm=A.noteModal;A.noteModal=function(e){if(inPop()&&ui.sel){ui.qnOpen=!0,A.stOpen(),setTimeout(()=>{const t=document.getElementById("qnText");t&&t.focus()},80);return}return _nm.apply(this,arguments)};
   /* F7: Escape on the welcome sheet counts as seen */
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.querySelector(".wel-scrim")){try{localStorage.setItem("verbo.welcomed","1")}catch(x){}}},!0);
+  /* F8: comic mode had no way back to the text on phones. Add "Back to text" to the comic version sheet and to the empty comic page */
+  A.cmBackText=()=>{typeof closePop=="function"&&closePop(),A.trMode({dataset:{v:"read"}})};
+  const _cto=A.cmTrOpen;_cto&&(A.cmTrOpen=function(){const r=_cto.apply(this,arguments);try{const b=document.getElementById("pop");b&&!b.querySelector(".cm-back-mi")&&b.insertAdjacentHTML("afterbegin",'<button class="mi vx-tri cm-back-mi" data-action="cmBackText"><b>'+icon("book",15)+'</b><span>Back to text</span></button>')}catch(x){}return r});
+  const _mr=MOUNT.reader;MOUNT.reader=()=>{_mr&&_mr();if(S.reading.view==="comic"){const v=document.getElementById("vpop");v&&v.remove(),document.documentElement.classList.remove("vpop-on")}const e=document.querySelector(".cm-empty");e&&!e.querySelector(".cm-back")&&e.insertAdjacentHTML("beforeend",'<button class="btn primary cm-back" data-action="cmBackText" style="margin-top:16px">'+icon("book",16)+'Read '+esc(S.reading.book)+' '+S.reading.ch+' as text</button>')};
 })();
 </script>
 </body></html>

@@ -127,7 +127,28 @@ AFTER
 ```
 Escape on the welcome sheet now saves `verbo.welcomed`, so it does not come back on every reload. This is in the new script block.
 
+## F8. Comic mode had no way back to the text on phones (review issue 31, High)
+
+Found by Zee on an iPhone while testing the preview (`screenshots/before/F8-comic-dead-end-iphone.png`).
+
+**Cause.** On phones the Read/Study/Comic switcher (`.rmodes`) is hidden by an injected style (`.rmodes{display:none!important}`). "Back to text" exists only in the translation sheet (`A.trOpen`) and the reader More sheet (`A.readerMore`). In comic mode the version pill opens a different popover (`cmTrPop`), and the More button appears only after a comic exists. Outside Claude no comic can be made, so the user is stuck. Prev and Next also stay in comic mode. A verse popup (`#vpop`) from a deep link could also stay open on top of the comic page.
+
+**Fix.** Added to the script block:
+
+```js
+  /* F8: comic mode had no way back to the text on phones. Add "Back to text" to the comic version sheet and to the empty comic page */
+  A.cmBackText=()=>{typeof closePop=="function"&&closePop(),A.trMode({dataset:{v:"read"}})};
+  const _cto=A.cmTrOpen;_cto&&(A.cmTrOpen=function(){const r=_cto.apply(this,arguments);try{const b=document.getElementById("pop");b&&!b.querySelector(".cm-back-mi")&&b.insertAdjacentHTML("afterbegin",'<button class="mi vx-tri cm-back-mi" data-action="cmBackText"><b>'+icon("book",15)+'</b><span>Back to text</span></button>')}catch(x){}return r});
+  const _mr=MOUNT.reader;MOUNT.reader=()=>{_mr&&_mr();if(S.reading.view==="comic"){const v=document.getElementById("vpop");v&&v.remove(),document.documentElement.classList.remove("vpop-on")}const e=document.querySelector(".cm-empty");e&&!e.querySelector(".cm-back")&&e.insertAdjacentHTML("beforeend",'<button class="btn primary cm-back" data-action="cmBackText" style="margin-top:16px">'+icon("book",16)+'Read '+esc(S.reading.book)+' '+S.reading.ch+' as text</button>')};
+```
+
+Result: the empty comic page shows a "Read Romans 8 as text" button. The comic version popover starts with "Back to text". A stale verse popup is removed when the comic view mounts.
+
+Still open: the hidden Read/Study/Comic switcher on phones. Consider showing it again, or adding a mode item to the header menu.
+
 ## New script block (added just before `</body>`)
+
+The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 section to the same block.
 
 ```html
 <script id="verbo-review-fixes-2026-11-28">
@@ -163,6 +184,7 @@ The service worker loads the page network-first (`sw.js`, navigate handler), so 
 | F5 | Toasts at Genesis 1 (previous) and Revelation 22 (next) | Pass |
 | F6 | Pill name "Revelation 22, choose book and chapter"; dialog named "Translation", focus inside, focus back on the pill after Escape | Pass |
 | F7 | Desktop says "Click Bible on the left"; Escape sets `verbo.welcomed` | Pass |
+| F8 | Comic mode (Romans 8, BSB, phone): the empty-page button and the popover item both return to text (39 verses shown) | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.
