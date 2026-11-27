@@ -1658,6 +1658,10 @@ $1`).trim(),body=`<div class="wc">
   if(typeof A==="undefined")return;
   /* F1: drop bookmarks saved without a reference by the old phone popup bug */
   try{const b=S.bookmarks||[],ok=b.filter(x=>x&&typeof x.ref==="string"&&x.ref);ok.length!==b.length&&(S.bookmarks=ok,save(),typeof refresh=="function"&&refresh())}catch(e){}
+  /* F2: on phones, Highlight and Note in the verse popup open the study sheet with the tool ready */
+  const inPop=()=>!!document.getElementById("vpop");
+  const _hl=A.hlToggle;A.hlToggle=function(){if(inPop()&&ui.sel){ui.hlOpen=!0;return A.stOpen()}return _hl.apply(this,arguments)};
+  const _nm=A.noteModal;A.noteModal=function(e){if(inPop()&&ui.sel){ui.qnOpen=!0,A.stOpen(),setTimeout(()=>{const t=document.getElementById("qnText");t&&t.focus()},80);return}return _nm.apply(this,arguments)};
 })();
 </script>
 </body></html>
