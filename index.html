@@ -176,7 +176,7 @@ const EXTRA={titles:{Genesis:["The Creation","The Garden of Eden","The Fall","Ca
    <div class="label" style="margin:10px 0 4px">The passage</div>${vsLines(a,n,Math.min(o,n+11),c=>inRef(e,c))}${o>n+11?`<div class="muted tiny">… through verse ${o}</div>`:""}
    ${o<s?`<div class="label" style="margin:10px 0 4px">After</div>${vsLines(a,o+1,o+3)}`:'<div class="muted small" style="margin-top:6px">The passage closes the chapter.</div>'}
    <dl class="kv" style="margin-top:14px">${r?`<dt>Previous chapter</dt><dd>${e.ch-1} · ${esc(r)}</dd>`:""}${chTitle(e.book,e.ch)?`<dt>This chapter</dt><dd>${e.ch} · ${esc(chTitle(e.book,e.ch))}</dd>`:""}${l?`<dt>Next chapter</dt><dd>${e.ch+1} · ${esc(l)}</dd>`:""}</dl>
-   <div class="row" style="margin-top:10px"><button class="btn sm" data-action="openRef" data-ref="${esc(e.book+" "+e.ch)}">${icon("book")}Read the whole chapter</button></div>`}function fbVerses(e){const t=vsRange(e);if(!t)return vsLoading();const{a,b:s}=t,n=BOOKS.findIndex(c=>c.n===e.book),o=chFull("WEB",e.book,e.ch);!o&&!bookFailed("WEB",e.book)&&loadBook("WEB",n).then(()=>{ui.page==="verse-study"&&refresh()},()=>{});const i=[];let r=0,l=0;for(let c=a;c<=s;c++){if(!inRef(e,c)||!t.ch.v[c]||(l++,r>=12))continue;r++;const d=t.ch.v[c],h=o&&o.v[c],u=dataFor("NOTES",e.book,e.ch,c)||[];i.push(`<div style="margin-bottom:14px"><div class="scr" style="font-weight:600;font-size:16px"><sup>${c}</sup> ${esc(d)}</div>${h&&h!==d?`<div class="small" style="margin-top:4px;color:var(--text2)"><span class="badge gray" style="margin-right:6px">WEB</span>${esc(h)}</div>`:""}${u.length?`<div class="small muted" style="margin-top:4px">Footnote: ${u.map(esc).join(" · ")}</div>`:""}</div>`)}return i.join("")+(l>12?`<div class="muted tiny" style="margin-bottom:8px">Showing 12 of ${l} verses. <button class="refl" data-action="openRef" data-ref="${esc(fmtRef(e))}">Read them all</button></div>`:"")+`<div class="label" style="margin:8px 0 6px">For each verse ask</div>${vsQs(["What does it say about God?","What does it say about people?","Is there a command to obey, a promise to trust, or a warning to heed?","Which word or phrase would you look up?"])}`}function fbInterp(e,t){return`<div class="grid g2"><div><div class="label" style="margin-bottom:6px">Find the meaning</div>${vsQs([`What did this mean for ${t.audience?t.audience.replace(/^./,a=>a.toLowerCase()):"the first readers"}?`,"How do the verses before and after shape it?","Which words repeat in the passage or chapter?","Do the cross references below say the same thing or add something?"])}</div>
+   <div class="row" style="margin-top:10px"><button class="btn sm" data-action="openRef" data-ref="${esc(e.book+" "+e.ch)}">${icon("book")}Read the whole chapter</button></div>`}function fbVerses(e){const t=vsRange(e);if(!t)return vsLoading();const{a,b:s}=t,n=BOOKS.findIndex(c=>c.n===e.book),o=chFull("WEB",e.book,e.ch);!o&&!bookFailed("WEB",e.book)&&loadBook("WEB",n).then(()=>{ui.page==="verse-study"&&refresh()},()=>{});const i=[];let r=0,l=0;for(let c=a;c<=s;c++){if(!inRef(e,c)||!t.ch.v[c]||(l++,r>=12))continue;r++;const d=t.ch.v[c],h=o&&o.v[c],u=dataFor("NOTES",e.book,e.ch,c)||[];i.push(`<div style="margin-bottom:14px"><div class="scr" style="font-weight:600;font-size:16px"><sup>${c}</sup> ${esc(d)}</div>${h&&h!==d?`<div class="small" style="margin-top:4px;color:var(--text2)"><span class="badge gray" style="margin-right:6px">WEB</span>${esc(h)}</div>`:""}${u.length?`<div class="small muted" style="margin-top:4px">Footnote: ${u.map(esc).join(" · ")}</div>`:""}</div>`)}return i.join("")+(l>12?`<div class="muted tiny" style="margin-bottom:8px">Showing 12 of ${l} verses. <button class="refl" data-action="openRef" data-ref="${esc(fmtRef(e))}">Read them all</button></div>`:"")+`<div class="label" style="margin:8px 0 6px">For each verse ask</div>${vsQs(["What does it say about God?","What does it say about people?","Is there a command to obey, a promise to trust, or a warning to heed?","Which word or phrase would you look up?"])}`}function fbInterp(e,t){return`<div class="grid g2"><div><div class="label" style="margin-bottom:6px">Find the meaning</div>${vsQs([`What did this mean for ${t.audience?t.audience.replace(/^(The|A|An|All|Some|Those|These)\b/,a=>a.toLowerCase()):"the first readers"}?`,"How do the verses before and after shape it?","Which words repeat in the passage or chapter?","Do the cross references below say the same thing or add something?"])}</div>
    <div><div class="label" style="margin-bottom:6px;color:var(--warning)">Guard against</div>${vsQs(["Building a doctrine on one verse alone.","Reading a promise to one person or nation as a promise to everyone.","Ignoring the type of writing: law, history, poetry, prophecy, gospel, or letter."])}</div></div>${vsGuided()}`}function fbOrig(e){const t=vsRange(e),a=BOOKS.findIndex(r=>r.n===e.book),s=bookOf(e.book).t==="OT",n=chFull("ORIG",e.book,e.ch);if(!n)return bookFailed("ORIG",e.book)?'<div class="muted small">The original text could not be loaded.</div>':(loadBook("ORIG",a).then(()=>{ui.page==="verse-study"&&refresh()},()=>{ui.page==="verse-study"&&refresh()}),vsLoading());if(!t)return vsLoading();const o=[];let i=0;for(let r=t.a;r<=t.b&&i<8;r++){if(!inRef(e,r))continue;i++;const l=n.v[r];o.push(l?`<div class="orig${s?" he":" gr"}" ${s?'dir="rtl" lang="he"':'lang="grc"'} style="margin-bottom:10px"><span class="vn">${s?hebNum(r):r}</span>${origWords(l,s)}</div>`:`<div class="muted small" style="margin-bottom:10px">Verse ${r}: ${s?"joined to a neighbouring verse in the Hebrew text.":"not in this text."}</div>`)}return`<div class="label" style="margin-bottom:8px">${s?"Hebrew · Westminster Leningrad Codex":"Greek · Textus Receptus (1894)"}</div>${o.join("")}
    <div class="muted tiny">Transliteration is generated and approximate. Look up key words in Word Study.</div>
    <div class="row" style="margin-top:10px"><button class="btn sm" data-nav="word-study">${icon("languages")}Open Word Study</button></div>`}function vsLinked(e){const t=s=>{const n=parseRef(s);return n&&n.book===e.book&&n.ch===e.ch},a=[];return Object.entries(DOCTRINES).forEach(([s,n])=>{(n.key||[]).some(t)&&a.push(`<button class="chip" data-action="openDoctrine" data-id="${esc(s)}">${esc(n.name)}</button>`)}),Object.entries(TOPICS).forEach(([s,n])=>{[...n.ot||[],...n.nt||[]].some(t)&&a.push(`<button class="chip" data-action="openTopic" data-id="${esc(s)}">${esc(n.name)}</button>`)}),a.length?`<div class="label" style="margin-bottom:6px">Linked in this app</div><div class="chips" style="margin-bottom:12px">${a.join("")}</div>`:""}function fbTheology(e){return`${vsLinked(e)}<div class="label" style="margin-bottom:6px">Questions</div>${vsQs(["What does this passage teach about who God is and what he does?","How does it connect to the gospel of Jesus Christ?","Where do Christian traditions read it differently, and why?"])}${vsGuided()}`}function fbApp(){return`<dl class="kv"><dt>Personal reflection</dt><dd>What in this passage speaks to your life right now?</dd><dt>About God</dt><dd>What will you trust or thank God for because of it?</dd><dt>About humanity</dt><dd>What does it show about you and people around you?</dd><dt>What needs to change</dt><dd>What is one specific step you will take this week?</dd></dl>
@@ -1668,6 +1668,95 @@ $1`).trim(),body=`<div class="wc">
   A.cmBackText=()=>{typeof closePop=="function"&&closePop(),A.trMode({dataset:{v:"read"}})};
   const _cto=A.cmTrOpen;_cto&&(A.cmTrOpen=function(){const r=_cto.apply(this,arguments);try{const b=document.getElementById("pop");b&&!b.querySelector(".cm-back-mi")&&b.insertAdjacentHTML("afterbegin",'<button class="mi vx-tri cm-back-mi" data-action="cmBackText"><b>'+icon("book",15)+'</b><span>Back to text</span></button>')}catch(x){}return r});
   const _mr=MOUNT.reader;MOUNT.reader=()=>{_mr&&_mr();if(S.reading.view==="comic"){const v=document.getElementById("vpop");v&&v.remove(),document.documentElement.classList.remove("vpop-on")}const e=document.querySelector(".cm-empty");e&&!e.querySelector(".cm-back")&&e.insertAdjacentHTML("beforeend",'<button class="btn primary cm-back" data-action="cmBackText" style="margin-top:16px">'+icon("book",16)+'Read '+esc(S.reading.book)+' '+S.reading.ch+' as text</button>')};
+  /* F9: Chapter overview, phone-first layout (review follow-up). Rebuilds the page after it renders. */
+  (function(){
+    const css=`.cov{max-width:760px;margin:0 auto}
+.cov .wk-crumb,.cov .wk-lead,.cov .wk-toc,.cov .wk-box{display:none!important}
+@media(max-width:899px){.cov .lb-crumb.back-read{display:none}}
+.cov-h{padding:4px 0 6px}
+.cov-pnrow{display:flex;justify-content:space-between;gap:8px;margin:0 0 12px}
+.cov-pn{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text2);font:500 14px var(--sans);cursor:pointer}
+@media(max-width:899px){.cov-kick{display:none}}
+.cov .ex-sec:has(.gd-sec):not([open]){margin-left:0;margin-right:0;border-left:1px solid var(--border);border-right:1px solid var(--border);border-radius:14px}
+.cov-kick{font:600 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin:0 0 2px}
+.cov-title{margin:0;font-size:30px;line-height:1.15}
+.cov-sub{margin:4px 0 14px;font-size:18px;line-height:1.35;color:var(--text2)}
+.cov-glance{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+.cov-glance>div{border:1px solid var(--border);border-radius:12px;padding:8px 10px;background:var(--surface)}
+.cov-glance dt{font:600 11px var(--sans);text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
+.cov-glance dd{margin:2px 0 0;font:500 14px/1.35 var(--sans)}
+@media(min-width:900px){.cov-glance{grid-template-columns:repeat(4,1fr)}}
+.cov-theme{margin:0 0 14px;font-size:15px;line-height:1.5}
+.cov-theme b{font-weight:600}
+.cov-acts{display:flex;gap:8px;flex-wrap:wrap}
+.cov-acts .btn{min-height:44px;flex:1 1 150px;justify-content:center}
+.cov-tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:18px 0 6px;padding:8px 0;background:var(--bg);border-bottom:1px solid var(--border)}
+.cov-tabs::-webkit-scrollbar{display:none}
+.cov-tabs button{flex:none;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:999px;background:var(--surface);font:500 14px var(--sans);color:var(--text2);cursor:pointer}
+.cov-tabs button[aria-current=true]{border-color:var(--primary);color:var(--primary)}
+.cov-sec{scroll-margin-top:72px;margin:22px 0}
+.cov-sec>h2{font-size:20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}
+.cov-ol{list-style:none;margin:0;padding:0;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface)}
+.cov-ol li+li{border-top:1px solid var(--border)}
+.cov-oi{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:10px 12px;border:0;background:none;text-align:left;font:15px/1.4 var(--sans);color:inherit;cursor:pointer}
+.cov-vr{flex:none;min-width:56px;text-align:center;padding:3px 8px;border-radius:999px;background:var(--surface2);color:var(--primary);font:600 13px var(--sans)}
+.cov-ot{flex:1}
+:root[data-theme=dark] .cov-vr{color:#9cc3ff}
+.cov-oi>svg{flex:none;color:var(--text2)}
+details.cov-q{border:1px solid var(--border);border-radius:14px;padding:0 14px;background:var(--surface)}
+details.cov-q>summary{min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;font:600 17px var(--sans);list-style:none}
+details.cov-q>summary::-webkit-details-marker{display:none}
+details.cov-q>summary svg{transition:transform .2s}
+details.cov-q[open]>summary svg{transform:rotate(180deg)}
+details.cov-q[open]>summary{border-bottom:1px solid var(--border);margin-bottom:10px}
+details.cov-q .vs-part{margin:0 0 12px}
+.cov #wk-com .ex-sec>summary{min-height:48px}
+.cov .wk-chip{min-height:44px}
+@media(prefers-reduced-motion:reduce){details.cov-q>summary svg{transition:none}}`;
+    const el=document.createElement("style");el.id="verbo-cov-2026-11-28";el.textContent=css;document.head.appendChild(el);
+    const covOpen=new Set();
+    const tx=e=>e?e.textContent.replace(/\s+/g," ").trim():"";
+    const row=(pg,l)=>{const r=[...pg.querySelectorAll(".wk-box .wb-row")].find(x=>tx(x.querySelector("span"))===l);return r?tx(r.querySelector("div")):""};
+    const h2text=(sec,t)=>{const h=sec&&sec.querySelector("h2");if(!h)return;const n=[...h.childNodes].find(x=>x.nodeType===3&&x.textContent.trim());n?n.textContent=t+" ":h.insertAdjacentText("afterbegin",t+" ")};
+    A.covGo=e=>{openRef(e.dataset.ref);innerWidth<900&&setTimeout(()=>{ui.sel=null,ui.stOpen=!1;const v=document.getElementById("vpop");v&&v.remove(),document.documentElement.classList.remove("vpop-on"),refresh()},400)};
+    document.addEventListener("click",e=>{const b=e.target.closest("[data-cov-go]");if(!b)return;const t=document.getElementById(b.dataset.covGo);if(!t)return;const q=t.querySelector("details.cov-q");q&&(q.open=!0);t.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})});
+    function cov(){
+      const pg=document.querySelector("#main .page");if(!pg||pg.dataset.cov)return;
+      const main=pg.querySelector(".wk-main");if(!main)return;pg.dataset.cov="1";pg.classList.add("cov");
+      const book=ui.chBook||S.reading.book,ch=+(ui.chNum||S.reading.ch),ref=book+" "+ch;
+      const t=tx(pg.querySelector(".wk-title")),sub=t.indexOf(": ")>0?t.slice(t.indexOf(": ")+2):"";
+      const verses=row(pg,"Verses"),author=row(pg,"Author").replace(/\s*\(.*$/,"").replace(/,\s*with\b.*$/,""),written=row(pg,"Written").replace(/,.*$/,""),readers=row(pg,"First readers");
+      const sum=pg.querySelector("#wk-sum");
+      let theme="";if(sum){const d=[...sum.querySelectorAll("dt")].find(x=>tx(x)==="Book theme");d&&(theme=tx(d.nextElementSibling))}
+      const pnb=[...pg.querySelectorAll(".wk-pn button")],prev=pnb.find(b=>+b.dataset.c<ch),next=pnb.find(b=>+b.dataset.c>ch);
+      const nb=(b,p)=>b?`<button class="cov-pn" data-action="chOv" data-b="${esc(b.dataset.b)}" data-c="${b.dataset.c}" aria-label="${p?"Previous":"Next"} chapter: ${esc(b.dataset.b)} ${b.dataset.c}">${p?icon("left",16):""}${esc(b.dataset.b)} ${b.dataset.c}${p?"":icon("right",16)}</button>`:"<span></span>";
+      const gl=[["Verses",verses],["Author",author],["Written",written],["First readers",readers]].filter(x=>x[1]).map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("");
+      const head=document.createElement("header");head.className="cov-h";
+      head.innerHTML=`<div class="cov-pnrow">${nb(prev,1)}${nb(next,0)}</div><div class="cov-kick">Chapter overview</div><h1 class="cov-title">${esc(ref)}</h1>${sub&&sub!==ref?`<p class="cov-sub">${esc(sub)}</p>`:""}${gl?`<dl class="cov-glance">${gl}</dl>`:""}${theme?`<p class="cov-theme"><b>Book theme.</b> ${esc(theme)}</p>`:""}<div class="cov-acts"><button class="btn primary" data-action="openRef" data-ref="${esc(ref)}">${icon("book",16)}Read ${esc(ref)}</button><button class="btn" data-action="gsStart" data-ref="${esc(ref)}">${icon("calcheck",16)}Guided study</button></div>`;
+      const body=document.createElement("div");body.className="cov-body";const secs=[];
+      /* Outline, taken from Matthew Henry's outline */
+      const com=pg.querySelector("#wk-com"),ol=com&&com.querySelector(".gd-outline");
+      if(ol){const items=[...ol.querySelectorAll("li")].map(li=>{const s=tx(li),m=s.match(/^(.*?)\s*\(([\d\s,–\-]+)\)\s*\.?$/);let r=m?m[2].replace(/\s+/g,"").replace(/-/g,"–"):"";const pr=r.match(/^(\d+),(\d+)$/);pr&&+pr[2]===+pr[1]+1&&(r=pr[1]+"–"+pr[2]);const v=r?parseInt(r,10):0;const label=(m?m[1]:s).replace(/\.\s*$/,"");return v?`<li><button class="cov-oi" data-action="covGo" data-ref="${esc(ref)}:${v}"><span class="cov-vr">${esc(r)}</span><span class="cov-ot">${esc(label)}</span>${icon("right",14)}</button></li>`:`<li><div class="cov-oi"><span class="cov-ot">${esc(label)}</span></div></li>`}).join("");
+        if(items){const s=document.createElement("section");s.className="cov-sec";s.id="cov-outline";s.innerHTML=`<h2>Outline <span class="wsrc">Matthew Henry</span></h2><ol class="cov-ol">${items}</ol>`;body.append(s);secs.push(["cov-outline","Outline"])}
+        ol.remove()}
+      const key=pg.querySelector("#wk-key");key&&(key.classList.add("cov-sec"),body.append(key),secs.push(["wk-key","Key verses"]));
+      const ppl=pg.querySelector("#wk-ppl");if(ppl){ppl.classList.add("cov-sec");const hasPl=[...ppl.querySelectorAll(".wk-chips .muted")].some(x=>tx(x)==="Places");hasPl||(h2text(ppl,"People"),ppl.querySelectorAll(".wk-chips>.muted").forEach(x=>x.remove()));body.append(ppl);secs.push(["wk-ppl",hasPl?"People and places":"People"])}
+      if(sum){const kv=sum.querySelector("dl.kv");kv&&kv.remove();const ph=sum.querySelector(".vs-part .vs-ph");ph&&tx(ph)==="Overview"&&ph.remove();
+        const w=document.createElement("section");w.className="cov-sec";w.id="cov-q";const d=document.createElement("details");d.className="cov-q";d.open=covOpen.has("q");
+        d.innerHTML=`<summary><span>Study questions</span>${icon("down",16)}</summary>`;[...sum.querySelectorAll(":scope>section")].forEach(x=>d.append(x));
+        d.addEventListener("toggle",()=>{d.open?covOpen.add("q"):covOpen.delete("q")});w.append(d);body.append(w);sum.remove();secs.push(["cov-q","Questions"])}
+      if(com){com.classList.add("cov-sec");const eh=com.querySelector(".ex-head");eh&&eh.remove();
+        com.querySelectorAll("details.ex-sec").forEach(d=>{const k=tx(d.querySelector("summary"));if(/^(People|Places|Events|Cross references)\b/.test(k)){d.remove();return}d.open=covOpen.has(k);d.addEventListener("toggle",()=>{d.open?covOpen.add(k):covOpen.delete(k)})});
+        body.append(com);secs.push(["wk-com","Commentary"])}
+      const src=pg.querySelector("#wk-src");src&&(src.classList.add("cov-sec"),body.append(src));
+      const tabs=document.createElement("nav");tabs.className="cov-tabs";tabs.setAttribute("aria-label","Sections");tabs.innerHTML=secs.map(([i,l])=>`<button type="button" data-cov-go="${i}">${l}</button>`).join("");
+      const crumb=pg.querySelector(".wk-crumb"),h1=pg.querySelector(".wk-title"),grid=pg.querySelector(".wk-grid");
+      const anchor=pg.querySelector(".lb-crumb");anchor?anchor.after(head):pg.prepend(head);head.after(tabs);tabs.after(body);
+      [crumb,h1,grid].forEach(x=>x&&x.remove());
+      const sc=document.getElementById("main");if(sc&&"IntersectionObserver"in window){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){tabs.querySelectorAll("button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.covGo===e.target.id)))}})},{root:null,rootMargin:"-30% 0px -60% 0px"});secs.forEach(([i])=>{const n=document.getElementById(i);n&&io.observe(n)})}
+    }
+    const _m=MOUNT.chapter;MOUNT.chapter=()=>{_m&&_m();try{cov()}catch(e){console.error("Verbo cov",e)}};
+  })();
 })();
 </script>
 </body></html>

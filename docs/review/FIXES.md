@@ -146,6 +146,38 @@ Result: the empty comic page shows a "Read Romans 8 as text" button. The comic v
 
 Still open: the hidden Read/Study/Comic switcher on phones. Consider showing it again, or adding a mode item to the header menu.
 
+## F9. Chapter overview redesign, phone first
+
+Asked for by Zee after the review. The old page was a Wikipedia-style article of about 11 phone screens.
+
+**Problems fixed**
+- Four ways to leave before the title (top-bar back, "Back to", breadcrumb, prev/next row). Phones now have one prev/next row.
+- The same facts repeated three times ("chapter 8 of 16", "39 verses", the chapter title). The opening sentence ("names 2 people and 0 places") and the info box are gone.
+- Matthew Henry's outline was buried inside Commentary. It is now the first section, and each row jumps to its verse in the reader.
+- Commentary opened fully expanded. All commentary sections now start closed and remember what the reader opens during re-renders.
+- Generic questions filled the top of the page. They are now one closed "Study questions" section.
+- "jewish" was lowercased. The audience text now only lowercases a leading article (The, A, An...).
+- Duplicate People, Places, Events and Cross references sections inside Commentary are hidden on this page.
+
+**New layout:** prev/next chips, title and subtitle, an "At a glance" grid (verses, author, written, first readers), the book theme, "Read Romans 8" (primary) and Guided study. Then a section tab row that stays at the top while scrolling: Outline, Key verses, People, Questions, Commentary. Desktop uses the same layout in one 760px column.
+
+**How.** `MOUNT.chapter` rebuilds the page after `PAGES.chapter` renders, using the existing sections, so no data or builder code changed. The CSS is in `<style id="verbo-cov-2026-11-28">`, added by the script block. One source edit:
+
+BEFORE
+```js
+t.audience.replace(/^./,a=>a.toLowerCase())
+```
+AFTER
+```js
+t.audience.replace(/^(The|A|An|All|Some|Those|These)\b/,a=>a.toLowerCase())
+```
+
+The full F9 code is in the script block under the `/* F9 */` comment. An outline tap on a phone opens the reader at that verse, then clears the selection so no popup or sheet covers the text.
+
+**Tested:** Romans 8, Acts 13, Psalms 23, Obadiah 1, Genesis 1 and Revelation 22, on phone and desktop, in light and dark. No page errors. axe reports no violations inside the new page in light or dark. The phone page went from 9,125px to 2,212px tall for Romans 8.
+
+Still open: Key verses has only one verse for many chapters (data). The tab row does not scroll itself to keep the active tab in view.
+
 ## New script block (added just before `</body>`)
 
 The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 section to the same block.
@@ -169,7 +201,7 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 
 ## Release step: bump `VERSION` in `sw.js`
 
-`VERSION` in `sw.js` changed from `bcb3c4b585` to `fbb04c54de` (the first 10 characters of the SHA-1 of the new `index.html`; any new value works). This is required. The "A new version of Verbo is ready. Update" banner only appears when the `sw.js` file changes. Without the bump, installed users would get no banner and could keep the old offline copy. Tested by simulating a user on the old version and then deploying the new one: the banner appeared, and Update loaded the new code (`screenshots/after/update-banner.png`).
+`VERSION` in `sw.js` changed from `bcb3c4b585` to a new value with each change on this branch (now the first 10 characters of the SHA-1 of the final `index.html`) (the first 10 characters of the SHA-1 of the new `index.html`; any new value works). This is required. The "A new version of Verbo is ready. Update" banner only appears when the `sw.js` file changes. Without the bump, installed users would get no banner and could keep the old offline copy. Tested by simulating a user on the old version and then deploying the new one: the banner appeared, and Update loaded the new code (`screenshots/after/update-banner.png`).
 
 ---
 
@@ -187,6 +219,7 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F6 | Pill name "Revelation 22, choose book and chapter"; dialog named "Translation", focus inside, focus back on the pill after Escape | Pass |
 | F7 | Desktop says "Click Bible on the left"; Escape sets `verbo.welcomed` | Pass |
 | F8 | Comic mode (Romans 8, BSB, phone): the empty-page button and the popover item both return to text (39 verses shown) | Pass |
+| F9 | Chapter overview on 6 chapters, phone and desktop, light and dark; outline tap opens the reader at the verse with no popup; axe clean on the page | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.
