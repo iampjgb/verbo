@@ -229,6 +229,24 @@ Asked for by Zee. Before, all five sets (Hebrew and Greek, footnotes and diction
 
 Trade-off to decide: 144 MB starts downloading on first open, even on mobile data on iPhones. A "Wi-Fi only" choice is not possible on iPhone because Safari does not report the connection type.
 
+## F11. Chapter deep dive
+
+Asked for by Zee: bring the app's parallels, Factbook, maps, dictionary and related data into the Chapter overview, and reorganise it.
+
+**Order and tabs:** Outline · Meaning (only after Claude writes it) · Key verses · Setting · Connections · Words · Commentary · Notes (or Questions). Empty sections are hidden, and their tabs too.
+
+- **Setting** (new; replaces People): events in the chapter with traditional dates (labelled "Dates are traditional dates and approximate"), a small map of the places mentioned (tap: full chapter map), journeys that pass through the chapter (for example Paul's first journey in Acts 13), then People and Places chips that open Factbook cards. Uses `fbData`, `atlasSVG`, `jmFor`, `fbChip`, `fbEvRow`.
+- **Connections** (new): from `window.PARALLELS`, the same story in other books, quoted in other books, and the same teaching elsewhere (tap: the parallels page with "Read them together"). Then the top 8 cross references for the whole chapter. Each verse's top 8 references are scored 8 down to 1 and summed, references inside the same chapter are skipped, and each row shows the verse it comes from and a one-line preview. Tap: peek.
+- **Words and topics:** key words (Hebrew or Greek), Easton's dictionary and Nave's topics moved out of Commentary.
+- **Commentary:** Matthew Henry, Calvin (and Spurgeon for Psalms when the guide offers it).
+- **Your notes** (new): your highlights (with colour dot and colour name for screen readers), bookmarks and notes for this chapter, then the Reading questions.
+- **Header:** a "Words of Jesus: N verses" row for chapters with red letters (from `bible/fact/red.json`).
+- Long lists show a few rows and "Show all N". Data loads only when the page is drawn, and the loaders redraw the overview when it arrives.
+
+**Tested:** Acts 13, Matthew 26, Romans 8 (with sample highlights and a bookmark), Genesis 1, Psalms 23 and 1 Kings 18 on a phone. No page errors; axe clean in light and dark on Matthew 26.
+
+Still open: some Factbook events have no year, and two Acts 13 events overlap ("First missionary journey begins" and "First Missionary Journey"); this is in the data. Parallels coverage is hand-picked, so many chapters have no parallels.
+
 ## New script block (added just before `</body>`)
 
 The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 section to the same block.
@@ -273,6 +291,7 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F9 | Chapter overview on 6 chapters, phone and desktop, light and dark; outline tap opens the reader with no popup; Meaning hidden outside Claude, button inside Claude, shown with label once written; axe clean | Pass |
 | F9 | Cold load of Genesis 1 overview with slow data: all sections fill in | Pass |
 | F10 | Fresh install saves all 5 study sets automatically; a removed set stays removed after reload | Pass |
+| F11 | Deep dive on 6 chapters: Setting, Connections, Words, Your notes appear only when they have data; map, journeys, parallels, cross references and Words of Jesus work; axe clean | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.

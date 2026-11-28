@@ -15,7 +15,7 @@ with sync_playwright() as p:
     pg.screenshot(path="./cold-top.png")
     time.sleep(14)
     pg.evaluate("document.querySelectorAll('#wk-com details.ex-sec').forEach(d=>d.open=true)"); time.sleep(.3)
-    print('skel left in commentary:',pg.evaluate("document.querySelectorAll('#wk-com .skel').length"),'| henry len:',pg.evaluate("(document.querySelector('#wk-com .cm-body')||{innerText:''}).innerText.length"),'| people section:',pg.evaluate("!!document.getElementById('wk-ppl')"))
+    print('skel left in commentary:',pg.evaluate("document.querySelectorAll('#wk-com .skel').length"),'| henry len:',pg.evaluate("(document.querySelector('#wk-com .cm-body')||{innerText:''}).innerText.length"),'| setting section:',pg.evaluate("!!document.getElementById('cov-set')"))
     pg.evaluate("document.getElementById('wk-com').scrollIntoView()"); time.sleep(.4)
     pg.screenshot(path="./cold-com.png")
     print('errs',errs)

@@ -9,7 +9,7 @@ This branch (`review-fixes`) was made by a Claude session on another account on 
 3. `docs/review/FIXES.md`: every code change as exact BEFORE and AFTER text, with test results.
 4. `docs/review/screenshots/`: before and after evidence for the main bugs.
 5. `docs/review/tests/`: Playwright scripts that check each fix.
-6. `index.html`: fixes F1 to F10, in separate commits. F9 is the Chapter overview redesign and F10 saves study sets by default. Both were asked for by Zee. F8 (comic mode dead end) came from Zee's own iPhone test of the preview.
+6. `index.html`: fixes F1 to F11, in separate commits. F9 is the Chapter overview redesign and F10 saves study sets by default. F11 turns the overview into a chapter deep dive. Both were asked for by Zee. F8 (comic mode dead end) came from Zee's own iPhone test of the preview.
 
 Base commit: `2922233` on `main`. Nothing on `main` was changed. The live GitHub Pages site is untouched until this branch is merged.
 
@@ -44,6 +44,7 @@ python3 test_comic_escape.py
 python3 test_chapter_overview.py "Romans|8"
 python3 test_chapter_overview_states.py   # Meaning hidden / button / written
 python3 test_overview_cold_load.py
+python3 test_chapter_deep_dive.py
 python3 test_study_sets_default.py         # takes about a minute
 ```
 

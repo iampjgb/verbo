@@ -1721,6 +1721,27 @@ $1`).trim(),body=`<div class="wc">
 .cov-ai .vs-part{margin:0 0 12px}
 .cov-ai .vs-ph h3{font:600 15px var(--sans)}
 .cov #wk-src h2{font-size:17px!important}
+.cov-h3{margin:18px 0 6px;font:600 15px var(--sans);color:var(--text)}
+.cov-sec>h2+.cov-h3{margin-top:10px}
+.cov-ol .cov-oi{align-items:center}
+.cov-t{display:block;font:500 15px/1.4 var(--sans)}
+.cov-s{display:block;margin-top:2px;font:400 14px/1.45 var(--sans);color:var(--text2)}
+.cov-s1{font-size:15px}
+.cov-from{font-weight:400;color:var(--text2);font-size:13px}
+.cov-hid{display:none}.all>.cov-hid{display:contents}
+.cov-morebtn{min-height:44px;padding:0 4px;border:0;background:none;color:var(--ink);font:500 14px var(--sans);cursor:pointer}
+.cov-ol .cov-morebtn{display:block;width:100%;text-align:left;padding:0 2px}
+.cov-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cov .fb-chip{min-height:40px}
+.cov-ev .li{min-height:48px}
+.cov-ev .fb-yr:empty{display:none}
+.cov-ev .li .t{font-weight:500}
+#cov-q .cov-vr{min-width:64px;white-space:nowrap}
+.cov-map{display:block;width:100%;padding:0;margin:4px 0 0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface);cursor:pointer;position:relative}
+.cov-map svg{display:block;width:100%;height:auto}
+.cov-maplbl{position:absolute;right:8px;bottom:8px;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--border);font:500 13px var(--sans);color:var(--ink)}
+.cov-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;background:var(--hl-gold)}
+.cov-dot.hl-green{background:var(--hl-green)}.cov-dot.hl-blue{background:var(--hl-blue)}.cov-dot.hl-rose{background:var(--hl-rose)}
 .cov #wk-src .g-list,.cov #wk-src .li{border:0!important;background:none!important;padding:0!important;box-shadow:none!important}
 .cov #wk-src .li svg{display:none}
 .cov #wk-src .li span{font-size:13px}
@@ -1745,6 +1766,50 @@ $1`).trim(),body=`<div class="wc">
       if(!SAMPLE)return"";
       if(ui.genBusy===normRef(ref)||ui.genBusy===ref)return`<h2>Meaning</h2><div class="vs-status">${icon("sparkles",16)}<div class="grow">Claude is writing this study. Usually 10 to 20 seconds.<div class="progress" style="margin-top:6px"><i class="indet"></i></div></div></div>`;
       return`<h2>Meaning</h2><p class="cov-meta">Claude reads the chapter and writes what it means, its key ideas and how to apply it. It is saved on this device.</p><div class="cov-ai"><button class="btn" data-action="genStudy" data-ref="${esc(ref)}">${icon("sparkles",16)}Write a study with Claude</button></div>`}
+    /* F11 helpers */
+    const covX={};
+    document.addEventListener("click",e=>{const b=e.target.closest("[data-cov-more]");if(!b)return;covX[b.dataset.covMore]=1;b.parentElement.classList.add("all");b.remove()});
+    const more=(k,items,n)=>items.length>n&&!covX[k]?items.slice(0,n).join("")+`<span class="cov-hid">${items.slice(n).join("")}</span><button type="button" class="cov-morebtn" data-cov-more="${k}">Show all ${items.length}</button>`:items.join("");
+    A.covMap=e=>{S.reading.book=e.dataset.b,S.reading.ch=+e.dataset.c,save(),A.fbAtlasCh()};
+    A.covNote=e=>{ui.noteId=e.dataset.id,ui.editing=!1,nav("notes")};
+    const plain=t=>String(t||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim();
+    const snip=(t,n)=>{t=plain(t);return t.length>n?t.slice(0,n).replace(/\s\S*$/,"")+"…":t};
+    function covSetting(book,ch,ref){
+      const s=typeof fbData==="function"&&fbData(gdRedraw);if(!s)return"";
+      const l=s.chapters[String(bookOrder(book)*1e3+ch)]||[[],[],[]];
+      let jms=[];try{typeof jmNeed==="function"&&!jmNeed()&&(jms=jmFor(book,ch))}catch(x){}
+      const ev=l[2].map(i=>fbEvRow(s.events[i])),pl=l[1],geo=pl.filter(i=>s.places[i]&&s.places[i].lat!=null),ppl=l[0].filter(i=>!/^(God|LORD|Lord)$/i.test(s.people[i].n)).sort((a,b)=>(s.people[b].vc||0)-(s.people[a].vc||0));
+      if(!ev.length&&!pl.length&&!ppl.length&&!jms.length)return"";
+      let h="<h2>Setting</h2>";
+      ev.length&&(h+=`<h3 class="cov-h3">Events</h3><p class="cov-meta">Dates are traditional dates and approximate.</p><div class="list cov-ev">${more("ev",ev,5)}</div>`);
+      if(geo.length){const p=typeof atPaths==="function"&&atPaths();p&&(h+=`<h3 class="cov-h3">Map</h3><button type="button" class="cov-map" data-action="covMap" data-b="${esc(book)}" data-c="${ch}" aria-label="Open the map of places in ${esc(ref)}">${atlasSVG({focus:geo,mini:!0})}<span class="cov-maplbl">${icon("mappin",14)}Open the chapter map</span></button>`)}
+      jms.length&&(h+=`<h3 class="cov-h3">Journeys</h3><div class="cov-ol">${jms.map(j=>`<button type="button" class="cov-oi" data-action="jmOpen" data-id="${esc(j.id)}"><span class="cov-ot">${esc(j.title)}</span>${icon("right",14)}</button>`).join("")}</div>`);
+      ppl.length&&(h+=`<h3 class="cov-h3">People</h3><div class="fb-chips cov-chips">${more("pp",ppl.map(i=>fbChip("p",i,s.people[i].n)),10)}</div>`);
+      pl.length&&(h+=`<h3 class="cov-h3">Places</h3><div class="fb-chips cov-chips">${more("pl",pl.map(i=>fbChip("l",i,s.places[i].n)),10)}</div>`);
+      return h}
+    const parsP=r=>{const m=/^(.+?) (\d+)(?::(\d+))?(?:-(\d+)(?::(\d+))?)?$/.exec(String(r).trim());if(!m)return null;const pr=parseRef(m[1]+" "+m[2]);return pr?{book:pr.book,c1:+m[2],c2:m[5]?+m[4]:+m[2]}:null};
+    function covConnections(book,ch,ref){
+      const inCh=r=>{const p=parsP(r);return!!p&&p.book===book&&ch>=p.c1&&ch<=p.c2};
+      const hits=(window.PARALLELS||[]).filter(x=>(x.refs||[]).some(inCh));
+      const grp=[["story","Same story in other books"],["quote","Quoted in other books"],["teach","Same teaching elsewhere"]];
+      let h="";
+      grp.forEach(([k,t])=>{const xs=hits.filter(x=>x.kind===k);xs.length&&(h+=`<h3 class="cov-h3">${t}</h3><div class="cov-ol">${more("par"+k,xs.map(x=>`<button type="button" class="cov-oi" data-action="parOpen" data-id="${esc(x.id)}"><span class="cov-ot"><span class="cov-t">${esc(x.t)}</span><span class="cov-s">${esc((x.refs.filter(r=>!inCh(r)).join(" \xB7 "))||x.refs.join(" \xB7 "))}</span></span>${icon("right",14)}</button>`),4)}</div>`)});
+      const c=getCh(book,ch),nv=c&&c.v?Object.keys(c.v).length:0,bi=BOOKS.findIndex(b=>b.n===book),w=new Map;let pending=!1;
+      for(let v=1;v<=nv;v++){const d=dataFor("XREF",book,ch,v);if(d===null){pending=!0;break}(d||[]).slice(0,8).forEach((r,i)=>{const pr=parseRef(r);if(!pr||pr.book===book&&pr.ch===ch)return;const k=normRef(r),o=w.get(k)||{r,s:0,v,best:0},sc=8-i;o.s+=sc,sc>o.best&&(o.best=sc,o.v=v),w.set(k,o)})}
+      pending&&bi>=0&&!(typeof bookFailed==="function"&&bookFailed("XREF",book))&&loadBook("XREF",bi).then(gdRedraw,()=>{});
+      const top=pending?[]:[...w.values()].sort((a,b)=>b.s-a.s).slice(0,8);
+      top.length&&(h+=`<h3 class="cov-h3">Cross references</h3><p class="cov-meta">Passages most often linked to this chapter, ranked by OpenBible.info readers. Tap one to read it.</p><div class="cov-ol">${top.map(o=>{let t="";try{t=refText(o.r)||""}catch(x){}return`<button type="button" class="cov-oi" data-action="peekRef" data-ref="${esc(o.r)}"><span class="cov-ot"><span class="cov-t">${esc(o.r)} <span class="cov-from">from verse ${o.v}</span></span>${t?`<span class="cov-s">${esc(snip(t,110))}</span>`:""}</span>${icon("right",14)}</button>`}).join("")}</div>`);
+      return h?`<h2>Connections</h2>${h}`:""}
+    function covMine(ref){
+      const pre=ref+":",vn=k=>parseInt(k.slice(pre.length),10)||0;
+      const hl=Object.keys(S.highlights||{}).filter(k=>k.startsWith(pre)).sort((a,b)=>vn(a)-vn(b));
+      const bm=(S.bookmarks||[]).filter(b=>b&&typeof b.ref==="string"&&b.ref.startsWith(pre)).sort((a,b)=>vn(a.ref)-vn(b.ref));
+      let nt=[];try{nt=typeof notesFor==="function"?notesFor(ref):[]}catch(x){}
+      const row=(act,attr,lbl,txt,dot)=>`<button type="button" class="cov-oi" data-action="${act}" ${attr}><span class="cov-vr">${dot||""}${esc(lbl)}</span><span class="cov-ot cov-s1">${esc(snip(txt,90))}</span>${icon("right",14)}</button>`;
+      const vt=k=>{try{return refText(k)||""}catch(x){return""}};
+      const rows=[...hl.map(k=>row("openRef",`data-ref="${esc(k)}"`,"v. "+vn(k),vt(k),`<i class="cov-dot hl-${esc((S.highlights[k]||{}).c||"gold")}" aria-label="${esc((S.highlights[k]||{}).c||"gold")} highlight"></i>`)),...bm.map(b=>row("openRef",`data-ref="${esc(b.ref)}"`,"v. "+vn(b.ref),vt(b.ref),icon("bookmark",12))),...nt.map(n=>row("covNote",`data-id="${esc(n.id)}"`,n.ref&&n.ref.startsWith(pre)?"v. "+vn(n.ref):"Note",n.title||plain(n.html||n.body||n.text||"")||"Untitled note",icon("edit",12)))];
+      return rows.length?`<p class="cov-meta">${[hl.length&&`${hl.length} highlight${hl.length>1?"s":""}`,bm.length&&`${bm.length} bookmark${bm.length>1?"s":""}`,nt.length&&`${nt.length} note${nt.length>1?"s":""}`].filter(Boolean).join(" \xB7 ")}</p><div class="cov-ol">${more("mine",rows,6)}</div>`:""}
+    function covRed(book,ch){const bi=BOOKS.findIndex(b=>b.n===book);if(bi<39)return 0;const r=gdGet("fact/red.json",gdRedraw);if(!r)return 0;const p=`${bi}|${ch}|`;let n=0;for(const k in r)k.startsWith(p)&&n++;return n}
     function cov(){
       const pg=document.querySelector("#main .page");if(!pg||pg.dataset.cov)return;
       const main=pg.querySelector(".wk-main");if(!main)return;pg.dataset.cov="1";pg.classList.add("cov");
@@ -1755,7 +1820,7 @@ $1`).trim(),body=`<div class="wc">
       let theme="";if(sum){const d=[...sum.querySelectorAll("dt")].find(x=>tx(x)==="Book theme");d&&(theme=tx(d.nextElementSibling))}
       const pnb=[...pg.querySelectorAll(".wk-pn button")],prev=pnb.find(b=>+b.dataset.c<ch),next=pnb.find(b=>+b.dataset.c>ch);
       const nb=(b,p)=>b?`<button class="cov-pn" data-action="chOv" data-b="${esc(b.dataset.b)}" data-c="${b.dataset.c}" aria-label="${p?"Previous":"Next"} chapter: ${esc(b.dataset.b)} ${b.dataset.c}">${p?icon("left",16):""}${esc(b.dataset.b)} ${b.dataset.c}${p?"":icon("right",16)}</button>`:"<span></span>";
-      const gl=[["Verses",verses],["Author",author],["Written",written],["First readers",readers]].filter(x=>x[1]).map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("")+(theme?`<div><dt>Book theme</dt><dd>${esc(theme)}</dd></div>`:"");
+      const red=covRed(book,ch),gl=[["Verses",verses],["Words of Jesus",red?red+(red===1?" verse":" verses"):""],["Author",author],["Written",written],["First readers",readers]].filter(x=>x[1]).map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("")+(theme?`<div><dt>Book theme</dt><dd>${esc(theme)}</dd></div>`:"");
       const head=document.createElement("header");head.className="cov-h";
       head.innerHTML=`<div class="cov-pnrow">${nb(prev,1)}${nb(next,0)}</div><h1 class="cov-title">${esc(ref)}</h1>${sub&&sub!==ref?`<p class="cov-sub">${esc(sub)}</p>`:""}${gl?`<dl class="cov-glance">${gl}</dl>`:""}<div class="cov-acts"><button class="btn primary" data-action="openRef" data-ref="${esc(ref)}">${icon("book",18)}Read ${esc(ref)}</button><button class="cov-ghost" data-action="gsStart" data-ref="${esc(ref)}">${icon("calcheck",16)}Guided study</button></div>`;
       const body=document.createElement("div");body.className="cov-body";const secs=[];
@@ -1765,15 +1830,24 @@ $1`).trim(),body=`<div class="wc">
       if(ol){const items=[...ol.querySelectorAll("li")].map(li=>{const s=tx(li),m=s.match(/^(.*?)\s*\(([\d\s,–\-]+)\)\s*\.?$/);let r=m?m[2].replace(/\s+/g,"").replace(/-/g,"–"):"";const pr=r.match(/^(\d+),(\d+)$/);pr&&+pr[2]===+pr[1]+1&&(r=pr[1]+"–"+pr[2]);const v=r?parseInt(r,10):0;const label=(m?m[1]:s).replace(/\.\s*$/,"");return v?`<li><button class="cov-oi" data-action="covGo" data-ref="${esc(ref)}:${v}"><span class="cov-vr">${esc(r)}</span><span class="cov-ot">${esc(label)}</span>${icon("right",14)}</button></li>`:`<li><div class="cov-oi"><span class="cov-ot">${esc(label)}</span></div></li>`}).join("");
         items&&add(mk("cov-outline",`<h2>Outline</h2><p class="cov-meta">From Matthew Henry's Concise Commentary. Tap a section to read it.</p><ol class="cov-ol">${items}</ol>`),"cov-outline","Outline");ol.remove()}
       const ai=aiPart(ref,book);ai&&add(mk("cov-ai",ai),"cov-ai","Meaning");
-      const key=pg.querySelector("#wk-key");key&&key.querySelectorAll(".wk-qt").forEach(q=>{const c=tx(q.querySelector("cite"));c&&!c.includes(":")&&q.remove()});key&&key.querySelector(".wk-qt")?(h2set(key,"Key verses"),add(key,"wk-key","Key verses")):key&&key.remove();
-      const ppl=pg.querySelector("#wk-ppl");if(ppl){const hasPl=[...ppl.querySelectorAll(".wk-chips .muted")].some(x=>tx(x)==="Places");hasPl?h2set(ppl,"People and places"):(h2set(ppl,"People"),ppl.querySelectorAll(".wk-chips>.muted").forEach(x=>x.remove()));add(ppl,"wk-ppl",hasPl?"People":"People")}
-      if(sum){const qs=[...sum.querySelectorAll(".vs-part")].map(p=>{const h=tx(p.querySelector(".vs-ph h3"));return h==="Overview"?p.querySelector("ul.clean"):null}).find(Boolean);
-        if(qs){const w=mk("cov-q","");const acc=document.createElement("div");acc.className="cov-acc";const d=document.createElement("details");d.className="cov-q";d.innerHTML=`<summary><span>Reading questions</span>${icon("down",16)}</summary><div class="cov-qin"></div>`;d.querySelector(".cov-qin").append(qs);track(d,"q");acc.append(d);w.append(acc);add(w,"cov-q","Questions")}
-        sum.remove()}
-      if(com){const eh=com.querySelector(".ex-head");eh&&eh.remove();h2set(com,"Commentary");const acc=document.createElement("div");acc.className="cov-acc";
-        [...com.querySelectorAll("details.ex-sec")].forEach(d=>{const k=tx(d.querySelector("summary"));if(/^(People|Places|Events|Cross references)\b/.test(k)){d.remove();return}track(d,k);acc.append(d)});
-        const note=com.querySelector(":scope>.muted.tiny");com.querySelector("h2").after(acc);note&&acc.after(note);add(com,"wk-com","Commentary")}
-      const src=pg.querySelector("#wk-src");src&&(h2set(src,"Sources"),add(src,"wk-src",null));
+      const key=pg.querySelector("#wk-key");key&&key.querySelectorAll(".wk-qt").forEach(q=>{const c=tx(q.querySelector("cite"));c&&!c.includes(":")&&q.remove()});key&&key.querySelector(".wk-qt")?(h2set(key,"Key verses"),add(key,"wk-key",null)):key&&key.remove();
+      /* F11: Setting, Connections, Words and topics, Your notes */
+      const oldPpl=pg.querySelector("#wk-ppl");oldPpl&&oldPpl.remove();
+      const setH=covSetting(book,ch,ref);setH&&add(mk("cov-set",setH),"cov-set","Setting");
+      const conH=covConnections(book,ch,ref);conH&&add(mk("cov-con",conH),"cov-con","Connections");
+      let wordsAcc=null;
+      if(com){const eh=com.querySelector(".ex-head");eh&&eh.remove();h2set(com,"Commentary");const acc=document.createElement("div");acc.className="cov-acc";wordsAcc=document.createElement("div");wordsAcc.className="cov-acc";
+        [...com.querySelectorAll("details.ex-sec")].forEach(d=>{const k=tx(d.querySelector("summary"));if(/^(People|Places|Events|Cross references)\b/.test(k)){d.remove();return}track(d,k);(/^(Key words|Bible dictionary|Topics)\b/.test(k)?wordsAcc:acc).append(d)});
+        if(wordsAcc.children.length){const w=mk("cov-words","<h2>Words and topics</h2><p class=\"cov-meta\">Hebrew or Greek words in this chapter, and entries in Easton's dictionary and Nave's topics that cite it.</p>");w.append(wordsAcc);add(w,"cov-words","Words")}
+        const note=com.querySelector(":scope>.muted.tiny");com.querySelector("h2").after(acc);note&&acc.after(note);acc.children.length&&add(com,"wk-com","Commentary")}
+      const mineH=covMine(ref);
+      {const w=mk("cov-q",mineH?`<h2>Your notes</h2>${mineH}`:"");let hasQ=!1;
+        if(sum){const qs=[...sum.querySelectorAll(".vs-part")].map(p=>{const h=tx(p.querySelector(".vs-ph h3"));return h==="Overview"?p.querySelector("ul.clean"):null}).find(Boolean);
+          if(qs){hasQ=!0;const acc=document.createElement("div");acc.className="cov-acc";const d=document.createElement("details");d.className="cov-q";d.innerHTML=`<summary><span>Reading questions</span>${icon("down",16)}</summary><div class="cov-qin"></div>`;d.querySelector(".cov-qin").append(qs);track(d,"q");acc.append(d);w.append(acc)}
+          sum.remove()}
+        (mineH||hasQ)&&add(w,"cov-q",mineH?"Notes":"Questions")}
+      
+const src=pg.querySelector("#wk-src");src&&(h2set(src,"Sources"),add(src,"wk-src",null));
       const tabs=document.createElement("nav");tabs.className="cov-tabs";tabs.setAttribute("aria-label","Sections");tabs.innerHTML=secs.map(([i,l])=>`<button type="button" data-cov-go="${i}">${l}</button>`).join("");
       const crumb=pg.querySelector(".wk-crumb"),h1=pg.querySelector(".wk-title"),grid=pg.querySelector(".wk-grid");
       const anchor=pg.querySelector(".lb-crumb");anchor?anchor.after(head):pg.prepend(head);head.after(tabs);tabs.after(body);
