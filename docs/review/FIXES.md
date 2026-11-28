@@ -166,6 +166,28 @@ Asked for by Zee after the review, in two rounds. The old page was a Wikipedia-s
 - Fewer boxes: At a glance and the outline use thin dividers. Reading questions and every commentary section share one accordion style. The key verse is a pull quote with an accent rule. "Read Romans 8" is full width on phones, and Guided study is a quiet text button.
 - Note: in this app `--serif` is set to Inter. Use `--display` for serif headings.
 
+**Round 3, from Zee's iPhone (2026-11-28)**
+- At a glance took most of the first screen (long values such as "Traditionally attributed to Moses; many scholars see sources compiled over time"). It is now a compact label/value list at 14px. Long values are shortened: text after ";" or "(" is dropped, "Traditionally attributed to X" becomes "X (traditionally)", and "Composition date debated" becomes "Debated". Top spacing is tighter.
+- Commentary, key words, dictionary, topics and People stayed as grey placeholders on a fresh load. Cause (it existed before this branch): the data loaders only redraw on the reader and verse study pages. Fixed in source:
+
+BEFORE
+```js
+gdRedraw=()=>{(ui.page==="reader"||ui.page==="verse-study")&&refresh()}
+```
+AFTER
+```js
+gdRedraw=()=>{(ui.page==="reader"||ui.page==="verse-study"||ui.page==="chapter")&&refresh()}
+```
+BEFORE
+```js
+const fbRedraw=()=>{["factbook","reader","verse-study"].includes(ui.page)&&refresh()}
+```
+AFTER
+```js
+const fbRedraw=()=>{["factbook","reader","verse-study","chapter"].includes(ui.page)&&refresh()}
+```
+Tested by opening Genesis 1's overview straight from Today with a 2-second delay on every study file. All sections filled in, with no placeholders left.
+
 **Source edits outside the script block**
 
 BEFORE (audience lowercasing, it produced "jewish")
@@ -191,6 +213,21 @@ const s=getStudy(`${ref}:${v}`);s&&s.key.includes(":")&&!keys.includes(s.key)&&k
 **Tested:** Romans 8, Acts 13, Psalms 23, Obadiah 1, Genesis 1 and Revelation 22, on phone and desktop, in light and dark. Three Meaning states were checked: outside Claude (hidden), inside Claude with no study (button), and with a written study (shown with its label). No page errors. axe shows no violations on the page in light or dark. Romans 8 on a phone went from 9,125px to about 2,300px.
 
 Still open: many chapters show only one key verse (data). The real "Write a study with Claude" run was not tested, because it needs the app running inside Claude.
+
+## F10. Study sets are saved by default
+
+Asked for by Zee. Before, all five sets (Hebrew and Greek, footnotes and dictionary, people and places, Matthew Henry, more commentaries; about 144 MB) had to be saved by hand in Settings.
+
+**How (script block, `/* F10 */`).**
+- After the service worker reports what is saved, the app saves every set that is not complete, one at a time, through the existing `A.pwaSave`. The per-set "saved" toasts are muted (`p.auto`). One toast says what is happening: "Saving study sets for offline use (144 MB)...".
+- It waits 8 seconds after start, needs to be online, and skips when the browser reports Data Saver or a 2G connection. iPhones do not report the connection type, so on an iPhone it can run on mobile data.
+- It runs on every launch until all sets are complete. This also refills sets the system cleared to free space.
+- If the user taps Remove, the set id goes into `localStorage["verbo.packsRemoved"]` and is never downloaded again automatically. Tapping Save takes it back off that list.
+- Saved sets live in the `verbo-data-v1` cache, which app updates keep, so the `VERSION` bumps do not delete them.
+
+**Tested:** fresh install, all 5 sets saved in about 54 s on the test server with one toast; then removing Matthew Henry and reloading did not download it again.
+
+Trade-off to decide: 144 MB starts downloading on first open, even on mobile data on iPhones. A "Wi-Fi only" choice is not possible on iPhone because Safari does not report the connection type.
 
 ## New script block (added just before `</body>`)
 
@@ -234,6 +271,8 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F7 | Desktop says "Click Bible on the left"; Escape sets `verbo.welcomed` | Pass |
 | F8 | Comic mode (Romans 8, BSB, phone): the empty-page button and the popover item both return to text (39 verses shown) | Pass |
 | F9 | Chapter overview on 6 chapters, phone and desktop, light and dark; outline tap opens the reader with no popup; Meaning hidden outside Claude, button inside Claude, shown with label once written; axe clean | Pass |
+| F9 | Cold load of Genesis 1 overview with slow data: all sections fill in | Pass |
+| F10 | Fresh install saves all 5 study sets automatically; a removed set stays removed after reload | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.
