@@ -1737,6 +1737,10 @@ $1`).trim(),body=`<div class="wc">
 .cov .fb-chip{min-height:40px}
 .cov-ev .li{min-height:48px}
 .cov-ev .fb-yr:empty{display:none}
+.cov #cov-words .gd-word .s{display:none}
+.cov-srcl{margin:4px 0 0;padding-left:18px;font:400 13px/1.5 var(--sans);color:var(--text2)}
+.cov-srcl li{margin:0 0 6px}
+.cov .chips .cov-morebtn{min-height:36px}
 .cov-ev .li .t{font-weight:500}
 #cov-q .cov-vr{min-width:64px;white-space:nowrap}
 .cov-map{display:block;width:100%;padding:0;margin:4px 0 0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface);cursor:pointer;position:relative}
@@ -1798,9 +1802,9 @@ $1`).trim(),body=`<div class="wc">
       grp.forEach(([k,t])=>{const xs=hits.filter(x=>x.kind===k);xs.length&&(h+=`<h3 class="cov-h3">${t}</h3><div class="cov-ol">${more("par"+k,xs.map(x=>`<button type="button" class="cov-oi" data-action="parOpen" data-id="${esc(x.id)}"><span class="cov-ot"><span class="cov-t">${esc(x.t)}</span><span class="cov-s">${esc((x.refs.filter(r=>!inCh(r)).join(" \xB7 "))||x.refs.join(" \xB7 "))}</span></span>${icon("right",14)}</button>`),4)}</div>`)});
       const c=getCh(book,ch),nv=c&&c.v?Object.keys(c.v).length:0,bi=BOOKS.findIndex(b=>b.n===book),w=new Map;let pending=!1;
       for(let v=1;v<=nv;v++){const d=dataFor("XREF",book,ch,v);if(d===null){pending=!0;break}(d||[]).slice(0,8).forEach((r,i)=>{const pr=parseRef(r);if(!pr||pr.book===book&&pr.ch===ch)return;const k=normRef(r),o=w.get(k)||{r,s:0,v,best:0},sc=8-i;o.s+=sc,sc>o.best&&(o.best=sc,o.v=v),w.set(k,o)})}
-      pending&&bi>=0&&!(typeof bookFailed==="function"&&bookFailed("XREF",book))&&loadBook("XREF",bi).then(gdRedraw,()=>{});
+      pending&&bi>=0&&!(typeof bookFailed==="function"&&bookFailed("XREF",book))&&navigator.onLine&&loadBook("XREF",bi).then(gdRedraw,()=>{});pending&&!navigator.onLine&&(h+=`<h3 class="cov-h3">Cross references</h3><p class="cov-meta cov-off">Not saved on this device yet. Connect to the internet once and they will be saved for offline use.</p>`);
       const top=pending?[]:[...w.values()].sort((a,b)=>b.s-a.s).slice(0,8);
-      top.length&&(h+=`<h3 class="cov-h3">Cross references</h3><p class="cov-meta">Passages most often linked to this chapter, ranked by OpenBible.info readers. Tap one to read it.</p><div class="cov-ol">${top.map(o=>{let t="";try{t=refText(o.r)||""}catch(x){}return`<button type="button" class="cov-oi" data-action="peekRef" data-ref="${esc(o.r)}"><span class="cov-ot"><span class="cov-t">${esc(o.r)} <span class="cov-from">from verse ${o.v}</span></span>${t?`<span class="cov-s">${esc(snip(t,110))}</span>`:""}</span>${icon("right",14)}</button>`}).join("")}</div>`);
+      top.length&&(h+=`<h3 class="cov-h3">Cross references</h3><p class="cov-meta">Passages most often linked to this chapter. Tap one to read it.</p><div class="cov-ol">${top.map(o=>{let t="";try{t=refText(o.r)||""}catch(x){}return`<button type="button" class="cov-oi" data-action="peekRef" data-ref="${esc(o.r)}"><span class="cov-ot"><span class="cov-t">${esc(o.r)} <span class="cov-from">from verse ${o.v}</span></span>${t?`<span class="cov-s">${esc(snip(t,110))}</span>`:""}</span>${icon("right",14)}</button>`}).join("")}</div>`);
       return h?`<h2>Connections</h2>${h}`:""}
     function covMine(ref){
       const pre=ref+":",vn=k=>parseInt(k.slice(pre.length),10)||0;
@@ -1820,7 +1824,7 @@ $1`).trim(),body=`<div class="wc">
       const verses=row(pg,"Verses"),author=row(pg,"Author").replace(/\s*\(.*$/,"").replace(/,\s*with\b.*$/,"").replace(/;.*$/,"").replace(/^Traditionally attributed to (.+)$/,"$1 (traditionally)"),written=row(pg,"Written").replace(/,.*$/,"").replace(/^Composition date debated$/,"Debated"),readers=row(pg,"First readers");
       const sum=pg.querySelector("#wk-sum");
       let theme="";if(sum){const d=[...sum.querySelectorAll("dt")].find(x=>tx(x)==="Book theme");d&&(theme=tx(d.nextElementSibling))}
-      const pnb=[...pg.querySelectorAll(".wk-pn button")],prev=pnb.find(b=>+b.dataset.c<ch),next=pnb.find(b=>+b.dataset.c>ch);
+      const bix=BOOKS.findIndex(b=>b.n===book),mkb=(b,c)=>({dataset:{b,c}}),prev=ch>1?mkb(book,ch-1):bix>0?mkb(BOOKS[bix-1].n,BOOKS[bix-1].c):null,next=bix>=0&&ch<BOOKS[bix].c?mkb(book,ch+1):bix>=0&&bix<BOOKS.length-1?mkb(BOOKS[bix+1].n,1):null;
       const nb=(b,p)=>b?`<button class="cov-pn" data-action="chOv" data-b="${esc(b.dataset.b)}" data-c="${b.dataset.c}" aria-label="${p?"Previous":"Next"} chapter: ${esc(b.dataset.b)} ${b.dataset.c}">${p?icon("left",16):""}${esc(b.dataset.b)} ${b.dataset.c}${p?"":icon("right",16)}</button>`:"<span></span>";
       const red=covRed(book,ch),gl=[["Verses",verses],["Words of Jesus",red?red+(red===1?" verse":" verses"):""],["Author",author],["Written",written],["First readers",readers]].filter(x=>x[1]).map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("")+(theme?`<div><dt>Book theme</dt><dd>${esc(theme)}</dd></div>`:"");
       const head=document.createElement("header");head.className="cov-h";
@@ -1829,7 +1833,9 @@ $1`).trim(),body=`<div class="wc">
       const add=(node,id,label)=>{node.classList.add("cov-sec");node.id=id;body.append(node);label&&secs.push([id,label])};
       const mk=(id,html)=>{const s=document.createElement("section");s.innerHTML=html;s.id=id;return s};
       const com=pg.querySelector("#wk-com"),ol=com&&com.querySelector(".gd-outline");
-      if(ol){const items=[...ol.querySelectorAll("li")].map(li=>{const s=tx(li),m=s.match(/^(.*?)\s*\(([\d\s,–\-]+)\)\s*\.?$/);let r=m?m[2].replace(/\s+/g,"").replace(/-/g,"–"):"";const pr=r.match(/^(\d+),(\d+)$/);pr&&+pr[2]===+pr[1]+1&&(r=pr[1]+"–"+pr[2]);const v=r?parseInt(r,10):0;const label=(m?m[1]:s).replace(/\.\s*$/,"");return v?`<li><button class="cov-oi" data-action="covGo" data-ref="${esc(ref)}:${v}"><span class="cov-vr">${esc(r)}</span><span class="cov-ot">${esc(label)}</span>${icon("right",14)}</button></li>`:`<li><div class="cov-oi"><span class="cov-ot">${esc(label)}</span></div></li>`}).join("");
+      if(!ol&&com){const sx=[...com.querySelectorAll(".gd-sec")].map(g=>{const vr=tx(g.querySelector(".gd-vr")),mm=vr.match(/:(\d+)(?:\D(\d+))?/),p1=g.querySelector(".cm-body p"),first=p1?tx(p1).split(/(?<=[.;?!])\s/)[0]:"";return mm&&first?{v:+mm[1],r:mm[2]?mm[1]+"–"+mm[2]:mm[1],t:snip(first,90).replace(/[.;]$/,"")}:null}).filter(Boolean);
+        sx.length>1&&add(mk("cov-outline",`<h2>Outline</h2><p class="cov-meta">The opening line of each section of Matthew Henry's commentary. Tap a section to read it.</p><ol class="cov-ol">${sx.map(o=>`<li><button class="cov-oi" data-action="covGo" data-ref="${esc(ref)}:${o.v}"><span class="cov-vr">${esc(o.r)}</span><span class="cov-ot">${esc(o.t)}</span>${icon("right",14)}</button></li>`).join("")}</ol>`),"cov-outline","Outline")}
+      if(ol){const items=[...ol.querySelectorAll("li")].map(li=>{const s=tx(li),m=s.match(/^(.*?)\s*\(([\d\s,;–\-]+)\)\s*\.?$/);let r=m?m[2].replace(/\s+/g,"").replace(/-/g,"–").replace(/;/g,", "):"";const pr=r.match(/^(\d+),(\d+)$/);pr&&+pr[2]===+pr[1]+1&&(r=pr[1]+"–"+pr[2]);const v=r?parseInt(r,10):0;const label=(m?m[1]:s).replace(/\.\s*$/,"").replace(/^[a-z]/,c=>c.toUpperCase());return v?`<li><button class="cov-oi" data-action="covGo" data-ref="${esc(ref)}:${v}"><span class="cov-vr">${esc(r)}</span><span class="cov-ot">${esc(label)}</span>${icon("right",14)}</button></li>`:`<li><div class="cov-oi"><span class="cov-ot">${esc(label)}</span></div></li>`}).join("");
         items&&add(mk("cov-outline",`<h2>Outline</h2><p class="cov-meta">From Matthew Henry's Concise Commentary. Tap a section to read it.</p><ol class="cov-ol">${items}</ol>`),"cov-outline","Outline");ol.remove()}
       const ai=aiPart(ref,book);ai&&add(mk("cov-ai",ai),"cov-ai","Meaning");
       const key=pg.querySelector("#wk-key");key&&key.querySelectorAll(".wk-qt").forEach(q=>{const c=tx(q.querySelector("cite"));c&&!c.includes(":")&&q.remove()});key&&key.querySelector(".wk-qt")?(h2set(key,"Key verses"),add(key,"wk-key",null)):key&&key.remove();
@@ -1840,16 +1846,18 @@ $1`).trim(),body=`<div class="wc">
       let wordsAcc=null;
       if(com){const eh=com.querySelector(".ex-head");eh&&eh.remove();h2set(com,"Commentary");const acc=document.createElement("div");acc.className="cov-acc";wordsAcc=document.createElement("div");wordsAcc.className="cov-acc";
         [...com.querySelectorAll("details.ex-sec")].forEach(d=>{const k=tx(d.querySelector("summary"));if(/^(People|Places|Events|Cross references)\b/.test(k)){d.remove();return}track(d,k);(/^(Key words|Bible dictionary|Topics)\b/.test(k)?wordsAcc:acc).append(d)});
-        if(wordsAcc.children.length){const w=mk("cov-words","<h2>Words and topics</h2><p class=\"cov-meta\">Hebrew or Greek words in this chapter, and entries in Easton's dictionary and Nave's topics that cite it.</p>");w.append(wordsAcc);add(w,"cov-words","Words")}
+        if(wordsAcc.children.length){wordsAcc.querySelectorAll("details.ex-sec").forEach(d=>{const sp=d.querySelector("summary>span"),k=tx(sp);sp&&(sp.textContent=k.replace(/^Key words · (Hebrew|Greek)$/,"Key words in $1").replace(/^Bible dictionary · Easton$/,"Bible dictionary").replace(/^Topics · Nave$/,"Topics"));d.querySelectorAll(".chips").forEach((cc,ci)=>{const bs=[...cc.querySelectorAll("button")];if(bs.length<2)return;bs.sort((a,b)=>tx(a).localeCompare(tx(b))).forEach(b=>cc.append(b));const key="ch"+k+ci;if(bs.length>15&&!covX[key]){const hid=document.createElement("span");hid.className="cov-hid";bs.slice(15).forEach(b=>hid.append(b));cc.append(hid);cc.insertAdjacentHTML("beforeend",`<button type="button" class="cov-morebtn" data-cov-more="${key}">Show all ${bs.length}</button>`)}})});
+          const w=mk("cov-words","<h2>Words and topics</h2><p class=\"cov-meta\">Important Hebrew or Greek words in this chapter, and dictionary and topic entries that mention it. Tap one to learn more.</p>");w.append(wordsAcc);add(w,"cov-words","Words")}
         const note=com.querySelector(":scope>.muted.tiny");com.querySelector("h2").after(acc);note&&acc.after(note);acc.children.length&&add(com,"wk-com","Commentary")}
       const mineH=covMine(ref);
-      {const w=mk("cov-q",mineH?`<h2>Your notes</h2>${mineH}`:"");let hasQ=!1;
+      {const w=mk("cov-q",mineH?`<h2>Your notes</h2>${mineH}`:"<h2>Questions</h2>");let hasQ=!1;
         if(sum){const qs=[...sum.querySelectorAll(".vs-part")].map(p=>{const h=tx(p.querySelector(".vs-ph h3"));return h==="Overview"?p.querySelector("ul.clean"):null}).find(Boolean);
-          if(qs){hasQ=!0;const acc=document.createElement("div");acc.className="cov-acc";const d=document.createElement("details");d.className="cov-q";d.innerHTML=`<summary><span>Reading questions</span>${icon("down",16)}</summary><div class="cov-qin"></div>`;d.querySelector(".cov-qin").append(qs);track(d,"q");acc.append(d);w.append(acc)}
+          if(qs){hasQ=!0;const acc=document.createElement("div");acc.className="cov-acc";const d=document.createElement("details");d.className="cov-q";d.innerHTML=`<summary><span>Questions to start with</span>${icon("down",16)}</summary><div class="cov-qin"></div>`;d.querySelector(".cov-qin").append(qs);track(d,"q");acc.append(d);w.append(acc)}
           sum.remove()}
         (mineH||hasQ)&&add(w,"cov-q",mineH?"Notes":"Questions")}
       
-const src=pg.querySelector("#wk-src");src&&(h2set(src,"Sources"),add(src,"wk-src",null));
+const src=pg.querySelector("#wk-src");src&&(src.innerHTML=`<h2>Sources</h2><ul class="cov-srcl"><li>Outline and commentary: Matthew Henry's Concise and Complete Commentary (public domain). John Calvin's commentaries, translated by Henry Beveridge and others (public domain, Christian Classics Ethereal Library). Spurgeon's Treasury of David for the Psalms (public domain).</li><li>People, places, events and maps: Theographic Bible Metadata by Robert Rouse (CC BY-SA 4.0), with OpenBible.info locations and Natural Earth map outlines (public domain).</li><li>Cross references: OpenBible.info (CC BY), ranked by reader votes.</li><li>Parallels: compiled for Verbo.</li><li>Hebrew and Greek words: Translators Brief lexicons of Extended Strong's by STEPBible.org, Tyndale House Cambridge (CC BY 4.0).</li><li>Dictionary and topics: Easton's Bible Dictionary (1897) and Nave's Topical Bible (public domain).</li><li>Words of Jesus: the CrossWire KJV module (public domain), via the open-bibles collection.</li><li>Chapter notes are built from the text, its heading and book background. These are older works. Check them against the text.</li></ul>`,add(src,"wk-src",null));
+      if(!navigator.onLine)body.querySelectorAll(".skel").forEach(k=>{const box=k.parentElement;if(!box||box.dataset.off)return;box.dataset.off="1";box.querySelectorAll(".skel").forEach(x=>x.remove());box.insertAdjacentHTML("afterbegin",'<p class="cov-meta cov-off">Not saved on this device yet. Connect to the internet once and it will be saved for offline use.</p>')});
       const tabs=document.createElement("nav");tabs.className="cov-tabs";tabs.setAttribute("aria-label","Sections");tabs.innerHTML=secs.map(([i,l])=>`<button type="button" data-cov-go="${i}">${l}</button>`).join("");
       const crumb=pg.querySelector(".wk-crumb"),h1=pg.querySelector(".wk-title"),grid=pg.querySelector(".wk-grid");
       const anchor=pg.querySelector(".lb-crumb");anchor?anchor.after(head):pg.prepend(head);head.after(tabs);tabs.after(body);
@@ -1868,17 +1876,19 @@ const src=pg.querySelector("#wk-src");src&&(h2set(src,"Sources"),add(src,"wk-src
     const _rm=A.pwaRemove;typeof _rm==="function"&&(A.pwaRemove=function(e){const id=e&&e.dataset&&e.dataset.id;if(id){const l=removed();l.includes(id)||l.push(id),set(RM,JSON.stringify(l))}return _rm.apply(this,arguments)});
     const _sv=A.pwaSave;A.pwaSave=function(e){const id=e&&e.dataset&&e.dataset.id,p=id&&(window.PWA||{packs:[]}).packs.find(x=>x.id===id);id&&!(p&&p.auto)&&set(RM,JSON.stringify(removed().filter(x=>x!==id)));return _sv.apply(this,arguments)};
     const slow=()=>{const c=navigator.connection;return!!(c&&(c.saveData||/2g$/.test(c.effectiveType||"")))};
+    const PZ="verbo.packsPause",paused=()=>{const t=+(get(PZ)||0);return t&&Date.now()-t<864e5};
+    function covBar(msg){try{const o=document.querySelector(".cov-bar");o&&o.remove();const d=document.createElement("div");d.className="pwa-bar cov-bar";d.setAttribute("role","status");d.innerHTML=`<span>${msg}</span><button class="btn ghost sm" type="button">Not now</button>`;d.querySelector("button").onclick=()=>{set(PZ,String(Date.now())),d.remove(),toast("Paused. Saving will start again tomorrow, or from Settings.")};document.body.appendChild(d);setTimeout(()=>d.remove(),12e3)}catch(x){}}
     const t0=Date.now();let running=!1,fin=!1;
     function tick(){
-      const P=window.PWA;if(running||Date.now()-t0<8e3||!P||!P.swReady||!P.packs.length||!navigator.onLine||slow())return;
+      const P=window.PWA;if(running||paused()||Date.now()-t0<8e3||!P||!P.swReady||!P.packs.length||!navigator.onLine||slow())return;
       if(!P.status||!Object.keys(P.status).length)return;
       const rm=removed(),todo=P.packs.filter(p=>!rm.includes(p.id)&&(P.status[p.id]||0)<p.files.length&&!P.busy[p.id]);
       if(!todo.length){set(K,"done"),fin=!0;return}
       running=!0;const mb=Math.round(todo.reduce((a,p)=>a+(p.size||0),0)/1e6);
-      get(K)||toast(`Saving study sets for offline use (${mb} MB). Keep using the app. Manage them in Settings.`);set(K,"started");
-      (async()=>{for(const p of todo){if(!navigator.onLine)break;p.auto=!0;A.pwaSave({dataset:{id:p.id}});
+      get(K)||covBar(`Saving Bible study tools for offline use (${mb} MB). You can keep reading.`);set(K,"started");
+      (async()=>{const first=get(K)!=="done";let br=!1;for(const p of todo){if(!navigator.onLine||paused()){br=!0;break}p.auto=!0;A.pwaSave({dataset:{id:p.id}});
           await new Promise(r=>{let seen=!1,n=0;const iv=setInterval(()=>{n++;P.busy[p.id]&&(seen=!0);if(seen&&!P.busy[p.id]||!seen&&n>10||n>1800){clearInterval(iv),r()}},1e3)})}
-        running=!1,fin=!0;try{P.packs.length&&navigator.serviceWorker.controller&&navigator.serviceWorker.controller.postMessage({type:"packStatus",packs:P.packs.map(p=>({id:p.id,files:p.files}))})}catch(e){}})()}
+        running=!1,fin=!0;!br&&first&&toast("Bible study tools saved. They now work without the internet.");try{P.packs.length&&navigator.serviceWorker.controller&&navigator.serviceWorker.controller.postMessage({type:"packStatus",packs:P.packs.map(p=>({id:p.id,files:p.files}))})}catch(e){}})()}
     const iv=setInterval(()=>{tick();fin&&clearInterval(iv)},3e3);
     window.addEventListener("online",()=>setTimeout(tick,2e3));
   })();

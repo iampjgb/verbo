@@ -258,6 +258,15 @@ All in the script block under `/* F12 */`, plus three source edits.
 - **40, map.** `A.covMap` passes the chapter as `ui.atRef` and no longer changes `S.reading`. Source edits: `atlasPage` uses `ui.atRef||S.reading`, and `A.fbAtlasCh` clears `ui.atRef`.
 - **37, two tabs.** A `storage` listener on `LS_KEY` (`biblestudy.v1`) takes the other tab's saved items (highlights, bookmarks, notes, plans and so on) and keeps this tab's reading position. Note bodies kept in IndexedDB ("lite" saves) are kept from memory. Shows "Updated with changes from another Verbo tab." once. Tested: a highlight made in tab 2, then a bookmark saved in tab 1. Both are stored.
 
+## F13. Offline gaps, prev/next across books, plain wording, study-tools bar, outline parsing, credits (round 2 items 41 and 43 to 47)
+
+- **41, offline.** `offline-packs.json`: the "dict" set is now "Footnotes, dictionary and cross references". It adds the 6 cross-reference files (`bible/xref/c0.json` to `c5.json`, 3.9 MB) and `bible/fact/red.json`. Users who already saved it will see it as part-saved, and F10 completes it on the next launch. When offline and a file is not saved yet, the overview shows "Not saved on this device yet. Connect to the internet once and it will be saved for offline use." instead of a spinner. Not changed: the "Partly saved" percentage in Offline library, which counts Bible versions, not study sets.
+- **43, outline parsing.** Accepts ";" lists ("24–30, 36–43" for Matthew 13), capitalises fragments ("Sufferings" in Isaiah 53, a split in Henry's own data), and builds an outline from Henry's section ranges and the first sentence of each section when he has no outline list (Psalms 119: 22 sections).
+- **44, prev/next.** Built from `BOOKS`, so it crosses books (Matthew 28 to Mark 1, Exodus 1 to Genesis 50) and works for one-chapter books (Obadiah 1: Amos 9 and Jonah 1).
+- **45, plain wording.** "Key words in Greek" or "Hebrew", "Bible dictionary" and "Topics" instead of "Easton" and "Nave". Strong's codes are hidden on this page (tap a word for full detail). Dictionary and topic chips are sorted A to Z and capped at 15 with "Show all". The cross-reference note no longer names the ranking source (it moved to Sources). The Questions section has a heading.
+- **46, study-tools bar.** The auto-save notice is now a bar: "Saving Bible study tools for offline use (N MB). You can keep reading." with Not now (pauses for 24 hours, says so). After a complete first run: "Bible study tools saved. They now work without the internet."
+- **47, credits.** The overview's Sources lists Matthew Henry, Calvin (Beveridge, CCEL), Spurgeon, Theographic (CC BY-SA 4.0) with OpenBible.info and Natural Earth, OpenBible.info cross references (CC BY), STEPBible lexicons (CC BY 4.0), Easton, Nave and the CrossWire red letters. The app-wide Help page (item 22) is still open.
+
 ## New script block (added just before `</body>`)
 
 The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 section to the same block.
@@ -304,6 +313,7 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F10 | Fresh install saves all 5 study sets automatically; a removed set stays removed after reload | Pass |
 | F11 | Deep dive on 6 chapters: Setting, Connections, Words, Your notes appear only when they have data; map, journeys, parallels, cross references and Words of Jesus work; axe clean | Pass |
 | F12 | Acts 13: 4 redraws, no repeated lexicon fetches; tabs sit below the top bar; Back from a parallel (in-app and browser) returns to the same spot; map keeps the reading position and Back returns to the overview; two tabs keep both edits; no jumping while data loads | Pass |
+| F13 | Outlines for Matthew 13, Isaiah 53, Psalms 119; prev/next across books and for Obadiah; plain Words names, no codes, chips capped; offline messages instead of spinners; bar with Not now | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.

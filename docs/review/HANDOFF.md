@@ -9,7 +9,7 @@ This branch (`review-fixes`) was made by a Claude session on another account on 
 3. `docs/review/FIXES.md`: every code change as exact BEFORE and AFTER text, with test results.
 4. `docs/review/screenshots/`: before and after evidence for the main bugs.
 5. `docs/review/tests/`: Playwright scripts that check each fix.
-6. `index.html`: fixes F1 to F12, in separate commits. F9 is the Chapter overview redesign and F10 saves study sets by default. F11 turns the overview into a chapter deep dive. F12 fixes round 2 items 36 to 40 (speed, no jumping, sticky tabs, Back, map) and 37 (two tabs). Both were asked for by Zee. F8 (comic mode dead end) came from Zee's own iPhone test of the preview.
+6. `index.html`: fixes F1 to F13, in separate commits. F9 is the Chapter overview redesign and F10 saves study sets by default. F11 turns the overview into a chapter deep dive. F12 fixes round 2 items 36 to 40 (speed, no jumping, sticky tabs, Back, map) and 37 (two tabs). F13 fixes items 41 and 43 to 47 (offline, prev/next, wording, study-tools bar, outline, credits). Both were asked for by Zee. F8 (comic mode dead end) came from Zee's own iPhone test of the preview.
 
 Base commit: `2922233` on `main`. Nothing on `main` was changed. The live GitHub Pages site is untouched until this branch is merged.
 
@@ -47,6 +47,8 @@ python3 test_overview_cold_load.py
 python3 test_chapter_deep_dive.py
 python3 test_f12_speed_place_tabs.py
 python3 test_f12_no_jump.py
+python3 test_f13_batch3.py
+python3 test_f13_offline.py
 python3 test_study_sets_default.py         # takes about a minute
 ```
 
@@ -66,6 +68,7 @@ Ask Zee before starting the larger items (6 and 7). They change how the app beha
 
 - AI features (Ask AI, cloud sync) only work inside Claude. The reviewers did not count them as broken.
 - `sw.js` `VERSION` was bumped on this branch so the update banner shows. In Case B, set `VERSION` to a new value again after reapplying the fixes (for example the first 10 characters of `sha1sum index.html`).
+- `offline-packs.json` changed in F13 (cross references and red letters added to the "dict" set).
 - Zee's writing style for any user-facing copy: short declarative sentences, plain words, no em-dashes.
 
 ## Preview
