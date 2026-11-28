@@ -287,6 +287,14 @@ Asked for by Zee: tapping an outline row left the overview for the reader. Now i
 - **Closing:** X, tap outside, Escape, or swipe down on the header. Focus returns to the row you tapped, and the overview scroll position is unchanged.
 - **How:** `A.covSec`, `A.covSecStep`, `A.covRead` and `covDraw` in the script block under `/* F15 */`. It uses the app's `modal()` sheet, so the F6 and F14 focus handling applies. The outline ranges are kept in `window.covOL` while the page builds.
 
+## F16. Bookmark and highlight markers, read timing, Auto theme (items 16, 26 and 20)
+
+Script block `/* F16 */`, plus two source edits.
+
+- **16.** The verse popup now shows "Saved" (with `aria-pressed`) when the verse is bookmarked. The app already draws a small bookmark icon at the end of a bookmarked verse (`svg.bmk`, named "Bookmarked"); it is now filled in the accent colour so it is easier to see. Highlighted verses get `aria-describedby` pointing to hidden text such as "Highlighted blue.", so the colour is no longer the only signal. Nothing is added to the verse text, so copying is unchanged.
+- **26.** A chapter is marked read only after real reading time: 1.5 s per verse, at least 15 s and at most 60 s. If you reach the end sooner, it is marked when the time is up and you are still on that chapter. Source edit in `pgWatchEnd`: the observer also checks `window.covReadOk`. Tested: jumping to the end of Philemon did not mark it after 4 s, and did after the time was up. Plan days (R19) were not changed.
+- **20.** Settings > Theme now has Auto, Light and Dark. Auto follows the device and changes live. Light or Dark (or the theme button) turns Auto off. Existing users whose theme matches their device start on Auto; others keep their choice. Stored as `S.themeAuto`. Source edit: the Settings theme row.
+
 ## New script block (added just before `</body>`)
 
 The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 section to the same block.
@@ -336,6 +344,7 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F13 | Outlines for Matthew 13, Isaiah 53, Psalms 119; prev/next across books and for Obadiah; plain Words names, no codes, chips capped; offline messages instead of spinners; bar with Not now | Pass |
 | F14 | 0 of 40 Tabs leave a dialog; "Jhon", "Mathew 5" and "Revelations 21" found and Enter opens them; "Jhon 3:16" gets Did you mean; floating control hidden mid-chapter, labelled end buttons; header targets 44px, same layout at 360px; new parallels for John 13 and 2 Chronicles 18 | Pass |
 | F15 | Romans 8, Matthew 13, Psalms 119 on phone and desktop: sheet opens with verses and Henry, Next steps through sections, Escape closes and keeps the scroll position and focus, Read in context opens the reader; key verse and note rows open the sheet; axe clean | Pass |
+| F16 | Popup says Saved for a bookmarked verse; highlight colour is described; Philemon not marked read after 4 s, marked after the time; Auto follows the device, Light stays Light | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.

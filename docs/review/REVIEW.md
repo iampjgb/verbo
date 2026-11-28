@@ -50,11 +50,11 @@ Not tested: a real phone, a real screen reader, the native share sheet and the i
 | 13 | FIXED (F14) | The floating prev/play/next pill covers text and is icon-only. Mid-chapter there is no next-chapter control. | B9, R18, A11 | Dock it, or show it only during audio. Add "Next: John 4" at the end of each chapter. |
 | 14 | FIXED (F14) | Tap targets of 36 to 41px. Highlight swatches are 22px, and some links are 16px tall. | B10, R14, A17 | Minimum 44x44, using padding. |
 | 15 | PARTIAL (F6) | Pill names differ from their visible text. `#tabstrip` fails `aria-required-children` (critical). There is an unlabelled Settings select, nameless plan-day checkboxes, a nested control on the map and an unnamed `#gsPop`. | B7, B8, A6, R16 | Done: pills, `#gsPop`. Open: tabstrip roles, the select, plan checkboxes, the map. |
-| 16 | OPEN | Highlight meaning is colour-only. A bookmarked verse has no marker, and the popup always says "Save". | R13, R15 | Colour name in the accessible name. A ribbon and a "Saved" state. |
+| 16 | FIXED (F16) | Highlight meaning is colour-only. A bookmarked verse has no marker, and the popup always says "Save". | R13, R15 | Colour name in the accessible name. A ribbon and a "Saved" state. |
 | 17 | OPEN | At about 200% zoom the book pill becomes "R" (simulated). The verse panel tab row is cut off. | B11, A11 | Ellipsis on the pills, overflow into the menu, fade or arrow on the tab row. |
 | 18 | OPEN | New users land in Romans 8. The desktop verse panel opens on grammar codes. EN/TL changes only the verse of the day. | B3, B12, B13 | Start at John 1. Open the panel on "At a glance". Add language and search steps to the welcome. |
 | 19 | OPEN | Multi-verse select is 3 taps deep. | R9 | Add "Select more" to the popup. |
-| 20 | OPEN | Theme follows the OS only on first run. There is no Auto option. | R11 | Add Auto as the default. |
+| 20 | FIXED (F16) | Theme follows the OS only on first run. There is no Auto option. | R11 | Add Auto as the default. |
 | 21 | OPEN | Genesis 51 drops the user on Today. John 3:99 opens a panel for a verse that does not exist. DRC says "Catholic" but has no deuterocanon. | A8, A9 | Nearest valid chapter with a reason. Reject verses past the end. Label DRC "66 books, Hebrew psalm numbers". |
 | 22 | OPEN | Calvin (CCEL, Beveridge) and the CrossWire red letters are not credited in the app. Help lists 3 Bibles and says "prototype". Ctrl+C copies with no reference. | A13 | A Sources and licences page that mirrors the README. Add the reference and version to copied text. |
 | 23 | OPEN | Lexicon text is one run-on block. Suffixes like H7225G are not explained. A G25 search lists unrelated Hebrew entries. | A14 | One sense per line, a suffix key, exact G/H matching. |
@@ -65,7 +65,7 @@ Not tested: a real phone, a real screen reader, the native share sheet and the i
 | # | Status | Issue | Source | Suggested fix |
 |---|---|---|---|---|
 | 25 | OPEN | The boxed "1" tab count looks like a notification. Desktop initials are hard-coded "DR". | B20, R17 | Tabs icon, hide at 1 tab, real initials. |
-| 26 | OPEN | Chapters and plan days are marked read about 2 seconds after a jump to the end. | A16, R19 | Require reading time or a user scroll. |
+| 26 | PARTIAL (F16, chapters only) | Chapters and plan days are marked read about 2 seconds after a jump to the end. | A16, R19 | Require reading time or a user scroll. |
 | 27 | OPEN | The first tap on a verse highlighted by a jump clears it. The bottom nav is off-screen after the jump. | B16, B18 | Clear `ui.sel` after the jump. Keep the nav visible briefly. |
 | 28 | OPEN | Hyphenation splits Bible words. The footnote label says WEB only. The era "United Kingdom" reads as the UK. | A15, A18 | Hyphenation off for scripture. Fix the label. Use "United Monarchy". |
 | 29 | OPEN | The dark-mode verse number in the Aa preview has 3.26:1 contrast. A new note saves an empty `<h2>`. | B22, R20 | Lighter colour. Strip empty blocks. |
