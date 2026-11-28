@@ -351,6 +351,22 @@ Data (`atlas.json`), kept apart from the drawing code:
 
 Tests: `docs/review/tests/test_atlas.py`. 73 checks on phone, tablet and desktop, plus the overview entry, dark mode and the offline message. All pass. axe on the Atlas is clean.
 
+
+## F19. Atlas: all 12 journeys (asked for by Zee)
+
+- `atlas.json` now holds all 12 journeys: Abram (two), Jacob, the Exodus, Naomi and Ruth, the exile to Babylon, Mary and Joseph to Bethlehem, the flight into Egypt, and Paul's four journeys. Each has an ordered list of stops with a passage and a short note. The itineraries were written by hand from the Bible text (`docs/review/tests/atlas-data/itin.py`). Paul's second and third journeys needed this because the stop list in the route data is not in order.
+- Route lines come from Theographic. A script fits them to each leg, measures miles and marks sea legs. Where no route line joins two stops, a straight line is drawn: Corinth to Cenchreae, and Forum of Appius to Three Taverns.
+- Stops that the Bible does not name (for example Babylon and Mari on Abram's route, or Jericho for Ruth) are marked "Not named in the Bible" and drawn as dotted circles. Moab is marked "Region".
+- Places matched to OpenBible.info: 64 of 67. Aleppo, Mari and Pelusium are not Bible places. Places matched to Pleiades: 46. The card leaves out the Pleiades facts when there is no match.
+- The Exodus shows its debated note under the title. Uncertain sites (Rameses, the sea crossing, Marah, Elim, Rephidim, Mount Sinai, Kadesh-barnea, Ur, Beersheba, Bethel, Derbe and others) show "Site uncertain" and other proposed sites.
+- Labels are placed automatically so they do not overlap. A place whose name does not fit shows its number only. Region and sea names come from the app's existing list and are dropped where they would collide.
+- Terrain: one lower-detail image for the whole Bible world (`relief_all.jpg`), plus a detailed image for each region (Aegean, Italy, Levant, Mesopotamia). On very small maps (Ruth, Bethlehem) the terrain is faded, because the source is too coarse at that zoom.
+- A journey picker at the end of the sidebar switches between journeys.
+- The offline set "People, places and maps" grew by about 0.8 MB.
+- Fixes found while testing: the zoom-in icon was removed by the redraw, and a name ending in " S" or " P" lost two letters.
+
+Tests: `test_atlas.py` now also opens all 12 journeys and checks stops, legs, labels, the Region and Not named badges, the debated note and the picker. 91 checks, all pass.
+
 ---
 
 ## Test results (headless Chrome, 2026-11-28)
@@ -378,6 +394,7 @@ Tests: `docs/review/tests/test_atlas.py`. 73 checks on phone, tablet and desktop
 | F16 | Popup says Saved for a bookmarked verse; highlight colour is described; Philemon not marked read after 4 s, marked after the time; Auto follows the device, Light stays Light | Pass |
 | F17 | Fresh user sees red letters in Matthew 5; after turning them off and reloading they stay off | Pass |
 | F18 | Atlas on phone, tablet and desktop: route progress, playback, sheet, timeline, tap a city, keyboard, Read, map styles, Derbe uncertainty, Pleiades link, overview entry, dark map, offline message; axe clean | Pass |
+| F19 | All 12 journeys open with the right number of stops and legs; Exodus labels and debated note; Moab is Region; Jericho is Not named; picker switches journey | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.
