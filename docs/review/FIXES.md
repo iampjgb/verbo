@@ -247,6 +247,17 @@ Asked for by Zee: bring the app's parallels, Factbook, maps, dictionary and rela
 
 Still open: some Factbook events have no year, and two Acts 13 events overlap ("First missionary journey begins" and "First Missionary Journey"); this is in the data. Parallels coverage is hand-picked, so many chapters have no parallels.
 
+## F12. Overview speed and stability, sticky tabs, keeping your place, map, two tabs (round 2 items 36 to 40 and 37)
+
+All in the script block under `/* F12 */`, plus three source edits.
+
+- **36, speed.** Two causes. (1) The lexicon, concordance and stats loaders have no in-flight check, so each redraw fetched them again (12 times each). A small `fetch` wrapper now shares one request per `bible/` file while it is in flight. (2) Every arriving file called `refresh()`. On the Chapter overview, background refreshes (`render(true)`) are now coalesced into one redraw per 150 ms. Page changes still draw at once. `gdRedraw` and `fbRedraw` call `window.covRefresh` on this page. Result on Acts 13: 17 redraws down to 4, and no file fetched more than twice.
+- **36, no jumping.** While you scroll, the section at the top of the screen and its offset are remembered. After each redraw, `MOUNT.chapter` puts that section back where it was. Test: with every file delayed 1.5 s, Commentary stayed at the same screen position for 10 s while the Outline and Key verses were added above it.
+- **38, sticky tabs.** On phones the tab row sticks below the top bar (`--cov-tb`, measured from `.topbar`) while the bar is shown, and at the very top when `.app.bars-hidden` hides it.
+- **39, keeping your place.** The same anchor restores your position after Back. `chBook` and `chNum` were added to `BK_KEYS`, so Back reopens the same chapter overview. A `bkBack` wrapper stops the "back to reader" shortcut (`ui.fromRead`) from skipping the overview when you came from it. Tested with in-app Back and browser Back from a parallel: you land on the same section at the same spot. A fresh "Chapter overview" tap still starts at the top.
+- **40, map.** `A.covMap` passes the chapter as `ui.atRef` and no longer changes `S.reading`. Source edits: `atlasPage` uses `ui.atRef||S.reading`, and `A.fbAtlasCh` clears `ui.atRef`.
+- **37, two tabs.** A `storage` listener on `LS_KEY` (`biblestudy.v1`) takes the other tab's saved items (highlights, bookmarks, notes, plans and so on) and keeps this tab's reading position. Note bodies kept in IndexedDB ("lite" saves) are kept from memory. Shows "Updated with changes from another Verbo tab." once. Tested: a highlight made in tab 2, then a bookmark saved in tab 1. Both are stored.
+
 ## New script block (added just before `</body>`)
 
 The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 section to the same block.
@@ -292,6 +303,7 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F9 | Cold load of Genesis 1 overview with slow data: all sections fill in | Pass |
 | F10 | Fresh install saves all 5 study sets automatically; a removed set stays removed after reload | Pass |
 | F11 | Deep dive on 6 chapters: Setting, Connections, Words, Your notes appear only when they have data; map, journeys, parallels, cross references and Words of Jesus work; axe clean | Pass |
+| F12 | Acts 13: 4 redraws, no repeated lexicon fetches; tabs sit below the top bar; Back from a parallel (in-app and browser) returns to the same spot; map keeps the reading position and Back returns to the overview; two tabs keep both edits; no jumping while data loads | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.
