@@ -1813,7 +1813,7 @@ $1`).trim(),body=`<div class="wc">
       let nt=[];try{nt=typeof notesFor==="function"?notesFor(ref):[]}catch(x){}
       const row=(act,attr,lbl,txt,dot)=>`<button type="button" class="cov-oi" data-action="${act}" ${attr}><span class="cov-vr">${dot||""}${esc(lbl)}</span><span class="cov-ot cov-s1">${esc(snip(txt,90))}</span>${icon("right",14)}</button>`;
       const vt=k=>{try{return refText(k)||""}catch(x){return""}};
-      const rows=[...hl.map(k=>row("openRef",`data-ref="${esc(k)}"`,"v. "+vn(k),vt(k),`<i class="cov-dot hl-${esc((S.highlights[k]||{}).c||"gold")}" aria-label="${esc((S.highlights[k]||{}).c||"gold")} highlight"></i>`)),...bm.map(b=>row("openRef",`data-ref="${esc(b.ref)}"`,"v. "+vn(b.ref),vt(b.ref),icon("bookmark",12))),...nt.map(n=>row("covNote",`data-id="${esc(n.id)}"`,n.ref&&n.ref.startsWith(pre)?"v. "+vn(n.ref):"Note",n.title||plain(n.html||n.body||n.text||"")||"Untitled note",icon("edit",12)))];
+      const rows=[...hl.map(k=>row("covSec",`data-v1="${vn(k)}" aria-haspopup="dialog"`,"v. "+vn(k),vt(k),`<i class="cov-dot hl-${esc((S.highlights[k]||{}).c||"gold")}" aria-label="${esc((S.highlights[k]||{}).c||"gold")} highlight"></i>`)),...bm.map(b=>row("covSec",`data-v1="${vn(b.ref)}" aria-haspopup="dialog"`,"v. "+vn(b.ref),vt(b.ref),icon("bookmark",12))),...nt.map(n=>row("covNote",`data-id="${esc(n.id)}"`,n.ref&&n.ref.startsWith(pre)?"v. "+vn(n.ref):"Note",n.title||plain(n.html||n.body||n.text||"")||"Untitled note",icon("edit",12)))];
       return rows.length?`<p class="cov-meta">${[hl.length&&`${hl.length} highlight${hl.length>1?"s":""}`,bm.length&&`${bm.length} bookmark${bm.length>1?"s":""}`,nt.length&&`${nt.length} note${nt.length>1?"s":""}`].filter(Boolean).join(" \xB7 ")}</p><div class="cov-ol">${more("mine",rows,6)}</div>`:""}
     function covRed(book,ch){const bi=BOOKS.findIndex(b=>b.n===book);if(bi<39)return 0;const r=gdGet("fact/red.json",gdRedraw);if(!r)return 0;const p=`${bi}|${ch}|`;let n=0;for(const k in r)k.startsWith(p)&&n++;return n}
     function cov(){
@@ -1832,13 +1832,13 @@ $1`).trim(),body=`<div class="wc">
       const body=document.createElement("div");body.className="cov-body";const secs=[];
       const add=(node,id,label)=>{node.classList.add("cov-sec");node.id=id;body.append(node);label&&secs.push([id,label])};
       const mk=(id,html)=>{const s=document.createElement("section");s.innerHTML=html;s.id=id;return s};
-      const com=pg.querySelector("#wk-com"),ol=com&&com.querySelector(".gd-outline");
+      window.covOL=[];const com=pg.querySelector("#wk-com"),ol=com&&com.querySelector(".gd-outline");
       if(!ol&&com){const sx=[...com.querySelectorAll(".gd-sec")].map(g=>{const vr=tx(g.querySelector(".gd-vr")),mm=vr.match(/:(\d+)(?:\D(\d+))?/),p1=g.querySelector(".cm-body p"),first=p1?tx(p1).split(/(?<=[.;?!])\s/)[0]:"";return mm&&first?{v:+mm[1],r:mm[2]?mm[1]+"–"+mm[2]:mm[1],t:snip(first,90).replace(/[.;]$/,"")}:null}).filter(Boolean);
-        sx.length>1&&add(mk("cov-outline",`<h2>Outline</h2><p class="cov-meta">The opening line of each section of Matthew Henry's commentary. Tap a section to read it.</p><ol class="cov-ol">${sx.map(o=>`<li><button class="cov-oi" data-action="covGo" data-ref="${esc(ref)}:${o.v}"><span class="cov-vr">${esc(o.r)}</span><span class="cov-ot">${esc(o.t)}</span>${icon("right",14)}</button></li>`).join("")}</ol>`),"cov-outline","Outline")}
-      if(ol){const items=[...ol.querySelectorAll("li")].map(li=>{const s=tx(li),m=s.match(/^(.*?)\s*\(([\d\s,;–\-]+)\)\s*\.?$/);let r=m?m[2].replace(/\s+/g,"").replace(/-/g,"–").replace(/;/g,", "):"";const pr=r.match(/^(\d+),(\d+)$/);pr&&+pr[2]===+pr[1]+1&&(r=pr[1]+"–"+pr[2]);const v=r?parseInt(r,10):0;const label=(m?m[1]:s).replace(/\.\s*$/,"").replace(/^[a-z]/,c=>c.toUpperCase());return v?`<li><button class="cov-oi" data-action="covGo" data-ref="${esc(ref)}:${v}"><span class="cov-vr">${esc(r)}</span><span class="cov-ot">${esc(label)}</span>${icon("right",14)}</button></li>`:`<li><div class="cov-oi"><span class="cov-ot">${esc(label)}</span></div></li>`}).join("");
-        items&&add(mk("cov-outline",`<h2>Outline</h2><p class="cov-meta">From Matthew Henry's Concise Commentary. Tap a section to read it.</p><ol class="cov-ol">${items}</ol>`),"cov-outline","Outline");ol.remove()}
+        sx.length>1&&add(mk("cov-outline",`<h2>Outline</h2><p class="cov-meta">The opening line of each section of Matthew Henry's commentary. Tap a section to preview it.</p><ol class="cov-ol">${sx.map(o=>`<li><button class="cov-oi" data-action="covSec" data-i="${window.covOL.push({v1:o.v,v2:+(o.r.split("–")[1]||o.v),label:o.t})-1}" aria-haspopup="dialog"><span class="cov-vr">${esc(o.r)}</span><span class="cov-ot">${esc(o.t)}</span>${icon("right",14)}</button></li>`).join("")}</ol>`),"cov-outline","Outline")}
+      if(ol){const items=[...ol.querySelectorAll("li")].map(li=>{const s=tx(li),m=s.match(/^(.*?)\s*\(([\d\s,;–\-]+)\)\s*\.?$/);let r=m?m[2].replace(/\s+/g,"").replace(/-/g,"–").replace(/;/g,", "):"";const pr=r.match(/^(\d+),(\d+)$/);pr&&+pr[2]===+pr[1]+1&&(r=pr[1]+"–"+pr[2]);const v=r?parseInt(r,10):0;const label=(m?m[1]:s).replace(/\.\s*$/,"").replace(/^[a-z]/,c=>c.toUpperCase());const nums=r.split(/[^\d]+/).filter(Boolean).map(Number),v2=nums.length>1?nums[1]:v,rs=r.split(/,\s*/).map(x=>x.split("–").map(Number)).filter(x=>x[0]).map(x=>[x[0],x[1]||x[0]]),oi=v?window.covOL.push({v1:v,v2:Math.max(v,v2),label,rs,r})-1:-1;return v?`<li><button class="cov-oi" data-action="covSec" data-i="${oi}" aria-haspopup="dialog"><span class="cov-vr">${esc(r)}</span><span class="cov-ot">${esc(label)}</span>${icon("right",14)}</button></li>`:`<li><div class="cov-oi"><span class="cov-ot">${esc(label)}</span></div></li>`}).join("");
+        items&&add(mk("cov-outline",`<h2>Outline</h2><p class="cov-meta">From Matthew Henry's Concise Commentary. Tap a section to preview it.</p><ol class="cov-ol">${items}</ol>`),"cov-outline","Outline");ol.remove()}
       const ai=aiPart(ref,book);ai&&add(mk("cov-ai",ai),"cov-ai","Meaning");
-      const key=pg.querySelector("#wk-key");key&&key.querySelectorAll(".wk-qt").forEach(q=>{const c=tx(q.querySelector("cite"));c&&!c.includes(":")&&q.remove()});key&&key.querySelector(".wk-qt")?(h2set(key,"Key verses"),add(key,"wk-key",null)):key&&key.remove();
+      const key=pg.querySelector("#wk-key");key&&key.querySelectorAll(".wk-qt").forEach(q=>{const c=tx(q.querySelector("cite"));c&&!c.includes(":")&&q.remove()});key&&key.querySelectorAll(".wk-qt cite [data-action=peekRef]").forEach(a=>{const pr=parseRef(a.dataset.ref||"");pr&&pr.book===book&&pr.ch===ch&&pr.v1&&(a.dataset.action="covSec",a.dataset.v1=pr.v1,a.dataset.v2=pr.v2||pr.v1,a.setAttribute("aria-haspopup","dialog"))});key&&key.querySelector(".wk-qt")?(h2set(key,"Key verses"),add(key,"wk-key",null)):key&&key.remove();
       /* F11: Setting, Connections, Words and topics, Your notes */
       const oldPpl=pg.querySelector("#wk-ppl");oldPpl&&oldPpl.remove();
       const setH=covSetting(book,ch,ref);setH&&add(mk("cov-set",setH),"cov-set","Setting");
@@ -1951,6 +1951,56 @@ const src=pg.querySelector("#wk-src");src&&(src.innerHTML=`<h2>Sources</h2><ul c
 @media(pointer:coarse){.icon-btn,.rtop .icon-btn,.topbar .icon-btn{min-width:44px!important;min-height:44px!important}.rtop .pill{min-height:44px!important}.ch-ov .linkish{min-height:44px;display:inline-flex;align-items:center}[data-action=hl][data-c]{min-width:44px;min-height:44px;background-clip:content-box;padding:11px}.wk-crumb .wl,.lb-crumb .linkish{min-height:44px;display:inline-flex;align-items:center}}
 @media(pointer:coarse) and (max-width:379px){.rtop .icon-btn{min-width:38px!important;width:38px!important}}`;
     document.head.appendChild(st);
+  })();
+  /* F15: outline rows, key verses and highlight rows open a section sheet instead of leaving the overview. */
+  (function(){
+    window.covOL=[];
+    const tx2=e=>e?e.textContent.replace(/\s+/g," ").trim():"";
+    const mhSecs=(book,ch)=>{try{const bi=BOOKS.findIndex(b=>b.n===book),d=gdGet(`mhc/c${Math.floor(bi/11)}.json`,()=>{document.getElementById("modalBg").classList.contains("show")&&document.querySelector(".covs")&&covDraw()});if(!d)return null;const e=(d[bi%11]||[]).find(x=>x[0]===ch);return e?e[2]||[]:[]}catch(x){return[]}};
+    let cur=null;
+    const rangeStr=(a,b)=>b&&b!==a?a+"–"+b:String(a);
+    function covDraw(){
+      if(!cur)return;const{book,ch,v1,v2,label,i}=cur,rs=cur.rs&&cur.rs.length?cur.rs:[[v1,v2||v1]],ref=`${book} ${ch}:${rs.map(x=>rangeStr(x[0],x[1])).join(", ")}`,tr=TR_TEXT&&TR_TEXT.includes(S.reading.tr)?S.reading.tr:"KJV",bi=BOOKS.findIndex(b=>b.n===book);
+      let c=null;try{c=chFull(tr,book,ch)||chFull("KJV",book,ch)}catch(x){}
+      if(!c&&bi>=0)loadBook(tr,bi).then(()=>cur&&covDraw(),()=>{});
+      const vs=[];if(c)rs.forEach((x,k)=>{k&&vs.push('<p class="covs-gap" aria-hidden="true">\u2026</p>');for(let v=x[0];v<=x[1];v++)c.v[v]&&vs.push(`<p class="covs-v"><sup>${v}</sup> ${esc(c.v[v])}</p>`)});
+      const many=vs.length>6;
+      const secs=mhSecs(book,ch),sec=secs&&secs.find(s=>v1>=s[0]&&v1<=s[1]);
+      const mh=secs===null?'<div class="skel" style="width:80%"></div><div class="skel" style="width:60%"></div>':sec?sec[2].map((p,k)=>`<p>${esc(k?p:String(p).replace(/^[\s,;]*\d+\s*[\u2013-]\s*\d+\s*/,""))}</p>`).join(""):"";
+      const ol=window.covOL,hasNav=typeof i==="number"&&ol.length>1;
+      const body=`<div class="covs">${label?`<p class="covs-lbl">${esc(label)}</p>`:""}
+        <div class="covs-tx${many?" covs-clip":""}" lang="en">${vs.join("")||'<div class="skel" style="width:85%"></div><div class="skel" style="width:70%"></div>'}</div>
+        ${many?`<button type="button" class="cov-morebtn" data-covs-all>Show all ${vs.filter(x=>x.includes("covs-v")).length} verses</button>`:""}
+        ${mh?`<h3 class="cov-h3">Matthew Henry${sec?` <span class="cov-from">on verses ${rangeStr(sec[0],sec[1])}</span>`:""}</h3><div class="covs-mh covs-clip">${mh}</div><button type="button" class="cov-morebtn" data-covs-all>Show more</button>`:""}
+        <p class="covs-tr">${esc(tr)}${tr!=="KJV"&&!chFull(tr,book,ch)?" (KJV shown)":""}</p></div>`;
+      const foot=`<div class="covs-f">${hasNav?`<button type="button" class="btn" data-action="covSecStep" data-d="-1" ${i>0?"":"disabled"} aria-label="Previous section">${icon("left",16)}<span class="covs-hide-s">Previous</span></button>`:""}<button type="button" class="btn primary covs-read" data-action="covRead" data-ref="${esc(book)} ${ch}:${v1}">${icon("book",16)}Read in context</button>${hasNav?`<button type="button" class="btn" data-action="covSecStep" data-d="1" ${i<ol.length-1?"":"disabled"} aria-label="Next section"><span class="covs-hide-s">Next</span>${icon("right",16)}</button>`:""}</div>`;
+      modal(esc(ref),body,foot);const m=document.getElementById("modal");m.classList.add("sheet","covs-sheet");m.dataset.sheet="covs";
+    }
+    A.covSec=e=>{const d=e.dataset,ch=+(d.c||ui.chNum||S.reading.ch),book=d.b||ui.chBook||S.reading.book,i=d.i!=null&&d.i!==""?+d.i:null,o=i!=null?window.covOL[i]:null;
+      cur=o?{book,ch,v1:o.v1,v2:o.v2,rs:o.rs,label:o.label,i}:{book,ch,v1:+d.v1,v2:+(d.v2||d.v1),label:d.label||"",i:null};covDraw()};
+    A.covSecStep=e=>{if(!cur||cur.i==null)return;const n=cur.i+ +e.dataset.d,o=window.covOL[n];if(!o)return;cur=Object.assign({},cur,{v1:o.v1,v2:o.v2,rs:o.rs,label:o.label,i:n});covDraw();const b=document.querySelector(`#modal [data-action=covSecStep][data-d="${e.dataset.d}"]`);b&&!b.disabled&&b.focus()};
+    A.covRead=e=>{closeModal();cur=null;A.covGo({dataset:{ref:e.dataset.ref}})};
+    document.addEventListener("click",e=>{const b=e.target.closest("[data-covs-all]");if(!b)return;const p=b.previousElementSibling;p&&p.classList.remove("covs-clip");b.remove()});
+    /* swipe down on the sheet header closes it */
+    let y0=null;document.addEventListener("touchstart",e=>{const h=e.target.closest(".covs-sheet .modal-h");y0=h?e.touches[0].clientY:null},{passive:!0});
+    document.addEventListener("touchend",e=>{if(y0==null)return;const dy=e.changedTouches[0].clientY-y0;y0=null;dy>70&&closeModal()},{passive:!0});
+    const st=document.createElement("style");st.id="verbo-f15";st.textContent=`.covs-sheet{max-width:720px;margin:0 auto}
+.covs-lbl{margin:0 0 10px;font:600 17px/1.4 var(--sans);color:var(--text)}
+.covs-tx{font:400 18px/1.65 var(--scripture);color:var(--text)}
+.covs-v{margin:0 0 8px}.covs-v sup{font:600 11px var(--sans);color:var(--accent);margin-right:2px}
+.covs-clip{max-height:340px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 75%,transparent);mask-image:linear-gradient(#000 75%,transparent)}
+.covs-mh.covs-clip{max-height:150px}
+.covs-mh{font:400 16px/1.6 var(--scripture);color:var(--text)}.covs-mh p{margin:0 0 10px}
+.covs-gap{margin:0 0 8px;color:var(--text2)}
+.covs-tr{margin:12px 0 0;font:400 12px var(--sans);color:var(--text2)}
+.covs-sheet .modal-f{position:sticky;bottom:0;z-index:2;background:var(--surface);border-top:1px solid var(--border);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.covs-f{display:flex;gap:8px;width:100%}
+.covs-f .btn{min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.covs-f .covs-read{flex:1}
+@media(max-width:379px){.covs-hide-s{display:none}}
+.covs-sheet .modal-h{cursor:grab}
+.covs-sheet .modal-h::before{content:"";position:absolute;left:50%;top:6px;width:36px;height:4px;margin-left:-18px;border-radius:2px;background:var(--border)}
+.covs-sheet .modal-h{position:relative}`;document.head.appendChild(st);
   })();
 })();
 </script>

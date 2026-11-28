@@ -277,6 +277,16 @@ Script block `/* F14 */`, plus source edits to the parallels list and the cross-
 - **14, tap targets.** On touch screens: header icons and pills are at least 44px (38px wide on screens under 380px, so a long book name still fits, the same as before), highlight swatches are 44px, and the Chapter overview and Guided study links and breadcrumbs are 44px tall.
 - **42, connections.** New parallels: "Jesus predicts his betrayal" (Matthew 26:20-25, Mark 14:17-21, Luke 22:21-23, John 13:21-30) and "Micaiah warns Ahab" (1 Kings 22:1-28, 2 Chronicles 18:1-27). Cross references now skip chapters already listed as parallels and give links across the Old and New Testaments 1.6 times the weight. Isaiah 53 now lists 1 Peter 3:18, 2 Corinthians 5:21 and Galatians 3:13 first. Psalms 22 shows Matthew 27:46 under "Quoted in other books". Hebrews 2:12 is still not listed, because it is not in the quotes list.
 
+## F15. Section sheet on the Chapter overview
+
+Asked for by Zee: tapping an outline row left the overview for the reader. Now it opens a bottom sheet (a centred panel on desktop) and the overview stays where it was.
+
+- **What opens it:** outline rows, key verse references, and highlight or bookmark rows in "Your notes". Notes still open the note.
+- **What it shows:** the section reference as the title (split ranges such as "Matthew 13:24–30, 36–43" show both parts with "…" between them), the outline label, the verses in your current version (KJV if that version is not loaded; long sections are clipped with "Show all N verses"), and Matthew Henry's comment on the section the first verse falls in, clipped with "Show more". A stray range at the start of some Henry sections (", 36–43 This parable…") is removed.
+- **Buttons:** a footer that stays visible: Previous section, Read in context, Next section. Only "Read in context" leaves the overview. It opens the reader at the first verse with no popup or sheet covering it. Key verses and notes have no previous or next.
+- **Closing:** X, tap outside, Escape, or swipe down on the header. Focus returns to the row you tapped, and the overview scroll position is unchanged.
+- **How:** `A.covSec`, `A.covSecStep`, `A.covRead` and `covDraw` in the script block under `/* F15 */`. It uses the app's `modal()` sheet, so the F6 and F14 focus handling applies. The outline ranges are kept in `window.covOL` while the page builds.
+
 ## New script block (added just before `</body>`)
 
 The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 section to the same block.
@@ -325,6 +335,7 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F12 | Acts 13: 4 redraws, no repeated lexicon fetches; tabs sit below the top bar; Back from a parallel (in-app and browser) returns to the same spot; map keeps the reading position and Back returns to the overview; two tabs keep both edits; no jumping while data loads | Pass |
 | F13 | Outlines for Matthew 13, Isaiah 53, Psalms 119; prev/next across books and for Obadiah; plain Words names, no codes, chips capped; offline messages instead of spinners; bar with Not now | Pass |
 | F14 | 0 of 40 Tabs leave a dialog; "Jhon", "Mathew 5" and "Revelations 21" found and Enter opens them; "Jhon 3:16" gets Did you mean; floating control hidden mid-chapter, labelled end buttons; header targets 44px, same layout at 360px; new parallels for John 13 and 2 Chronicles 18 | Pass |
+| F15 | Romans 8, Matthew 13, Psalms 119 on phone and desktop: sheet opens with verses and Henry, Next steps through sections, Escape closes and keeps the scroll position and focus, Read in context opens the reader; key verse and note rows open the sheet; axe clean | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.
