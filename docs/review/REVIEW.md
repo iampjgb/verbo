@@ -86,3 +86,52 @@ Not tested: a real phone, a real screen reader, the native share sheet and the i
 - **Notes:** they escape HTML, handle 5,000 characters, and survive a reload and two open tabs.
 - **Offline:** the shell, KJV and search work. An interrupted pack download resumes. data-hashes.json matches all 408 files.
 - **Comfort:** dark mode passes axe contrast, text size goes to 32px, and reading plans work well.
+
+## Round 2 (2026-11-28): review of fixes F1 to F11 and the open items
+
+The same three personas ran again on Sonnet 5.5, against the `review-fixes` branch. Raw reports: `persona-reports/round2/`. Fixes F1 to F8 still pass on phone, and axe shows no violations on the new Chapter overview.
+
+### Scores (1 to 10)
+
+| Area | Beginner | Regular | Advanced |
+|---|---|---|---|
+| Ease of use | 7 | 7 | 7 |
+| UI/UX | 7 | 7 | 7 |
+| Accessibility | 6 | 6 | 6 |
+| Intuitiveness | 6 | 6 | 6 |
+| Chapter overview | 7 | 7 | 6 |
+| Study depth | n/a | n/a | 5 |
+
+### New findings, merged and ranked
+
+| # | Sev. | Finding | Found by | Verified | Suggested fix |
+|---|---|---|---|---|---|
+| 36 | High | Overview redraws many times while data arrives (17 full renders in 10 s on Acts 13). The Hebrew and Greek lexicon, concordance and stats files are each requested 12 times. The Outline and Key verses arrive last and push content down while you read. | A2-1 | Yes (measured) | Dedupe in-flight fetches in `gdGet` and the ILX loaders. Debounce the redraw on the chapter page (one refresh per 150 ms). Reserve space for the outline, or render sections in a fixed order with placeholders. |
+| 37 | High | Two open tabs overwrite each other. A highlight made in tab 2 is lost when tab 1 saves. | R2-7 | Reported | Listen to the `storage` event, merge `S` before saving, or warn "Verbo is open in another tab". |
+| 38 | Medium | The sticky section tabs sit at `top:0` and hide behind the app top bar when it slides back on scroll-up. | B2-1, R2-1, A2-16 | 3 reviewers | Set `top` to the top bar height when it is shown, or hide the top bar while the tab row is stuck. |
+| 39 | Medium | Back from a parallel, Factbook card, map or note returns to the top of the overview. The "<" on the map and journey pages goes to the reader. | B2-2, B2-3, R2-2, R2-3 | 3 reviewers | Save `#main` scrollTop per chapter overview and restore it in `MOUNT.chapter`. Push the overview onto the back stack. Part of item 7. |
+| 40 | Medium | Tapping the chapter map changes your reading position (F11 sets `S.reading`). | A2-12 | Yes (by design, wrong) | Pass the chapter to the atlas without touching `S.reading`. |
+| 41 | Medium | Offline, cross references, Words of Jesus and Key words spin forever. XREF files and `red.json` are in no study set. The Offline library still reads "Partly saved 9%". | R2-5, R2-6 | Reported | Add XREF and `red.json` to a set. Show "Not saved for offline use" instead of a spinner. |
+| 42 | Medium | The top 8 cross references miss key New Testament quotations (Psalms 22 to Matthew 27:46 ranks 37th). Parallels miss John 13 for the Last Supper and 2 Chronicles 18 with 1 Kings 22. | A2-6, A2-7 | Reported | Boost references that are also in the quotes or parallels lists. Add the missing parallel pairs. |
+| 43 | Medium | Outline parsing: Isaiah 53 shows fragments, Matthew 13 shows "(24–30; 36–43)" unparsed. Psalms 119 has no outline. | A2-13 | Reported | Accept ";" lists and multi-range items. Fall back to the guide's section headings. |
+| 44 | Medium | Previous and next in the overview stop at book edges. Obadiah and Jude have neither. | B2-5, R2 | Reported | Build prev and next from the `BOOKS` order, not `.wk-pn`. |
+| 45 | Medium | Jargon in Words and topics: "Easton", "Nave", codes like G2424G, 60+ unsorted topic chips. The Questions tab leads to a section with no heading. | B2-6, B2-7, A2-15 | Reported | Plain names ("Bible dictionary", "Topics"), hide codes, sort and cap chips, add a "Reading questions" heading. |
+| 46 | Medium | The study-set toast says "study sets" and "144 MB" with no "Not now". No done message. | B2-14 | Reported | Plain wording ("Saving Bible study tools for offline use"), a Not now button, and a short done message. |
+| 47 | Medium | Attribution: the overview does not credit Theographic (CC BY-SA), Calvin, Spurgeon or the red-letter source. | A2-14 | Reported | Add them to Sources (see item 22). |
+| 48 | Low | The mini map is hard to read or adds little in some chapters, and labels overlap (Matthew 26). | B2-9, R2 | Reported | Show the map only for 2 or more places within a small area, or as a static thumbnail with a "View map" button. |
+| 49 | Low | The events note says dates are traditional when no event has a date. Key verses default to verse 1 in many chapters. Key words are the first 16 lemmas of verse 1. People are sorted by fame in the whole Bible. | R2, A2 | Reported | Show the note only when a date exists. Pick key verses by cross-reference weight. Rank key words and people by frequency in the chapter. |
+| 50 | Low | With `SAMPLE={}` (test only), the Meaning button throws. Not a real-world bug, but the error path is unhandled. | A2 | Reported | Wrap `genStudy` in try/catch with a toast. |
+| 51 | Low | Remove in Settings has no confirm or undo. The study sheet can cover the selected verse on a phone. Note focus may drop after about 1 s (unconfirmed). | R2, B2 | Reported | Undo toast on Remove. Scroll the verse above the sheet. |
+
+### Open items rechecked
+
+Still present: 4 (Tab not trapped, page behind not inert), 6, 7, 10 ("Jhon 3:16" now hangs on "Checking the other versions"), 13, 14, 15, 16, 17, 18, 19, 22, 23, 25, 26 and 30. Changed: 21 (Genesis 51 now shows a "not in the KJV" search page; John 3:99 silently opens John 3). Partly fixed: 24 (`?` opens a shortcuts list, j/k undocumented, no `/`).
+
+Design notes for item 6 (verse alignment) and item 7 (deep links and keeping your place) are in `persona-reports/round2/advanced.md`.
+
+### Suggested next batch
+
+1. Items 36, 38, 39, 40: overview speed, sticky tabs, keeping your place, and the map side effect. All are in code from this branch.
+2. Item 37: the two-tab data loss.
+3. Items 41, 44, 45, 46, 43: offline gaps, prev/next across books, plain wording, outline parsing.
+4. Then items 7 and 6 from the design notes, planned with Zee.
