@@ -9,7 +9,7 @@ This branch (`review-fixes`) was made by a Claude session on another account on 
 3. `docs/review/FIXES.md`: every code change as exact BEFORE and AFTER text, with test results.
 4. `docs/review/screenshots/`: before and after evidence for the main bugs.
 5. `docs/review/tests/`: Playwright scripts that check each fix.
-6. `index.html`: fixes F1 to F16, in separate commits. F9 is the Chapter overview redesign and F10 saves study sets by default. F11 turns the overview into a chapter deep dive. F12 fixes round 2 items 36 to 40 (speed, no jumping, sticky tabs, Back, map) and 37 (two tabs). F13 fixes items 41 and 43 to 47 (offline, prev/next, wording, study-tools bar, outline, credits). F14 fixes items 4, 10, 13, 14 and part of 42. F15 adds the section sheet on the Chapter overview, asked for by Zee. Both were asked for by Zee. F8 (comic mode dead end) came from Zee's own iPhone test of the preview.
+6. `index.html`: fixes F1 to F18, in separate commits. F9 is the Chapter overview redesign and F10 saves study sets by default. F11 turns the overview into a chapter deep dive. F12 fixes round 2 items 36 to 40 (speed, no jumping, sticky tabs, Back, map) and 37 (two tabs). F13 fixes items 41 and 43 to 47 (offline, prev/next, wording, study-tools bar, outline, credits). F14 fixes items 4, 10, 13, 14 and part of 42. F15 adds the section sheet on the Chapter overview, asked for by Zee. F17 adds Your study, AI wording and red letters by default. F18 adds the Atlas (Follow the Journey) with `bible/fact/atlas.json` and `bible/fact/relief_paul1.jpg`. Both were asked for by Zee. F8 (comic mode dead end) came from Zee's own iPhone test of the preview.
 
 Base commit: `2922233` on `main`. Nothing on `main` was changed. The live GitHub Pages site is untouched until this branch is merged.
 
@@ -53,6 +53,7 @@ python3 test_f14_medium.py
 python3 test_f14_connections.py
 python3 test_f15_section_sheet.py
 python3 test_f16.py
+python3 test_atlas.py
 python3 test_study_sets_default.py         # takes about a minute
 ```
 
@@ -72,7 +73,8 @@ Ask Zee before starting the larger items (6 and 7). They change how the app beha
 
 - AI features (Ask AI, cloud sync) only work inside Claude. The reviewers did not count them as broken.
 - `sw.js` `VERSION` was bumped on this branch so the update banner shows. In Case B, set `VERSION` to a new value again after reapplying the fixes (for example the first 10 characters of `sha1sum index.html`).
-- `offline-packs.json` changed in F13 (cross references and red letters added to the "dict" set).
+- `offline-packs.json` changed in F13 (cross references and red letters added to the "dict" set) and in F18 (atlas.json and the terrain image added to the "places" set).
+- Atlas next steps Zee agreed to: add the other journeys in atlas.json (the screen reads any journey listed there), add Itiner-e roads when the data can be downloaded, then travel days. Zee chose a static build inside Verbo, not a Laravel/PostGIS backend.
 - Zee's writing style for any user-facing copy: short declarative sentences, plain words, no em-dashes.
 
 ## Preview

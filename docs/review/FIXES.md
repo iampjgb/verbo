@@ -320,6 +320,37 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 
 `VERSION` in `sw.js` changed from `bcb3c4b585` to a new value with each change on this branch (now the first 10 characters of the SHA-1 of the final `index.html`) (the first 10 characters of the SHA-1 of the new `index.html`; any new value works). This is required. The "A new version of Verbo is ready. Update" banner only appears when the `sw.js` file changes. Without the bump, installed users would get no banner and could keep the old offline copy. Tested by simulating a user on the old version and then deploying the new one: the banner appeared, and Update loaded the new code (`screenshots/after/update-banner.png`).
 
+
+## F17. Your study, AI wording, red letters on by default (asked for by Zee)
+
+- The Chapter overview has a "Your study" section. It gathers the reader's highlights, bookmarks, notes and tags for the chapter, their Guided study answers and quiz results, and any AI-made explanations, studies, comics and chats about the chapter.
+- AI content is labelled "Made with AI" or "Written by AI". The app no longer shows any product name for the AI. Code names such as `window.claude` are unchanged.
+- Words of Jesus in red is now on by default. The check changed from `S.reading.wj` to `S.reading.wj!==false`, in `markRed()` and in the Aa panel. A user who turned it off keeps it off, because the toggle stores `false`.
+
+## F18. Atlas: Follow the Journey (asked for by Zee)
+
+New `<script id="verbo-atlas-2026-11-28">` before `</body>`, plus a new data file `bible/fact/atlas.json` and a terrain image `bible/fact/relief_paul1.jpg`. It is a new screen, so there is no BEFORE text. The source is also in the commit message.
+
+What it does:
+- New page `atlas` (`nav("atlas",{atJ:"paul1"})`). It opens from the journey page ("Follow the journey, stop by stop") and from the Chapter overview of Acts 13 and 14.
+- One journey so far: Paul's first journey, 15 stops (out to Derbe and back).
+- Map: Verbo's own coastlines and rivers, shaded relief clipped to land, engraved sea, italic region names, numbered cities, a 50-mile scale bar. Route and buttons use the app theme color. Three looks: old map (default), plain, and a night map when the app is in dark mode.
+- Playback: Previous, Play/Pause, Next, a progress bar. The current leg draws itself in. Done legs are solid, sea legs dashed, later legs faint. Arrows show direction. Reduced motion turns the animation off.
+- Stop card: stop number, road or sea and miles from the last stop, a short note, the first verses of the passage, Read (opens the reader at that passage), and facts: where it is today, ancient names, periods, and links to the Pleiades and OpenBible records.
+- Uncertain sites: Derbe has a dashed ring, a "?" and a "Site uncertain" badge. The other proposed sites are marked with an x when Derbe is the current stop.
+- Phone: map on top, bottom sheet with a handle (tap or swipe to open). Tablet: same, taller map. Desktop: map with a 400px sidebar that also lists the Outbound and Return stops.
+- Map: drag, wheel, pinch, zoom buttons, fit button. Tap a city to go to it. Keyboard: Left and Right arrows, K to play.
+- Offline: atlas.json and the terrain image are in the "People, places and maps" offline set. Without the file the page says it could not load and offers Try again.
+
+Data (`atlas.json`), kept apart from the drawing code:
+- OpenBible.info Bible Geocoding (CC BY 4.0): modern site and confidence for each place. Derbe: Kerti Hüyük 860, Devri Şehri 49, Güdelisin -122 (OpenBible's own scores).
+- Pleiades (CC BY 3.0): place ID, ancient names, periods. Matched through Wikidata using `isawnyu/pleiades_wikidata`. Seleucia (658483), Attalia (638778) and Iconium (648647) were matched by hand.
+- Theographic (CC BY-SA 4.0): the route lines and stop positions, as before.
+- Terrain: shaded relief by Tom Patterson (public domain), cropped and tinted.
+- Not used yet: Itiner-e Roman roads (CC BY 4.0). Its download sites could not be reached from the build machine. Routes still follow Theographic lines and are labelled approximate.
+
+Tests: `docs/review/tests/test_atlas.py`. 73 checks on phone, tablet and desktop, plus the overview entry, dark mode and the offline message. All pass. axe on the Atlas is clean.
+
 ---
 
 ## Test results (headless Chrome, 2026-11-28)
@@ -345,6 +376,8 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F14 | 0 of 40 Tabs leave a dialog; "Jhon", "Mathew 5" and "Revelations 21" found and Enter opens them; "Jhon 3:16" gets Did you mean; floating control hidden mid-chapter, labelled end buttons; header targets 44px, same layout at 360px; new parallels for John 13 and 2 Chronicles 18 | Pass |
 | F15 | Romans 8, Matthew 13, Psalms 119 on phone and desktop: sheet opens with verses and Henry, Next steps through sections, Escape closes and keeps the scroll position and focus, Read in context opens the reader; key verse and note rows open the sheet; axe clean | Pass |
 | F16 | Popup says Saved for a bookmarked verse; highlight colour is described; Philemon not marked read after 4 s, marked after the time; Auto follows the device, Light stays Light | Pass |
+| F17 | Fresh user sees red letters in Matthew 5; after turning them off and reloading they stay off | Pass |
+| F18 | Atlas on phone, tablet and desktop: route progress, playback, sheet, timeline, tap a city, keyboard, Read, map styles, Derbe uncertainty, Pleiades link, overview entry, dark map, offline message; axe clean | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.

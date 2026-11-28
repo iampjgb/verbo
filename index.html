@@ -2066,4 +2066,212 @@ const src=pg.querySelector("#wk-src");src&&(src.innerHTML=`<h2>Sources</h2><ul c
   })();
 })();
 </script>
+<script id="verbo-atlas-2026-11-28">
+/* Atlas: Follow the Journey. Map drawing is in alDraw*, journey data comes from bible/fact/atlas.json. */
+(function(){
+const AL={i:0,play:false,tm:null,vb:null,j:null,open:false};
+const alData=()=>gdGet("fact/atlas.json",()=>{["atlas","journey","chapter"].includes(ui.page)&&refresh()});
+const alStyle=()=>document.documentElement.dataset.theme==="dark"?"dark":(S.atlasStyle==="plain"?"light":"parch");
+const reduce=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch{return false}};
+const mi=pts=>{let d=0;for(let i=1;i<pts.length;i++){const[a,b]=pts[i-1],[c,e]=pts[i],r=Math.PI/180,h=Math.sin((e-b)*r/2)**2+Math.cos(b*r)*Math.cos(e*r)*Math.sin((c-a)*r/2)**2;d+=7918*Math.asin(Math.sqrt(h))}return d};
+const dash=s=>String(s).replace("-","–");
+const plName=(J,id)=>{const l=J.labels[id];return l[0]+(l[1]?" "+l[1]:"")};
+
+/* Journey model: stops in order, each with the route leg that arrives there */
+function alJourney(id){const D=alData(),jm=typeof jmGet==="function"&&jmGet(id);if(!D||!jm)return null;const J=D.journeys[id];if(!J)return null;
+  if(J._st)return J;J._st=J.stops.map(s=>{const o=Object.assign({},s);if(s.seg!=null){o.path=jm.segs[s.seg].slice(s.trim?1:0);o.mi=Math.round(mi(o.path))}return o});
+  J._pos={};jm.stops.forEach(s=>{const id2=Object.keys(J.labels).find(k=>!J._pos[k]&&J.labels[k][0]===s.n&&(k!=="antS"||s.x>34)&&(k!=="antP"||s.x<34));id2&&(J._pos[id2]=[s.x,s.y])});
+  J._num={};let n=0;J._st.forEach(s=>{J._num[s.p]||(J._num[s.p]=++n)});J._total=jm.miles?Math.round(jm.miles/50)*50:J._st.reduce((a,s)=>a+(s.mi||0),0);J._segs=jm.segs;J._id=id;return J}
+
+function alFit(J,W,H){const all=[].concat(...J._segs);const x0=Math.min(...all.map(p=>p[0])),x1=Math.max(...all.map(p=>p[0])),y0=Math.min(...all.map(p=>p[1])),y1=Math.max(...all.map(p=>p[1]));
+  const ph=W<600,pl=ph?56:90,pr=ph?64:110,pt=ph?40:60,pb=ph?60:50,bx0=atX(x0),bx1=atX(x1),by0=atY(y1),by1=atY(y0),s=Math.min((W-pl-pr)/(bx1-bx0),(H-pt-pb)/(by1-by0));
+  return[bx0-pl/s-((W-pl-pr)/s-(bx1-bx0))/2,by0-pt/s-((H-pt-pb)/s-(by1-by0))/2,W/s,H/s]}
+
+function alSVG(J,W,H){const P=atPaths();if(!P)return"";const D=alData();const VB=AL.vb=alFit(J,W,H),ph=W<600,k=VB[2]/W*(ph?1:1.3),F=n=>(n*k).toFixed(2);
+  const Dp=pts=>"M"+pts.map(([a,b])=>atX(a).toFixed(1)+","+atY(b).toFixed(1)).join("L");
+  const arrow=(pts,n)=>{const q=pts.map(([a,b])=>[atX(a),atY(b)]);let L=0;const d=[0];for(let i=1;i<q.length;i++){L+=Math.hypot(q[i][0]-q[i-1][0],q[i][1]-q[i-1][1]);d.push(L)}const t=L*.55;let i=1;while(i<q.length-1&&d[i]<t)i++;const f=(t-d[i-1])/((d[i]-d[i-1])||1),X=q[i-1][0]+(q[i][0]-q[i-1][0])*f,Y=q[i-1][1]+(q[i][1]-q[i-1][1])*f,ang=Math.atan2(q[i][1]-q[i-1][1],q[i][0]-q[i-1][0])*180/Math.PI;return`<g class="al-arr" data-i="${n}" transform="translate(${X.toFixed(1)},${Y.toFixed(1)}) rotate(${ang.toFixed(1)})"><path d="M${-4*k},${-3.6*k}L${3*k},0L${-4*k},${3.6*k}Z" style="stroke-width:${F(1)}"/></g>`};
+  const legs=J._st.map((s,i)=>s.path?`<path d="${Dp(s.path)}" class="al-case" data-i="${i}" style="stroke-width:${F(5)}"/>`:"").join("")+J._st.map((s,i)=>s.path?`<path d="${Dp(s.path)}" class="al-leg${s.sea?" sea":""}" data-i="${i}" pathLength="1"/>`:"").join("")+J._st.map((s,i)=>s.path?arrow(s.path,i):"").join("");
+  const alts=Object.keys(J.labels).map(id=>{const pl=D.places[id];if(!pl||pl.cert==="known")return"";return pl.sites.slice(1).filter(s=>s.ll).map(s=>`<g class="al-alt" data-p="${id}"><path d="M${atX(s.ll[0])-2.4*k},${atY(s.ll[1])-2.4*k}l${4.8*k},${4.8*k}m0,${-4.8*k}l${-4.8*k},${4.8*k}" style="stroke-width:${F(1.2)}"/><title>${esc(s.n)}: another proposed site for ${esc(J.labels[id][0])}</title></g>`).join("")}).join("");
+  const marks=Object.keys(J.labels).map(id=>{const pos=J._pos[id];if(!pos)return"";const[nm,sub,a]=J.labels[id],pl=D.places[id]||{},X=atX(pos[0]),Y=atY(pos[1]),r=3.6*k,fs=11*k,unc=pl.cert==="approx";
+    let tx=X+7*k,ty=Y+fs*.35,an="start";if(a==="end"){tx=X-7*k;an="end"}else if(a==="above"){tx=X;ty=Y-8*k;an="middle"}else if(a==="below"){tx=X;ty=Y+8*k+fs*.8;an="middle"}else if(a==="endb"){tx=X-6*k;ty=Y+fs*1.1;an="end"}
+    return`<g class="al-pt${unc?" approx":""}" data-p="${id}">${unc?`<circle cx="${X}" cy="${Y}" r="${(r*3.2).toFixed(2)}" class="al-unc" style="stroke-width:${F(1)};stroke-dasharray:${F(2.5)} ${F(2)}"/>`:""}<circle cx="${X}" cy="${Y}" r="${(r*2.6).toFixed(2)}" class="al-halo"/><circle cx="${X}" cy="${Y}" r="${(r*3.4).toFixed(2)}" fill="transparent"/><circle cx="${X}" cy="${Y}" r="${r.toFixed(2)}" class="al-city" style="stroke-width:${F(1.1)}"/><circle cx="${X}" cy="${Y}" r="${(r*.4).toFixed(2)}" class="al-dot"/><text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="${an}" class="al-lbl" style="font-size:${F(11)}px;stroke-width:${F(3.2)}"><tspan class="al-num">${J._num[id]}</tspan> ${esc(nm+(sub?" "+sub:""))}${unc?"?":""}</text></g>`}).join("");
+  const[vx,vy,vw,vh]=VB,sb=50/69*AT.k,sx=vx+14*k,sy=vy+vh-(ph?34:20)*k,R=J.relief;
+  const reg=J.regions.filter(r=>{const X=atX(r[0]),Y=atY(r[1]),hw=r[2].length*7.4*k/2;return!Object.values(J._pos).some(p=>Math.abs(atX(p[0])-X)<hw+10*k&&Math.abs(atY(p[1])-Y)<14*k)});
+  return`<svg id="al-svg" class="al-map" viewBox="${VB.join(" ")}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Map of ${esc(J.title)}. ${J._st.length} stops. Use the stop list to move through it.">
+  <defs><pattern id="alWave" patternUnits="userSpaceOnUse" width="${F(14)}" height="${F(6)}"><path d="M0,${F(3)} q${F(3.5)},-${F(2)} ${F(7)},0 t${F(7)},0" fill="none" class="al-wave" stroke-width="${F(.6)}"/></pattern>
+  <filter id="alPaper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="${(0.9/k).toFixed(3)}" numOctaves="3" seed="7"/><feColorMatrix values="0 0 0 0 .45  0 0 0 0 .33  0 0 0 0 .18  0 0 0 .10 0"/><feComposite in2="SourceGraphic" operator="in"/></filter><clipPath id="alLand"><path d="${P.land}"/></clipPath></defs>
+  <rect x="${vx-2e3}" y="${vy-2e3}" width="${vw+4e3}" height="${vh+4e3}" class="al-sea"/><rect x="${vx-2e3}" y="${vy-2e3}" width="${vw+4e3}" height="${vh+4e3}" fill="url(#alWave)"/>
+  <path d="${P.land}" class="al-rip" style="stroke-width:${F(9)}"/><path d="${P.land}" class="al-rip2" style="stroke-width:${F(4.5)}"/>
+  <path d="${P.land}" class="al-land"/>${R?`<image href="${R.src}" x="${atX(R.box[0])}" y="${atY(R.box[3])}" width="${atX(R.box[2])-atX(R.box[0])}" height="${atY(R.box[1])-atY(R.box[3])}" preserveAspectRatio="none" clip-path="url(#alLand)" class="al-relief"/>`:""}<path d="${P.land}" class="al-coast" style="stroke-width:${F(1.1)}"/><path d="${P.lakes}" class="al-lake" style="stroke-width:${F(.7)}"/><path d="${P.rivers}" class="al-river" style="stroke-width:${F(1)}"/>
+  ${reg.map(r=>`<text x="${atX(r[0])}" y="${atY(r[1])}" class="al-reg" style="font-size:${F(10)}px;letter-spacing:${F(3)}px">${r[2]}</text>`).join("")}
+  ${J.seas.map(r=>`<text x="${atX(r[0])}" y="${atY(r[1])}" class="al-seaname" style="font-size:${F(11)}px;letter-spacing:${F(4)}px">${r[2]}</text>`).join("")}
+  <g class="al-legs" style="--w:${F(2.2)}">${legs}</g>${alts}${marks}
+  <g class="al-scale" transform="translate(${sx},${sy})"><path d="M0,0H${sb}M0,${-3*k}V${3*k}M${sb},${-3*k}V${3*k}" style="stroke-width:${F(1)}"/><text x="${sb/2}" y="${-5*k}" text-anchor="middle" style="font-size:${F(8)}px">50 miles</text></g>
+  <rect x="${vx-2e3}" y="${vy-2e3}" width="${vw+4e3}" height="${vh+4e3}" filter="url(#alPaper)" fill="#fff" pointer-events="none" class="al-grain"/></svg>`}
+
+const IC={
+ prev:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 20L9 12l10-8z"/><path d="M5 19V5"/></svg>',
+ next:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/></svg>',
+ play:'<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>',
+ pause:'<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>',
+ minus:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>',
+ fit:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+ layers:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
+ ship:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l2 3h14l2-3zM12 3v11M12 4l6 9H12"/></svg>',
+ foot:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l16-16M8 20h12V8"/></svg>'};
+
+function alVerses(ref){let v=[];try{v=(typeof refVerses==="function"?refVerses(ref):[]).slice(0,3)}catch{}if(!v.length){try{const r=parseRef(ref);r&&typeof loadBook==="function"&&Promise.resolve(loadBook(S.reading.tr,r.book)).then(()=>{ui.page==="atlas"&&alPaint()}).catch(()=>{})}catch{}return'<span class="al-muted">The passage appears here once the Bible text has loaded.</span>'}
+  return v.map(x=>`<sup>${x.v}</sup>${esc(String(x.t).replace(/<[^>]+>/g,"").replace(/^§\d*/,""))}`).join(" ")}
+
+function alCard(J){const D=alData(),s=J._st[AL.i],pl=D.places[s.p]||{},prevP=AL.i?plName(J,J._st[AL.i-1].p):null,[nm,sub]=J.labels[s.p];
+  const how=s.path?`${s.sea?IC.ship+" By sea":IC.foot+" By road"} from ${esc(prevP)} · about ${s.mi} mi`:"Starting point";
+  const sites=pl.sites||[],top=sites[0];
+  let where="";if(pl.cert==="known"&&top)where=`<div class="al-fact"><span>Today</span><b>${esc(top.n)}</b></div>`;
+  else if(top)where=`<div class="al-fact"><span>Today</span><b>Most likely ${esc(top.n)}</b></div><p class="al-cnote">The exact site is not certain. Other proposals: ${sites.slice(1).map(x=>esc(x.n)).join(", ")}. They are marked × on the map.</p>`;
+  const P=pl.pl;const facts=P?`${P.names&&P.names.length?`<div class="al-fact"><span>Ancient names</span><b>${P.names.map(esc).join(", ")}</b></div>`:""}${P.periods&&P.periods.length?`<div class="al-fact"><span>Attested</span><b>${P.periods.join(", ")}</b></div>`:""}`:"";
+  const links=[P&&P.id?`<a href="https://pleiades.stoa.org/places/${P.id}" target="_blank" rel="noopener">Pleiades</a>`:"",pl.ob?`<a href="https://www.openbible.info/geo/ancient/${pl.ob.id}/${pl.ob.slug}" target="_blank" rel="noopener">OpenBible</a>`:""].filter(Boolean).join(" · ");
+  return`<div class="al-step">Stop ${AL.i+1} of ${J._st.length}${s.ret?" · Return":""}</div>
+  <div class="al-hrow"><h2 class="al-name" id="al-name" tabindex="-1">${esc(nm)}${sub?` <span>${esc(sub)}</span>`:""}</h2><span class="al-cert ${pl.cert||""}">${pl.cert==="approx"?"Site uncertain":"Site known"}</span></div>
+  <div class="al-meta">${how}</div>
+  <p class="al-note">${esc(s.note)}</p>
+  <blockquote class="al-pass"><div class="al-pref">${dash(s.ref)}</div><p>${alVerses(s.ref)}</p></blockquote>
+  <button type="button" class="al-read" data-action="alRead" data-ref="${esc(s.ref)}">${icon("book",18)}Read ${dash(s.ref)}</button>
+  <div class="al-facts">${where}${facts}${links?`<div class="al-fact"><span>Records</span><b>${links}</b></div>`:""}</div>`}
+
+function alCtl(J){const n=J._st.length-1,pct=(AL.i/n*100).toFixed(1);
+  return`<div class="al-prog" aria-hidden="true"><div style="width:${pct}%"></div>${J._st.map((s,i)=>`<i style="left:${(i/n*100).toFixed(2)}%" class="${i<=AL.i?"on":""}"></i>`).join("")}</div>
+  <div class="al-btns"><button type="button" data-action="alStep" data-d="-1" aria-label="Previous stop"${AL.i?"":" disabled"}>${IC.prev}</button><button type="button" class="al-play" data-action="alPlay" aria-label="${AL.play?"Pause":"Play the journey"}" aria-pressed="${AL.play}">${AL.play?IC.pause:IC.play}</button><button type="button" data-action="alStep" data-d="1" aria-label="Next stop"${AL.i<n?"":" disabled"}>${IC.next}</button></div>`}
+
+function alTL(J){const row=(s,i)=>`<li><button type="button" class="al-tli${i===AL.i?" cur":""}${i<AL.i?" done":""}" data-action="alGo" data-i="${i}"${i===AL.i?' aria-current="step"':""}><span class="al-tn">${J._num[s.p]}</span><span class="al-tnm">${esc(J.labels[s.p][0])}${J.labels[s.p][1]?` <small>${esc(J.labels[s.p][1])}</small>`:""}</span><span class="al-tr">${dash(s.ref.replace(/^Acts /,""))}</span></button></li>`;
+  return`<h3 class="al-h3">Outbound</h3><ol class="al-tl">${J._st.map((s,i)=>s.ret?"":row(s,i)).join("")}</ol><h3 class="al-h3">Return</h3><ol class="al-tl">${J._st.map((s,i)=>s.ret?row(s,i):"").join("")}</ol>`}
+
+function alSrc(){const D=alData();return`<div class="al-src"><b>Sources</b>${D.sources.map(s=>`<div><a href="${s.u}" target="_blank" rel="noopener">${esc(s.n)}</a> (${esc(s.lic)}). ${esc(s.use)}.</div>`).join("")}<div>Routes follow ancient roads and sea lanes and are approximate.</div></div>`}
+
+PAGES.atlas=function(){const id=ui.atJ||"paul1";const n1=typeof jmNeed==="function"&&jmNeed(),n2=!alData(),n3=!atPaths();if(n1||n2||n3){if(gdFailed("fact/atlas.json"))return`<div class="page"><div class="card cov-off"><h3 style="margin-top:0">The atlas could not load</h3><p class="muted small">Connect to the internet once to download it. After that it works offline.</p><button class="btn" data-action="pageRetry">Try again</button></div></div>`;return'<div class="page"><div class="skel" style="height:60vh"></div></div>'}
+  const J=alJourney(id);if(!J)return'<div class="page"><div class="card"><p>This journey is not in the atlas yet.</p></div></div>';
+  if(AL.j!==id){AL.j=id;AL.i=0;AL.play=false}
+  return`<div id="atl" class="al t-${alStyle()}${AL.open?" open":""}"><div class="al-mapwrap" id="al-mapwrap"><div class="al-zoom"><button type="button" data-action="alZoom" data-f=".75" aria-label="Zoom in">${icon("zin",20)}</button><button type="button" data-action="alZoom" data-f="1.33" aria-label="Zoom out">${icon("zout",20)}</button><button type="button" data-action="alZoom" data-f="0" aria-label="Show the whole journey">${IC.fit}</button><button type="button" data-action="alTheme" aria-label="Map style: ${alStyle()==="parch"?"old map":alStyle()==="light"?"plain":"dark"}">${IC.layers}</button></div>
+  <div class="al-legend" aria-hidden="true"><span><i class="ln"></i>Road</span><span><i class="ln sea"></i>Sea</span><span><i class="ring"></i>Uncertain</span></div></div>
+  <aside class="al-side" aria-label="Journey stops"><div class="al-grab" id="al-grab" role="button" tabindex="0" aria-label="${AL.open?"Show less":"Show more"}" aria-expanded="${AL.open}"></div>
+  <div class="al-head"><h1 class="al-title">${esc(J.title)}</h1><div class="al-sub">${esc(J.refs)} · ${esc(J.when)} · about ${J._total.toLocaleString()} mi</div></div>
+  <div class="al-ctl" id="al-ctl">${alCtl(J)}</div><div class="al-card" id="al-card" aria-live="polite">${alCard(J)}</div><div class="al-tlw" id="al-tl">${alTL(J)}</div>${alSrc()}</aside></div>`};
+Object.assign(window.PAGE_TITLE=window.PAGE_TITLE||{},{atlas:"Atlas"});try{GROUPS.study.push("atlas")}catch{}try{FILL.add("atlas")}catch{}
+
+function alPaint(focus){const J=alJourney(AL.j);const s=document.getElementById("al-svg");if(!J||!s)return;
+  s.querySelectorAll(".al-leg,.al-case,.al-arr").forEach(e=>{const i=+e.dataset.i;e.classList.toggle("done",i<AL.i);e.classList.toggle("cur",i===AL.i);e.classList.toggle("todo",i>AL.i)});
+  const cur=J._st[AL.i].p,seen=new Set(J._st.slice(0,AL.i+1).map(x=>x.p));s.querySelectorAll(".al-pt").forEach(g=>{g.classList.toggle("cur",g.dataset.p===cur);g.classList.toggle("seen",seen.has(g.dataset.p))});
+  s.querySelectorAll(".al-alt").forEach(g=>g.classList.toggle("show",g.dataset.p===cur));
+  const c=document.getElementById("al-card"),k=document.getElementById("al-ctl"),t=document.getElementById("al-tl");c&&(c.innerHTML=alCard(J));k&&(k.innerHTML=alCtl(J));t&&(t.innerHTML=alTL(J));
+  const side=document.querySelector("#atl .al-side");if(side&&focus!=="keep"){const top=document.getElementById("al-ctl");side.scrollTop=0}
+  if(focus==="name")try{document.getElementById("al-name").focus({preventScroll:true})}catch{}}
+function alGo(i,focus){const J=alJourney(AL.j);if(!J)return;AL.i=Math.max(0,Math.min(J._st.length-1,i));alPaint(focus);clearTimeout(AL.tm);
+  if(AL.play){AL.tm=setTimeout(()=>{if(ui.page!=="atlas"){AL.play=false;return}if(AL.i<J._st.length-1)alGo(AL.i+1);else{AL.play=false;alPaint()}},reduce()?6e3:4400)}}
+function alZoom(f){const s=document.getElementById("al-svg");if(!s)return;if(!f){s.setAttribute("viewBox",AL.vb.join(" "));return}let[vx,vy,vw,vh]=s.getAttribute("viewBox").split(" ").map(Number);const cx=vx+vw/2,cy=vy+vh/2;vw*=f;vh*=f;const max=AL.vb[2]*2.2,min=AL.vb[2]*.18;if(vw>max||vw<min)return;s.setAttribute("viewBox",[cx-vw/2,cy-vh/2,vw,vh].join(" "))}
+Object.assign(A,{
+ alOpen(e){const id=e&&e.dataset&&e.dataset.id||"paul1";AL.j=null;AL.open=false;closeModal&&closeModal();nav("atlas",{atJ:id})},
+ alStep(e){AL.play=false;alGo(AL.i+ +e.dataset.d,"name")},
+ alGo(e){AL.play=false;alGo(+e.dataset.i,"name");if(innerWidth<900){AL.open=false;document.getElementById("atl").classList.remove("open")}},
+ alPlay(){AL.play=!AL.play;const J=alJourney(AL.j);if(AL.play&&J&&AL.i===J._st.length-1)AL.i=0;alGo(AL.i,"keep")},
+ alZoom(e){alZoom(+e.dataset.f)},
+ alTheme(){if(document.documentElement.dataset.theme==="dark"){typeof toast==="function"&&toast("Dark mode uses the night map. Switch the app theme to see the old map.");return}S.atlasStyle=S.atlasStyle==="plain"?"old":"plain";save();const r=document.getElementById("atl");r&&(r.className=r.className.replace(/t-\w+/,"t-"+alStyle()));const b=document.querySelector('#atl [data-action=alTheme]');b&&b.setAttribute("aria-label","Map style: "+(alStyle()==="parch"?"old map":"plain"))},
+ alRead(e){AL.play=false;clearTimeout(AL.tm);openRefQuiet(e.dataset.ref)}});
+MOUNT.atlas=function(){const J=alJourney(AL.j||ui.atJ||"paul1"),wr=document.getElementById("al-mapwrap");if(!J||!wr)return;
+  const draw=()=>{document.getElementById("al-svg")?.remove();wr.insertAdjacentHTML("afterbegin",alSVG(J,wr.clientWidth||360,wr.clientHeight||400));alPaint("keep");bind()};
+  const bind=()=>{const s=document.getElementById("al-svg");if(!s)return;let drag=null,pts=new Map(),pinch=null;
+    s.addEventListener("pointerdown",e=>{const g=e.target.closest(".al-pt");pts.set(e.pointerId,[e.clientX,e.clientY]);if(pts.size===2){const[a,b]=[...pts.values()];pinch=[Math.hypot(a[0]-b[0],a[1]-b[1]),s.getAttribute("viewBox").split(" ").map(Number)];drag=null;return}drag=[e.clientX,e.clientY,s.getAttribute("viewBox").split(" ").map(Number),g,false];try{s.setPointerCapture(e.pointerId)}catch{}});
+    s.addEventListener("pointermove",e=>{if(pts.has(e.pointerId))pts.set(e.pointerId,[e.clientX,e.clientY]);if(pinch&&pts.size===2){const[a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]),v=pinch[1],f=Math.max(.18,Math.min(2.2,pinch[0]/d*(v[2]/AL.vb[2])))/(v[2]/AL.vb[2]),cx=v[0]+v[2]/2,cy=v[1]+v[3]/2;s.setAttribute("viewBox",[cx-v[2]*f/2,cy-v[3]*f/2,v[2]*f,v[3]*f].join(" "));return}
+      if(!drag)return;const[x,y,v]=drag;if(Math.hypot(e.clientX-x,e.clientY-y)>6)drag[4]=true;if(!drag[4])return;const sc=Math.max(v[2]/s.clientWidth,v[3]/s.clientHeight);s.setAttribute("viewBox",[v[0]-(e.clientX-x)*sc,v[1]-(e.clientY-y)*sc,v[2],v[3]].join(" "))});
+    const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=null;if(drag&&!drag[4]&&drag[3]){const J2=alJourney(AL.j),p=drag[3].dataset.p,cands=J2._st.map((x,i)=>x.p===p?i:-1).filter(i=>i>=0),nx=cands.find(i=>i>AL.i);AL.play=false;alGo(nx!=null?nx:cands[0],"name")}drag=null};
+    s.addEventListener("pointerup",up);s.addEventListener("pointercancel",up);
+    s.addEventListener("wheel",e=>{e.preventDefault();alZoom(e.deltaY>0?1.12:.89)},{passive:false})};
+  draw();
+  if(!AL.ro&&"ResizeObserver"in window){let w0=0,t;AL.ro=new ResizeObserver(en=>{const w=Math.round(en[0].contentRect.width);if(Math.abs(w-w0)<40)return;w0=w;clearTimeout(t);t=setTimeout(()=>{ui.page==="atlas"&&MOUNT.atlas()},150)})}
+  AL.ro&&(AL.ro.disconnect(),AL.ro.observe(wr));
+  const grab=document.getElementById("al-grab"),root=document.getElementById("atl"),side=root.querySelector(".al-side");
+  const setOpen=o=>{AL.open=o;root.classList.toggle("open",o);grab.setAttribute("aria-expanded",o);grab.setAttribute("aria-label",o?"Show less":"Show more")};
+  grab.onclick=()=>setOpen(!AL.open);grab.onkeydown=e=>{(e.key==="Enter"||e.key===" ")&&(e.preventDefault(),setOpen(!AL.open))};
+  let sy=null;side.addEventListener("touchstart",e=>{const t=e.target;if(!t.closest(".al-grab,.al-head"))return;sy=e.touches[0].clientY},{passive:true});
+  side.addEventListener("touchend",e=>{if(sy==null)return;const dy=e.changedTouches[0].clientY-sy;sy=null;if(dy<-30)setOpen(true);else if(dy>30)setOpen(false)},{passive:true})};
+document.addEventListener("keydown",e=>{if(ui.page!=="atlas"||e.target.closest&&e.target.closest("input,textarea,[contenteditable]")||document.querySelector("#modalBg.show"))return;
+  if(e.key==="ArrowRight"){AL.play=false;alGo(AL.i+1,"name");e.preventDefault()}else if(e.key==="ArrowLeft"){AL.play=false;alGo(AL.i-1,"name");e.preventDefault()}else if(e.key==="k"||e.key==="K"){A.alPlay()}});
+
+/* Entry points: journey card, Journeys list, chapter overview map */
+const _pj=PAGES.journey;PAGES.journey=function(){const h=_pj.apply(this,arguments);const D=alData();if(!D||!D.journeys[ui.jmId])return h;
+  return h.replace(/(<div class="jm-wrap" id="jmWrap">)/,`<button type="button" class="btn primary al-follow" data-action="alOpen" data-id="${ui.jmId}">${icon("route",18)}Follow the journey, stop by stop</button>$1`)};
+const alCov=()=>{try{const el=document.getElementById("cov-set");if(!el||el.querySelector(".al-follow"))return;const D=alData();if(!D||typeof jmFor!=="function"||typeof jmNeed!=="function"||jmNeed())return;const j=(jmFor(ui.chBook,+ui.chNum)||[]).find(x=>D.journeys[x.id]);if(!j)return;const host=el.querySelector(".cov-b")||el;host.insertAdjacentHTML("beforeend",`<button type="button" class="btn al-follow" data-action="alOpen" data-id="${j.id}">${icon("route",18)}Follow ${esc(j.title.replace(/^Paul's/,"Paul’s"))}, stop by stop</button>`)}catch{}};
+const _mc=MOUNT.chapter;MOUNT.chapter=function(){const r=_mc&&_mc.apply(this,arguments);alCov();setTimeout(alCov,600);return r};
+
+const st=document.createElement("style");st.id="verbo-atlas-css";st.textContent=`
+.main.fill:has(#atl){padding:0}
+#atl{display:flex;flex-direction:column;height:100%;min-height:calc(100dvh - var(--cov-tb,56px) - 72px);background:var(--bg);color:var(--text);--al-acc:var(--primary);--al-route:var(--primary);--al-ink:#2d1f0f;--al-mut:#6e5a3c;--al-case:#fffdf7}
+#atl.t-parch{--al-sea:#d3dcd6;--al-land:#e9dfc6;--al-coast:#5e4527;--al-river:#5f7f86;--al-wave:#6d7f86}
+#atl.t-light{--al-sea:#dde9ef;--al-land:#ffffff;--al-coast:#9aa5ab;--al-river:#7fa7c0;--al-wave:#9fb8c4;--al-ink:#242a28;--al-mut:#6b7270}
+#atl.t-dark{--al-sea:#151b1f;--al-land:#22261f;--al-coast:#7f7660;--al-river:#5f8790;--al-wave:#33424a;--al-ink:#e7e5de;--al-mut:#a7aea9;--al-route:var(--ink);--al-acc:var(--ink);--al-case:#111513}
+.al-mapwrap{position:relative;flex:1;min-height:260px;overflow:hidden;background:var(--al-sea)}
+.al-map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.al-sea{fill:var(--al-sea)}.al-wave{stroke:var(--al-wave);stroke-opacity:.3}
+.al-land{fill:var(--al-land)}.al-coast{fill:none;stroke:var(--al-coast)}.al-lake{fill:var(--al-sea);stroke:var(--al-coast)}.al-river{fill:none;stroke:var(--al-river);opacity:.85}
+.al-relief{opacity:.95}.t-light .al-relief{opacity:.45;filter:saturate(.4)}.t-dark .al-relief{filter:brightness(.42) saturate(.5) sepia(.3)}
+.al-rip{fill:none;stroke:var(--al-coast);stroke-opacity:.12}.al-rip2{fill:none;stroke:var(--al-coast);stroke-opacity:.18}
+.t-light .al-rip,.t-light .al-rip2,.t-light .al-grain{display:none}.al-grain{opacity:.7}.t-dark .al-grain{opacity:.4}
+.al-reg{fill:var(--al-mut);font-family:var(--display);font-style:italic;text-anchor:middle;opacity:.85}
+.al-seaname{fill:var(--al-mut);font-family:var(--display);font-style:italic;text-anchor:middle;opacity:.75}
+.al-case{fill:none;stroke:var(--al-case);stroke-linecap:round;stroke-linejoin:round;opacity:.8}.al-case.todo{opacity:0}
+.al-leg{fill:none;stroke:var(--al-route);stroke-width:var(--w);stroke-linecap:round;stroke-linejoin:round;transition:opacity .3s}
+.al-leg.todo{opacity:.3;stroke-dasharray:.004 .012}.al-leg.done{opacity:.95}.al-leg.done.sea{stroke-dasharray:.02 .012}
+.al-leg.cur{stroke-width:calc(var(--w)*1.6);stroke-dasharray:1;stroke-dashoffset:1;animation:alDraw 1.4s ease-out forwards}
+@keyframes alDraw{to{stroke-dashoffset:0}}
+.al-arr path{fill:var(--al-route);stroke:var(--al-case)}.al-arr.todo{opacity:0}.al-arr.cur{opacity:0;animation:alFade .3s 1.2s forwards}@keyframes alFade{to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.al-leg.cur{animation:none;stroke-dashoffset:0}.al-arr.cur{animation:none;opacity:1}.al-pt.cur .al-halo{animation:none}}
+.al-pt{cursor:pointer}.al-city{fill:var(--al-land);stroke:var(--al-ink)}.al-dot{fill:var(--al-ink)}
+.al-halo{fill:var(--al-route);opacity:0}.al-pt.cur .al-halo{opacity:.25;animation:alPulse 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes alPulse{50%{opacity:.08;transform:scale(1.35)}}
+.al-pt.cur .al-city{fill:var(--al-route)}.al-pt.cur .al-dot{fill:var(--al-case)}.al-pt:not(.seen){opacity:.6}
+.al-unc{fill:none;stroke:var(--al-ink);opacity:.65}
+.al-alt{display:none}.al-alt.show{display:inline}.al-alt path{stroke:var(--al-ink);fill:none;stroke-linecap:round}
+.al-lbl{fill:var(--al-ink);font-family:var(--display);font-style:italic;font-weight:600;paint-order:stroke;stroke:var(--al-case);stroke-linejoin:round}
+.al-num{font-style:normal;font-family:var(--sans);font-weight:700;fill:var(--al-route)}.al-pt.cur .al-lbl{font-weight:700}
+.al-scale path{stroke:var(--al-ink);fill:none}.al-scale text{fill:var(--al-ink);font-family:var(--display);font-style:italic;paint-order:stroke;stroke:var(--al-case);stroke-width:3px}
+.al-zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);z-index:1}
+.al-zoom button{width:44px;height:44px;border:0;background:none;color:var(--text);display:grid;place-items:center}.al-zoom button+button{border-top:1px solid var(--border)}
+.al-legend{position:absolute;left:10px;top:10px;display:flex;gap:10px;font-size:12px;color:var(--text);background:color-mix(in srgb,var(--surface) 90%,transparent);border:1px solid var(--border);border-radius:10px;padding:6px 10px;z-index:1}
+.al-legend span{display:flex;align-items:center;gap:5px}.al-legend .ln{width:18px;border-top:2.5px solid var(--al-route)}.al-legend .ln.sea{border-top-style:dashed}.al-legend .ring{width:11px;height:11px;border-radius:50%;border:1.5px dashed currentColor}
+.al-side{background:var(--surface);border-top:1px solid var(--border);border-radius:18px 18px 0 0;margin-top:-16px;position:relative;z-index:2;box-shadow:0 -6px 18px #0002;max-height:44vh;overflow:auto;overscroll-behavior:contain;padding:0 18px 18px;transition:max-height .25s ease}
+#atl.open .al-side{max-height:78vh}
+.al-grab{width:100%;height:22px;display:grid;place-items:center;cursor:grab;position:sticky;top:0;background:var(--surface);z-index:2}.al-grab:before{content:"";width:40px;height:5px;border-radius:3px;background:var(--border)}
+.al-head{padding:0 0 4px}.al-title{font:600 20px/1.2 var(--display)!important;margin:0}.al-sub{font-size:13px;color:var(--text2);margin-top:2px}
+.al-ctl{position:sticky;top:22px;background:var(--surface);padding:4px 0 8px;z-index:1}
+.al-prog{position:relative;height:4px;border-radius:2px;background:var(--border);margin:8px 6px 10px}.al-prog>div{height:100%;border-radius:2px;background:var(--al-acc)}
+.al-prog i{position:absolute;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--surface);border:1.5px solid var(--border)}.al-prog i.on{border-color:var(--al-acc);background:var(--al-acc)}
+.al-btns{display:flex;justify-content:center;align-items:center;gap:22px}
+.al-btns button{width:46px;height:46px;border-radius:50%;border:1px solid var(--border);background:none;color:var(--text);display:grid;place-items:center}.al-btns button:disabled{opacity:.35}
+.al-btns .al-play{width:56px;height:56px;background:var(--primary);border-color:var(--primary);color:#fff}
+.al-step{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);font-weight:600;margin-top:4px}
+.al-hrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:4px 0 2px}
+.al-name{font:600 26px/1.15 var(--display)!important;margin:0;outline:none}.al-name span{font-size:17px;font-style:italic;font-weight:500;color:var(--text2)}
+.al-cert{font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:999px;border:1px solid var(--border);color:var(--text2)}.al-cert.approx{border-style:dashed;color:var(--al-acc);border-color:var(--al-acc)}
+.al-meta{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--text2)}
+.al-note{font-size:15.5px;line-height:1.5;margin:10px 0 6px}
+.al-cnote{font-size:13.5px;line-height:1.45;color:var(--text2);margin:2px 0 8px;padding-left:10px;border-left:2px dashed var(--al-acc)}
+.al-pass{margin:12px 0;padding:12px 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--border)}
+.al-pref{font-size:12px;font-weight:700;color:var(--al-acc);letter-spacing:.03em;margin-bottom:4px}
+.al-pass p{margin:0;font:400 16px/1.6 var(--scripture)}.al-pass sup{font:700 10px var(--sans);color:var(--text2);margin:0 3px 0 2px}
+.al-muted{color:var(--text2);font-style:italic}
+.al-read{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;border-radius:12px;border:1px solid var(--al-acc);background:none;color:var(--al-acc);font-weight:600;font-size:15px}
+.al-facts{margin-top:14px;border-top:1px solid var(--border);padding-top:6px}
+.al-fact{display:flex;gap:12px;padding:6px 0;font-size:14px}.al-fact span{flex:0 0 108px;color:var(--text2)}.al-fact b{font-weight:500}.al-fact a{color:var(--al-acc)}
+.al-h3{font:600 13px var(--sans)!important;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin:20px 0 6px}
+.al-tl{list-style:none;margin:0;padding:0}.al-tli{width:100%;display:flex;align-items:center;gap:10px;min-height:44px;border:0;background:none;color:var(--text);text-align:left;padding:4px 6px;border-radius:10px}
+.al-tli.cur{background:var(--active2)}.al-tli.done .al-tn{background:var(--al-acc);color:var(--surface);border-color:var(--al-acc)}
+.al-tn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--al-acc);color:var(--al-acc);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.al-tnm{flex:1;font:500 15.5px var(--display)}.al-tnm small{font-style:italic;color:var(--text2);font-size:13px}.al-tr{font-size:13px;color:var(--text2)}
+.al-src{font-size:12px;color:var(--text2);line-height:1.5;margin:20px 0 4px;display:grid;gap:4px}.al-src b{color:var(--text);font-weight:600}.al-src a{color:inherit}
+.al-follow{display:flex;align-items:center;gap:8px;justify-content:center;width:100%;margin:10px 0 14px;min-height:46px}
+@media(min-width:900px){#atl{flex-direction:row;min-height:calc(100dvh - 64px)}.al-side{width:400px;flex:none;max-height:none!important;margin:0;border-radius:0;border-top:0;border-left:1px solid var(--border);box-shadow:none;padding-top:12px}.al-grab{display:none}.al-ctl{top:0}}
+@media(max-width:899px){.al-legend{font-size:11px;gap:8px;padding:5px 8px;top:auto;bottom:26px;left:auto;right:10px}.al-zoom{top:10px}}
+`;document.head.appendChild(st);
+})();
+
+</script>
 </body></html>
