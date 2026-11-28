@@ -45,8 +45,8 @@ Not tested: a real phone, a real screen reader, the native share sheet and the i
 | 8 | PARTIAL (F7) | The welcome says "Tap Read at the bottom", but the tab is "Bible" and desktop has a sidebar. Escape does not mark the welcome as seen. The tour says "bookmark" and the menu says "Save". | B2, B14, B19, A17 | Done: device-aware wording, Escape fix. Open: one word for Save/Bookmark, and the Help text. |
 | 9 | FIXED (F5) | Next and Previous fail silently at Genesis 1 and Revelation 22. | B4 | Toast added. Optional: disable the chevron as well. |
 | 10 | FIXED (F14) | "Jhon 3:16" and "Mathew 5" dead-end. Enter in the picker does nothing. One letter plus Enter opens Ask AI. Verse results are in book order. | B5, B17, R12 | Fuzzy book names with "Did you mean". Enter opens the first match. Hide Go-to items under 2 characters. Rank by relevance. |
-| 11 | OPEN | Offline, an unsaved WEB chapter shows KJV text under the WEB label. Error text says "published app" and "sample passages". "Marked as read" fires on failure. The Words tab spins forever. | R10, B6, A12 | Never show another version's text under the chosen label. Use plain error text. Skip mark-as-read on failure. Add saved badges in the version picker. |
-| 12 | OPEN | When storage is full, saves fail silently and the UI still says "Highlighted". | R7 | Lasting warning plus Export. |
+| 11 | PARTIAL (F20) | Offline, an unsaved WEB chapter shows KJV text under the WEB label. Error text says "published app" and "sample passages". "Marked as read" fires on failure. The Words tab spins forever. | R10, B6, A12 | Never show another version's text under the chosen label. Use plain error text. Skip mark-as-read on failure. Add saved badges in the version picker. |
+| 12 | FIXED (F20) | When storage is full, saves fail silently and the UI still says "Highlighted". | R7 | Lasting warning plus Export. |
 | 13 | FIXED (F14) | The floating prev/play/next pill covers text and is icon-only. Mid-chapter there is no next-chapter control. | B9, R18, A11 | Dock it, or show it only during audio. Add "Next: John 4" at the end of each chapter. |
 | 14 | FIXED (F14) | Tap targets of 36 to 41px. Highlight swatches are 22px, and some links are 16px tall. | B10, R14, A17 | Minimum 44x44, using padding. |
 | 15 | PARTIAL (F6) | Pill names differ from their visible text. `#tabstrip` fails `aria-required-children` (critical). There is an unlabelled Settings select, nameless plan-day checkboxes, a nested control on the map and an unnamed `#gsPop`. | B7, B8, A6, R16 | Done: pills, `#gsPop`. Open: tabstrip roles, the select, plan checkboxes, the map. |
@@ -55,7 +55,7 @@ Not tested: a real phone, a real screen reader, the native share sheet and the i
 | 18 | OPEN | New users land in Romans 8. The desktop verse panel opens on grammar codes. EN/TL changes only the verse of the day. | B3, B12, B13 | Start at John 1. Open the panel on "At a glance". Add language and search steps to the welcome. |
 | 19 | OPEN | Multi-verse select is 3 taps deep. | R9 | Add "Select more" to the popup. |
 | 20 | FIXED (F16) | Theme follows the OS only on first run. There is no Auto option. | R11 | Add Auto as the default. |
-| 21 | OPEN | Genesis 51 drops the user on Today. John 3:99 opens a panel for a verse that does not exist. DRC says "Catholic" but has no deuterocanon. | A8, A9 | Nearest valid chapter with a reason. Reject verses past the end. Label DRC "66 books, Hebrew psalm numbers". |
+| 21 | FIXED (F20) | Genesis 51 drops the user on Today. John 3:99 opens a panel for a verse that does not exist. DRC says "Catholic" but has no deuterocanon. | A8, A9 | Nearest valid chapter with a reason. Reject verses past the end. Label DRC "66 books, Hebrew psalm numbers". |
 | 22 | OPEN | Calvin (CCEL, Beveridge) and the CrossWire red letters are not credited in the app. Help lists 3 Bibles and says "prototype". Ctrl+C copies with no reference. | A13 | A Sources and licences page that mirrors the README. Add the reference and version to copied text. |
 | 23 | OPEN | Lexicon text is one run-on block. Suffixes like H7225G are not explained. A G25 search lists unrelated Hebrew entries. | A14 | One sense per line, a suffix key, exact G/H matching. |
 | 24 | OPEN | Shortcuts are undocumented (j/k, ?). Ctrl+T and Ctrl+W clash with the browser. There is no "/". | A10 | A Shortcuts page, "/" for search, replace the reserved keys. |
@@ -64,11 +64,11 @@ Not tested: a real phone, a real screen reader, the native share sheet and the i
 
 | # | Status | Issue | Source | Suggested fix |
 |---|---|---|---|---|
-| 25 | OPEN | The boxed "1" tab count looks like a notification. Desktop initials are hard-coded "DR". | B20, R17 | Tabs icon, hide at 1 tab, real initials. |
+| 25 | FIXED (F20) | The boxed "1" tab count looks like a notification. Desktop initials are hard-coded "DR". | B20, R17 | Tabs icon, hide at 1 tab, real initials. |
 | 26 | PARTIAL (F16, chapters only) | Chapters and plan days are marked read about 2 seconds after a jump to the end. | A16, R19 | Require reading time or a user scroll. |
-| 27 | OPEN | The first tap on a verse highlighted by a jump clears it. The bottom nav is off-screen after the jump. | B16, B18 | Clear `ui.sel` after the jump. Keep the nav visible briefly. |
-| 28 | OPEN | Hyphenation splits Bible words. The footnote label says WEB only. The era "United Kingdom" reads as the UK. | A15, A18 | Hyphenation off for scripture. Fix the label. Use "United Monarchy". |
-| 29 | OPEN | The dark-mode verse number in the Aa preview has 3.26:1 contrast. A new note saves an empty `<h2>`. | B22, R20 | Lighter colour. Strip empty blocks. |
+| 27 | FIXED (F20) | The first tap on a verse highlighted by a jump clears it. The bottom nav is off-screen after the jump. | B16, B18 | Clear `ui.sel` after the jump. Keep the nav visible briefly. |
+| 28 | FIXED (F20) | Hyphenation splits Bible words. The footnote label says WEB only. The era "United Kingdom" reads as the UK. | A15, A18 | Hyphenation off for scripture. Fix the label. Use "United Monarchy". |
+| 29 | FIXED (F20) | The dark-mode verse number in the Aa preview has 3.26:1 contrast. A new note saves an empty `<h2>`. | B22, R20 | Lighter colour. Strip empty blocks. |
 | 30 | OPEN | The first visit prefetches about 6 MB of KJV. `red.json` is in no offline pack. The iPhone widget ignores data-hashes.json. | A19, A20 | Defer on metered connections. Add `red.json` to a pack. Hash check in the widget. |
 
 ## Suggested order for the open items

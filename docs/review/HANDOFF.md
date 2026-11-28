@@ -9,7 +9,7 @@ This branch (`review-fixes`) was made by a Claude session on another account on 
 3. `docs/review/FIXES.md`: every code change as exact BEFORE and AFTER text, with test results.
 4. `docs/review/screenshots/`: before and after evidence for the main bugs.
 5. `docs/review/tests/`: Playwright scripts that check each fix.
-6. `index.html`: fixes F1 to F19, in separate commits. F9 is the Chapter overview redesign and F10 saves study sets by default. F11 turns the overview into a chapter deep dive. F12 fixes round 2 items 36 to 40 (speed, no jumping, sticky tabs, Back, map) and 37 (two tabs). F13 fixes items 41 and 43 to 47 (offline, prev/next, wording, study-tools bar, outline, credits). F14 fixes items 4, 10, 13, 14 and part of 42. F15 adds the section sheet on the Chapter overview, asked for by Zee. F17 adds Your study, AI wording and red letters by default. F18 adds the Atlas (Follow the Journey). F19 adds all 12 journeys, with `bible/fact/atlas.json` and the `bible/fact/relief_*.jpg` terrain images. How atlas.json is built: `docs/review/tests/atlas-data/README.md`. Both were asked for by Zee. F8 (comic mode dead end) came from Zee's own iPhone test of the preview.
+6. `index.html`: fixes F1 to F20, in separate commits. F9 is the Chapter overview redesign and F10 saves study sets by default. F11 turns the overview into a chapter deep dive. F12 fixes round 2 items 36 to 40 (speed, no jumping, sticky tabs, Back, map) and 37 (two tabs). F13 fixes items 41 and 43 to 47 (offline, prev/next, wording, study-tools bar, outline, credits). F14 fixes items 4, 10, 13, 14 and part of 42. F15 adds the section sheet on the Chapter overview, asked for by Zee. F17 adds Your study, AI wording and red letters by default. F18 adds the Atlas (Follow the Journey). F19 adds all 12 journeys, with `bible/fact/atlas.json` and the `bible/fact/relief_*.jpg` terrain images. F20 is batch 4: storage-full warning, offline states, jump taps, bad references, hyphens, contrast and the tabs button (items 11, 12, 21, 25, 27, 28, 29), in a new script block `verbo-batch4-2026-11-28` plus seven small source edits. How atlas.json is built: `docs/review/tests/atlas-data/README.md`. Both were asked for by Zee. F8 (comic mode dead end) came from Zee's own iPhone test of the preview.
 
 Base commit: `2922233` on `main`. Nothing on `main` was changed. The live GitHub Pages site is untouched until this branch is merged.
 
@@ -54,6 +54,7 @@ python3 test_f14_connections.py
 python3 test_f15_section_sheet.py
 python3 test_f16.py
 python3 test_atlas.py
+python3 test_f20_batch4.py                 # takes about 3 minutes
 python3 test_study_sets_default.py         # takes about a minute
 ```
 

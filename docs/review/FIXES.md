@@ -367,6 +367,254 @@ Tests: `docs/review/tests/test_atlas.py`. 73 checks on phone, tablet and desktop
 
 Tests: `test_atlas.py` now also opens all 12 journeys and checks stops, legs, labels, the Region and Not named badges, the debated note and the picker. 91 checks, all pass.
 
+## F20. Batch 4: storage warning, offline states, jump taps, bad references, hyphens, contrast, tabs button (items 11, 12, 21, 25, 27, 28, 29)
+
+Seven source edits plus one new script block `<script id="verbo-batch4-2026-11-28">` just before the last `</body>`. Each BEFORE string below appears exactly once. The `</body>` string appears twice in the file (once inside a script string), so insert the block before the last one. Item 7 (deep links) is not part of this batch.
+
+- **12. Storage full.** The block replaces `lsSave`. It still falls back to the in-memory copy, but now a failed `localStorage.setItem` shows a lasting alert (`#f20-save-warn`, `role="alert"`): "Your changes are not being saved. Storage on this device is full or blocked. If you close Verbo now, recent changes will be lost. Export your data to keep a copy." It has an **Export data** button (calls the existing `A.exportData`, which downloads the full state as a file) and a **Dismiss** button (hidden for 5 minutes; both 44px tall). A toast fired in the same moment as a failed save (150 ms window) is replaced by "Not saved. Storage is full.", so "Highlighted" and "Note saved" never appear for a save that failed. The note editor status says "Not saved" (it is `W.status`). The warning goes away on the next save that works. Tested by stubbing `Storage.prototype.setItem` to throw `QuotaExceededError`.
+- **11. Offline.** (a) An unsaved translation no longer falls back to the bundled KJV sample text. The sample is now used only when the chosen translation is KJV. Otherwise the reader shows a state named in the chosen translation: "This chapter is not saved for offline use in WEB. Connect to the internet to read it. You can also save WEB in Settings, under Offline library." with **Try again** and **Read in KJV** (uses `A.setTr`). When the browser is online but the load failed, it says "This chapter could not be loaded. Check your connection and try again." The KJV-only sample notice now reads "Only part of this chapter is saved on this device. Connect to the internet to read all of it." (b) The words "published app" and "sample passages" are gone from the reader. (c) `window.covReadOk` returns false while the reader shows the not-saved state, the partial notice or the loading skeleton, so "marked as read" no longer fires after 30 s on a chapter that did not load. (d) The Words tab: when the interlinear data failed to load, `ilxBlock` shows "Word study is not saved for offline use. Connect to the internet, or save "Hebrew and Greek word study" in Settings, under Offline library." with Try again (online: "Word study could not be loaded. Check your connection and try again."). Not done: saved badges in the version picker (the REVIEW suggestion).
+- **27. Jump then tap.** `A.selVerse` is wrapped. If the tapped verse is the selected verse and still carries the jump marker (`ui.markV`), the tap keeps it selected and clears the marker (`.v-mark`) and `ui.flashV`. Before, the same tap toggled the selection off, so the menu closed and nothing was selected. Any other tap clears `ui.flashV` too, so a later redraw does not scroll back to the old jump target. A second tap deselects as before. `openRef` and `openRefQuiet` call `keepNav()` after a jump to a verse: on phones it removes `bars-hidden` and sets `FV.lock` for 4 s, so the scroll that placed the verse does not hide the bottom nav. After 4 s normal scroll hiding applies.
+- **21. Bad references.** `openRef` and `openRefQuiet` are wrapped. A chapter past the end ("Genesis 51", "John 22", "Psalm 151") opens the last chapter with a toast: "Genesis has 50 chapters. Opened Genesis 50." A verse past the end of a chapter ("John 3:99", "3 John 15") opens the chapter with no verse selected and the toast "John 3 has 36 verses." The count is the highest verse number in the loaded KJV chapter. If the text is not loaded yet, the check runs when it loads (the verse menu can show for a moment first). Links `#v=Genesis 51`, `#ref=...` and `?ref=...` that `parseRef` rejects are now sent through `openRef` too. Nonsense such as "Foo 12" still says "Reference not recognized". The DRC label is now "Douay-Rheims, Challoner (1752) · 66 books, Hebrew psalm numbers".
+- **28.** `hyphens:none!important` for scripture text (`.scripture`, `.v`, `.cmpv`, paper layout, compare columns, the Aa preview). The footnote label under Reading options is now written for the translation in use: "Shown when reading the World English Bible (WEB)", "Shown when reading the Berean Standard Bible (BSB)" (also ASD and OCCB), and "Not available in KJV. Notes are in WEB, BSB, ASD and OCCB." for the others. The Factbook period "United Kingdom" (the event that shows as a pill on the Jerusalem card) is renamed "United Monarchy" in memory when the Factbook data loads (`fbData` wrapper). The data file `bible/fact/facts.json` is unchanged. The timeline era and the David and Solomon periods are renamed in the source. The place "United Kingdom of Israel" and quoted Wikipedia text are not changed.
+- **29.** In dark mode the Aa preview verse number uses `#D9B27A` (the colour the reader already uses), 8.5:1 on the panel (it was 3.3:1). A `clean()` wrapper removes empty headings (H1 to H6 with no text) anywhere, and empty paragraphs or divs at the start or end of a note body. Blank lines between text are kept. Notes made in the full editor no longer store `<h2><br></h2>`.
+- **25.** With one tab the phone header shows the Tabs icon instead of a boxed "1". The button keeps its name ("Tabs, 1 open") and is 44 by 44. With two or more tabs the count shows as before. The header avatar (`#btnProfile`, `#btnMe`) already showed a person icon instead of "DR" (earlier fix in the plain-wording block). The block now shows the user's initials when `USERNAME` (or `S.userName` or `S.name`) is set, for example "PL" for Pat Lee. A name whose initials are "DR" gets a zero-width space so the older "DR means placeholder" rule does not fight it.
+
+Source edits (each BEFORE appears once):
+
+**#11 (a) and (b): reader error state**
+
+BEFORE
+```js
+const u=o||TEXT[e.book+" "+e.ch];if(!u)l=`<div class="card" style="margin-top:8px">${empty("book","This chapter could not be loaded","The Bible text loads from the published app. If you are offline, only sample passages are available.",`<button class="btn" data-action="retryLoad">${icon("refresh")}Try again</button>`)}</div>`;else{
+```
+AFTER
+```js
+const u=o||(a==="KJV"?TEXT[e.book+" "+e.ch]:null);if(!u)l=window.f20NoText?window.f20NoText(a):"";else{
+```
+
+**#11 (a): notice when only the bundled KJV sample is shown**
+
+BEFORE
+```js
+l=`${o?"":`<div class="notice" style="margin-bottom:18px">${icon("info")}<div>The full chapter could not be loaded, so only bundled sample verses are shown. <button
+```
+AFTER
+```js
+l=`${o?"":`<div class="notice f20-partial" style="margin-bottom:18px">${icon("info")}<div>Only part of this chapter is saved on this device. Connect to the internet to read all of it. <button
+```
+
+**#11 (d): Words tab skeleton (`ilxBlock`)**
+
+BEFORE
+```js
+return o===null?'<div class="skel" style="width:85%"></div><div class="skel" style="width:60%"></div>':o.length?`<div class="ilx
+```
+AFTER
+```js
+return o===null?(bookFailed("ILX",e)&&window.f20NoWords?window.f20NoWords():'<div class="skel" style="width:85%"></div><div class="skel" style="width:60%"></div>'):o.length?`<div class="ilx
+```
+
+**#21: DRC label**
+
+BEFORE
+```js
+DRC:"Douay-Rheims, Challoner (Catholic, 1752)"
+```
+AFTER
+```js
+DRC:"Douay-Rheims, Challoner (1752) · 66 books, Hebrew psalm numbers"
+```
+
+**#28: era name in the timeline and the David and Solomon periods (3 replacements)**
+
+BEFORE
+```js
+{id:"united",name:"United Kingdom",
+period:"United Kingdom, reigned c. 1010
+period:"United Kingdom, reigned c. 970
+```
+AFTER
+```js
+{id:"united",name:"United Monarchy",
+period:"United Monarchy, reigned c. 1010
+period:"United Monarchy, reigned c. 970
+```
+
+**#28: footnote label in Reading options**
+
+BEFORE
+```js
+<div class="muted tiny">Shown when reading the WEB</div>
+```
+AFTER
+```js
+<div class="muted tiny">${window.f20FnLabel?window.f20FnLabel():"Shown when reading the World English Bible (WEB)"}</div>
+```
+
+**#25: tabs count (phone header)**
+
+BEFORE
+```js
+<span class="tcount${TB.list.length>9?" many":""}">${TB.list.length>99?":)":TB.list.length}</span>
+```
+AFTER
+```js
+${TB.list.length<2?`<span class="tcount one" aria-hidden="true">${icon("tabs",20)}</span>`:`<span class="tcount${TB.list.length>9?" many":""}">${TB.list.length>99?":)":TB.list.length}</span>`}
+```
+
+New script block, added just before the last `</body>`:
+
+```html
+<script id="verbo-batch4-2026-11-28">
+/* F20: Batch 4 (items 11, 12, 21, 25, 27, 28, 29). See docs/review/FIXES.md */
+(function(){
+  if(typeof A==="undefined")return;
+  const st=document.createElement("style");st.id="verbo-f20";
+  st.textContent=`
+#f20-save-warn{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:300;max-width:560px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:12px 14px;border-radius:12px;background:var(--surface,#fff);color:var(--text,#111);border:2px solid #B3261E;box-shadow:0 8px 24px rgba(0,0,0,.28);font:500 14px/1.45 var(--sans,system-ui)}
+@media(min-width:900px){#f20-save-warn{bottom:20px}}
+#f20-save-warn p{margin:0;flex:1 1 220px}
+#f20-save-warn .row2{display:flex;gap:8px}
+#f20-save-warn .btn,.f20-nosaved .btn{min-height:44px}
+.scripture,.scripture .v,.scripture .cmpv,.scripture.two .pair>.v,.reading .v,.reading.paper .scripture,.reading.paper .cmpv,.c3-c,.aa-prev{hyphens:none!important;-webkit-hyphens:none!important}
+[data-theme=dark] .aa-prev .aa-vn{color:#D9B27A}
+.tabs-btn .tcount.one{border:0;min-width:22px;padding:0}`;
+  document.head.appendChild(st);
+
+  /* #12: a failed save is shown, not hidden. */
+  let failed=!1,failTick=!1,dismissedAt=0,failT=0;
+  const warnEl=()=>document.getElementById("f20-save-warn");
+  const hideWarn=()=>{const w=warnEl();w&&w.remove()};
+  const showWarn=()=>{
+    if(warnEl()||Date.now()-dismissedAt<3e5)return;
+    const w=document.createElement("div");w.id="f20-save-warn";w.setAttribute("role","alert");
+    w.innerHTML='<p><b>Your changes are not being saved.</b> Storage on this device is full or blocked. If you close Verbo now, recent changes will be lost. Export your data to keep a copy.</p><div class="row2"><button class="btn primary" data-action="f20Export">Export data</button><button class="btn" data-action="f20WarnClose" aria-label="Dismiss the saving warning">Dismiss</button></div>';
+    document.body.appendChild(w)};
+  A.f20Export=()=>{hideWarn();dismissedAt=Date.now();return A.exportData&&A.exportData()};
+  A.f20WarnClose=()=>{dismissedAt=Date.now();hideWarn()};
+  const _lsSave=window.lsSave;
+  window.lsSave=function(e){
+    let ok=!0;
+    try{localStorage.setItem(LS_KEY,JSON.stringify(e))}catch(x){ok=!1;memStore=e}
+    if(ok){failed&&(failed=!1,failTick=!1,dismissedAt=0,hideWarn());return}
+    failed=!0;failTick=!0;clearTimeout(failT);failT=setTimeout(()=>{failTick=!1},150);
+    showWarn()};
+  const _toast=window.toast;
+  window.toast=function(m){return _toast.call(this,failTick&&!/^Not saved/.test(String(m))?"Not saved. Storage is full.":m)};
+  const _wst=window.wStatus;
+  typeof _wst=="function"&&(window.wStatus=function(m){return _wst.call(this,failTick&&/^Saved/.test(String(m))?"Not saved":m)});
+
+  /* #11: offline states. */
+  window.f20NoText=function(tr){
+    const lab=typeof TR_LABEL=="function"?TR_LABEL(tr):tr,off=navigator.onLine===!1;
+    const t=off?"This chapter is not saved for offline use in "+esc(lab):"This chapter could not be loaded";
+    const b=off?"Connect to the internet to read it. You can also save "+esc(lab)+" in Settings, under Offline library.":"Check your connection and try again.";
+    const btn='<button class="btn" data-action="retryLoad">'+icon("refresh")+'Try again</button>'+(tr!=="KJV"?' <button class="btn" data-action="f20Kjv">Read in KJV</button>':"");
+    return'<div class="card f20-nosaved" style="margin-top:8px" role="status">'+empty("book",t,b,btn)+"</div>"};
+  A.f20Kjv=()=>A.setTr({dataset:{v:"KJV"}});
+  window.f20NoWords=function(){
+    return navigator.onLine===!1
+      ?'<div class="muted small f20-nowords" role="status" style="padding:6px 0">Word study is not saved for offline use. Connect to the internet, or save “Hebrew and Greek word study” in Settings, under Offline library. <button class="refl" data-action="retryLoad">Try again</button></div>'
+      :'<div class="muted small f20-nowords" role="status" style="padding:6px 0">Word study could not be loaded. Check your connection and try again. <button class="refl" data-action="retryLoad">Try again</button></div>'};
+  const _cro=window.covReadOk;
+  typeof _cro=="function"&&(window.covReadOk=function(){
+    if(document.querySelector(".f20-nosaved,.f20-partial,.reading [aria-busy=true]"))return!1;
+    return _cro.apply(this,arguments)});
+
+  /* #21: invalid references. */
+  const REF_RE=/^((?:[123]|i{1,3}|first|second|third|1st|2nd|3rd)?\s?[A-Za-z][A-Za-z .]*?)\s*(\d+)(?:\s*[:.\s]\s*(\d+))?\s*$/i;
+  const pl=(n,w)=>n+" "+w+(n===1?"":"s");
+  function verseMax(p){
+    const c=chFull("KJV",p.book,p.ch);if(!c||!c.v)return null;
+    const k=Object.keys(c.v).map(Number);return k.length?Math.max.apply(null,k):null}
+  /* returns {ref, msg} for a reference that needs fixing, or null */
+  function fixRef(e){
+    const p=parseRef(e);
+    if(!p){
+      const m=String(e||"").trim().replace(/\s+/g," ").replace(/[–—]/g,"-").match(REF_RE);if(!m)return null;
+      const b=findBook(m[1]);if(!b||+m[2]<=b.c||b.c===1)return null;
+      return{ref:b.n+" "+b.c,msg:b.n+" has "+pl(b.c,"chapter")+". Opened "+b.n+" "+b.c+"."}}
+    if(p.v1){const n=verseMax(p);if(n!=null&&p.v1>n)return{ref:p.book+" "+p.ch,msg:p.book+" "+p.ch+" has "+pl(n,"verse")+"."}}
+    return null}
+  function lateCheck(p){
+    const bi=BOOKS.findIndex(b=>b.n===p.book);if(bi<0)return;
+    loadBook("KJV",bi).then(()=>{
+      const n=verseMax(p);if(n==null||p.v1<=n)return;
+      if(ui.page==="reader"&&S.reading.book===p.book&&S.reading.ch===p.ch&&(ui.sel===vkey(p.book,p.ch,p.v1)||(ui.markV||[]).includes(vkey(p.book,p.ch,p.v1)))){ui.sel=null;ui.markV=null;ui.flashV=null;ui.scrollSel=!1;refresh()}
+      toast(p.book+" "+p.ch+" has "+pl(n,"verse")+".")},()=>{})}
+  /* #27: keep the bottom nav visible for a few seconds after a jump to a verse. */
+  const keepNav=()=>{try{if(FV.mq.matches){appEl.classList.remove("bars-hidden");FV.lock=Date.now()+4e3;FV.acc=0}}catch(x){}};
+  const _openRef=window.openRef;
+  window.openRef=function(e){
+    const f=fixRef(e);if(f){toast(f.msg);e=f.ref}
+    const p=parseRef(e),r=_openRef.call(this,e);
+    if(p&&p.v1){keepNav();verseMax(p)==null&&lateCheck(p)}
+    return r};
+  const _openRefQuiet=window.openRefQuiet;
+  typeof _openRefQuiet=="function"&&(window.openRefQuiet=function(e){
+    const f=fixRef(e);f&&(toast(f.msg),e=f.ref);
+    return _openRefQuiet.call(this,e)});
+  /* links such as #v=Genesis 51 and ?ref=Genesis 51 */
+  (function(){
+    const h=r=>{if(!r||parseRef(r)||!fixRef(r))return;try{history.replaceState(null,"",location.pathname+"#read")}catch(x){}setTimeout(()=>{try{openRef(r)}catch(x){}},650)};
+    const fromHash=hh=>{const m=String(hh||"").match(/^#(?:v|ref)=(.+)$/);if(!m)return;let r;try{r=decodeURIComponent(m[1]).replace(/\+/g," ")}catch(x){return}/^#v=/.test(hh)&&(r=r.replace(/\./g," ").replace(/(\d+) (\d+)$/,"$1:$2"));h(r)};
+    try{const q=new URLSearchParams(location.search).get("ref");q&&h(q)}catch(x){}
+    fromHash(window.VERBO_HASH0||location.hash);
+    addEventListener("hashchange",ev=>fromHash(ev&&ev.newURL?"#"+(ev.newURL.split("#")[1]||""):location.hash))})();
+
+  /* #27: the first tap on a verse that a jump marked keeps it selected. */
+  const _sv=A.selVerse;
+  A.selVerse=function(e){
+    const k=e&&e.dataset&&e.dataset.key;
+    if(k&&ui.sel===k&&ui.markV&&ui.markV.includes(k)){ui.markV=null;ui.flashV=null;document.querySelectorAll(".v-mark").forEach(x=>x.classList.remove("v-mark"));return}
+    ui.flashV=null;
+    return _sv.apply(this,arguments)};
+
+  /* #28: footnote label names the translation being read. */
+  const FN_TR=["WEB","BSB","ASD","OCCB"];
+  window.f20FnLabel=function(){
+    const tr=S.reading.tr,nm=(TRANSLATIONS[tr]||tr).split(" (")[0].split(" · ")[0];
+    return FN_TR.includes(tr)?"Shown when reading the "+nm+" ("+tr+")":"Not available in "+tr+". Notes are in WEB, BSB, ASD and OCCB."};
+  /* the era "United Kingdom" reads as the UK. Rename it in the Factbook data. */
+  const _fbData=window.fbData;
+  typeof _fbData=="function"&&(window.fbData=function(){
+    const d=_fbData.apply(this,arguments);
+    if(d&&d.events&&!d.__f20){d.__f20=1;d.events.forEach(x=>{x&&x.n==="United Kingdom"&&(x.n="United Monarchy")})}
+    return d});
+
+  /* #29: no empty headings or empty edge blocks in saved notes. */
+  const _clean=window.clean;
+  typeof _clean=="function"&&(window.clean=function(){
+    let h=_clean.apply(this,arguments);
+    if(typeof h!="string"||!/<(h[1-6]|p|div)\b/i.test(h))return h;
+    const w=document.createElement("div");w.innerHTML=h;
+    const empty2=n=>n.nodeType===1&&/^(H[1-6]|P|DIV)$/.test(n.tagName)&&!n.querySelector("figure,img,hr,li,ul,ol,a,mark,table,blockquote")&&!n.textContent.replace(/[\s​ ]/g,"");
+    [...w.querySelectorAll("h1,h2,h3,h4,h5,h6")].forEach(n=>empty2(n)&&n.remove());
+    const edge=k=>{while(w[k]&&(w[k].nodeType===3&&!w[k].nodeValue.trim()||empty2(w[k])))w[k].remove()};
+    edge("firstChild");edge("lastChild");
+    return w.innerHTML});
+
+  /* #25: header avatar uses real initials when a name is known. */
+  const initials=()=>{
+    const n=String((typeof USERNAME!="undefined"&&USERNAME)||S.userName||S.name||"").trim();
+    if(!n)return"";const i=n.split(/\s+/).map(s=>s[0]).slice(0,2).join("").toUpperCase();return i==="DR"?"D​R":i};
+  let avT=0;
+  const fixAv=()=>{const i=initials();if(!i)return;document.querySelectorAll("#btnProfile .avatar,#btnMe .avatar").forEach(a=>{a.textContent!==i&&(a.textContent=i)})};
+  new MutationObserver(()=>{avT||(avT=setTimeout(()=>{avT=0;fixAv()},80))}).observe(document.body,{childList:!0,subtree:!0});
+  setTimeout(fixAv,100);
+})();
+</script>
+```
+
+Tests: `docs/review/tests/test_f20_batch4.py` (129 checks, phone and desktop, about 3 minutes). Screenshots: `docs/review/screenshots/before/f20-*.png` and `docs/review/screenshots/after/f20-*.png`.
+
+Not changed or not fully fixed:
+- Item 11: the version picker has no "saved" badges yet.
+- Item 28: the blue verse-number colour in dark mode (`#1D70B8`) is lower than 4.5:1 in the reader and the preview. It was not part of the report and was left alone.
+- Item 21: when a link goes to a verse past the end and the chapter is not loaded yet, the verse menu can show for a moment before it closes.
+- Jumping to a verse in a chapter whose text is not loaded yet does not scroll to the verse. This is older behaviour, seen before and after F20. It was found while testing item 27 and is not fixed.
+- axe on the phone reader still reports `aria-allowed-attr` (`aria-pressed` on the Save menu item, added in F16) and `region` for `#vpop`. Both appear before and after F20.
+
 ---
 
 ## Test results (headless Chrome, 2026-11-28)
@@ -395,6 +643,7 @@ Tests: `test_atlas.py` now also opens all 12 journeys and checks stops, legs, la
 | F17 | Fresh user sees red letters in Matthew 5; after turning them off and reloading they stay off | Pass |
 | F18 | Atlas on phone, tablet and desktop: route progress, playback, sheet, timeline, tap a city, keyboard, Read, map styles, Derbe uncertainty, Pleiades link, overview entry, dark map, offline message; axe clean | Pass |
 | F19 | All 12 journeys open with the right number of stops and legs; Exodus labels and debated note; Moab is Region; Jericho is Not named; picker switches journey | Pass |
+| F20 | Storage full: warning with Export, no "Highlighted", editor says Not saved; offline WEB shows a not-saved state with no KJV text, no "published app", not marked read, Words tab message; first tap on a jumped verse keeps it selected, nav stays after a jump; Genesis 51, John 22, Psalm 151, John 3:99, 3 John 15, DRC label; hyphens none, footnote label per translation, United Monarchy; dark Aa verse number at least 4.5:1, no empty h2 in notes; tabs icon at one tab, initials; axe unchanged | Pass (129 checks) |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.
