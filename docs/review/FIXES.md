@@ -267,6 +267,16 @@ All in the script block under `/* F12 */`, plus three source edits.
 - **46, study-tools bar.** The auto-save notice is now a bar: "Saving Bible study tools for offline use (N MB). You can keep reading." with Not now (pauses for 24 hours, says so). After a complete first run: "Bible study tools saved. They now work without the internet."
 - **47, credits.** The overview's Sources lists Matthew Henry, Calvin (Beveridge, CCEL), Spurgeon, Theographic (CC BY-SA 4.0) with OpenBible.info and Natural Earth, OpenBible.info cross references (CC BY), STEPBible lexicons (CC BY 4.0), Easton, Nave and the CrossWire red letters. The app-wide Help page (item 22) is still open.
 
+## F14. Dialog focus, misspelled books, the floating control, tap targets, connections (items 4, 10, 13, 14 and 42)
+
+Script block `/* F14 */`, plus source edits to the parallels list and the cross-reference ranking in F11.
+
+- **4, dialogs.** While `#modalBg` is shown, `#app` is `inert` and `aria-hidden`, and Tab and Shift+Tab cycle inside the dialog. Tested: 40 Tab presses, 0 left the dialog. On close the page is active again and focus returns to the opener (F6). Focus already moves into the study panel after a verse is chosen with Enter.
+- **10, misspelled books.** `window.fuzzyBook` finds the closest book name (edit distance, a swap counts as one edit; 1 edit for short names, 2 for longer; same first letter; no tie). Used only in search, not in `parseRef`, so notes and links are not affected. The book picker now offers "John" for "Jhon", "Matthew 5" for "Mathew 5" and "Revelation 21" for "Revelations 21", and Enter opens the first one. Global search shows "Did you mean: Open John 3:16" for "Jhon 3:16". The verse search box (`vsBooks`) also falls back to it.
+- **13, floating control.** On phones the prev/play/next pill hides while you read and shows near the end of the chapter or while audio plays. Every chapter now ends with labelled buttons ("‹ John 2" and "John 4 ›") that cross books. Desktop is unchanged.
+- **14, tap targets.** On touch screens: header icons and pills are at least 44px (38px wide on screens under 380px, so a long book name still fits, the same as before), highlight swatches are 44px, and the Chapter overview and Guided study links and breadcrumbs are 44px tall.
+- **42, connections.** New parallels: "Jesus predicts his betrayal" (Matthew 26:20-25, Mark 14:17-21, Luke 22:21-23, John 13:21-30) and "Micaiah warns Ahab" (1 Kings 22:1-28, 2 Chronicles 18:1-27). Cross references now skip chapters already listed as parallels and give links across the Old and New Testaments 1.6 times the weight. Isaiah 53 now lists 1 Peter 3:18, 2 Corinthians 5:21 and Galatians 3:13 first. Psalms 22 shows Matthew 27:46 under "Quoted in other books". Hebrews 2:12 is still not listed, because it is not in the quotes list.
+
 ## New script block (added just before `</body>`)
 
 The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 section to the same block.
@@ -314,6 +324,7 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F11 | Deep dive on 6 chapters: Setting, Connections, Words, Your notes appear only when they have data; map, journeys, parallels, cross references and Words of Jesus work; axe clean | Pass |
 | F12 | Acts 13: 4 redraws, no repeated lexicon fetches; tabs sit below the top bar; Back from a parallel (in-app and browser) returns to the same spot; map keeps the reading position and Back returns to the overview; two tabs keep both edits; no jumping while data loads | Pass |
 | F13 | Outlines for Matthew 13, Isaiah 53, Psalms 119; prev/next across books and for Obadiah; plain Words names, no codes, chips capped; offline messages instead of spinners; bar with Not now | Pass |
+| F14 | 0 of 40 Tabs leave a dialog; "Jhon", "Mathew 5" and "Revelations 21" found and Enter opens them; "Jhon 3:16" gets Did you mean; floating control hidden mid-chapter, labelled end buttons; header targets 44px, same layout at 360px; new parallels for John 13 and 2 Chronicles 18 | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.
