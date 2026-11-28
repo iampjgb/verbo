@@ -92,6 +92,13 @@ with sync_playwright() as p:
         ok(not errs, f"no page errors {errs[:2]}")
         c.close()
 
+    print("--- cold start: journey page then Follow, nothing loaded before")
+    c = b.new_context(viewport={"width": 390, "height": 844}, service_workers="block"); c.add_init_script(INIT); pg = c.new_page()
+    pg.goto(U + "#journey"); time.sleep(3)
+    pg.click("[data-action=alOpen]"); time.sleep(3)
+    ok(pg.evaluate("!!document.getElementById('al-svg')"), "cold start draws the map (bug from Zee's phone)")
+    c.close()
+
     print("--- all 12 journeys")
     c = b.new_context(viewport={"width": 390, "height": 844}, has_touch=True); c.add_init_script(INIT); pg = c.new_page(); errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(U + "#v=Genesis 12:1"); time.sleep(3)
