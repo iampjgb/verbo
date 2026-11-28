@@ -148,22 +148,27 @@ Still open: the hidden Read/Study/Comic switcher on phones. Consider showing it 
 
 ## F9. Chapter overview redesign, phone first
 
-Asked for by Zee after the review. The old page was a Wikipedia-style article of about 11 phone screens.
+Asked for by Zee after the review, in two rounds. The old page was a Wikipedia-style article of about 11 phone screens.
 
-**Problems fixed**
-- Four ways to leave before the title (top-bar back, "Back to", breadcrumb, prev/next row). Phones now have one prev/next row.
-- The same facts repeated three times ("chapter 8 of 16", "39 verses", the chapter title). The opening sentence ("names 2 people and 0 places") and the info box are gone.
-- Matthew Henry's outline was buried inside Commentary. It is now the first section, and each row jumps to its verse in the reader.
-- Commentary opened fully expanded. All commentary sections now start closed and remember what the reader opens during re-renders.
-- Generic questions filled the top of the page. They are now one closed "Study questions" section.
-- "jewish" was lowercased. The audience text now only lowercases a leading article (The, A, An...).
-- Duplicate People, Places, Events and Cross references sections inside Commentary are hidden on this page.
+**Round 1, structure**
+- Phones now have one prev/next row. Before, there were four ways to leave before the title.
+- The repeated facts, the "names 2 people and 0 places" sentence and the info box are gone.
+- Matthew Henry's outline is the first section. Each row jumps to its verse in the reader, with no popup or sheet covering the text.
+- Commentary sections start closed. Open/closed state survives re-renders.
+- People, Places, Events and Cross references inside Commentary are hidden on this page, because they repeated the People section or were empty.
+- The section tab row stays at the top while scrolling and follows the section in view.
 
-**New layout:** prev/next chips, title and subtitle, an "At a glance" grid (verses, author, written, first readers), the book theme, "Read Romans 8" (primary) and Guided study. Then a section tab row that stays at the top while scrolling: Outline, Key verses, People, Questions, Commentary. Desktop uses the same layout in one 760px column.
+**Round 2, AI-only interpretation and type**
+- The generic "Meaning / Interpretation" block (Find the meaning, Guard against) is removed. A "Meaning" section appears only when Claude has written a study for the chapter (`S.genStudies[normRef(ref)]`). It is labelled "Written by Claude on (date). Check it against the text."
+- Inside Claude (`SAMPLE` set) and with no study yet, "Meaning" shows one "Write a study with Claude" button (`data-action="genStudy"`), then a progress line while Claude writes. Outside Claude nothing is shown.
+- The three generic "Questions to start with" stay as one closed "Reading questions" row.
+- Type scale, four levels: title in the app's display font (`--display`, Lora) 32px; section headings in `--display` 21px; body Inter 16px/1.5; meta Inter 13px grey in sentence case. All-caps labels and source pills are removed. Sources are one grey line under the section or in Sources at the end.
+- Fewer boxes: At a glance and the outline use thin dividers. Reading questions and every commentary section share one accordion style. The key verse is a pull quote with an accent rule. "Read Romans 8" is full width on phones, and Guided study is a quiet text button.
+- Note: in this app `--serif` is set to Inter. Use `--display` for serif headings.
 
-**How.** `MOUNT.chapter` rebuilds the page after `PAGES.chapter` renders, using the existing sections, so no data or builder code changed. The CSS is in `<style id="verbo-cov-2026-11-28">`, added by the script block. One source edit:
+**Source edits outside the script block**
 
-BEFORE
+BEFORE (audience lowercasing, it produced "jewish")
 ```js
 t.audience.replace(/^./,a=>a.toLowerCase())
 ```
@@ -172,11 +177,20 @@ AFTER
 t.audience.replace(/^(The|A|An|All|Some|Those|These)\b/,a=>a.toLowerCase())
 ```
 
-The full F9 code is in the script block under the `/* F9 */` comment. An outline tap on a phone opens the reader at that verse, then clears the selection so no popup or sheet covers the text.
+BEFORE (key verses picked up a whole-chapter study as a "verse")
+```js
+const s=getStudy(`${ref}:${v}`);s&&!keys.includes(s.key)&&keys.push(s.key)
+```
+AFTER
+```js
+const s=getStudy(`${ref}:${v}`);s&&s.key.includes(":")&&!keys.includes(s.key)&&keys.push(s.key)
+```
 
-**Tested:** Romans 8, Acts 13, Psalms 23, Obadiah 1, Genesis 1 and Revelation 22, on phone and desktop, in light and dark. No page errors. axe reports no violations inside the new page in light or dark. The phone page went from 9,125px to 2,212px tall for Romans 8.
+**How.** `MOUNT.chapter` rebuilds the page after `PAGES.chapter` renders, using its existing sections. The CSS is in `<style id="verbo-cov-2026-11-28">`, added by the script block under the `/* F9 */` comment.
 
-Still open: Key verses has only one verse for many chapters (data). The tab row does not scroll itself to keep the active tab in view.
+**Tested:** Romans 8, Acts 13, Psalms 23, Obadiah 1, Genesis 1 and Revelation 22, on phone and desktop, in light and dark. Three Meaning states were checked: outside Claude (hidden), inside Claude with no study (button), and with a written study (shown with its label). No page errors. axe shows no violations on the page in light or dark. Romans 8 on a phone went from 9,125px to about 2,300px.
+
+Still open: many chapters show only one key verse (data). The real "Write a study with Claude" run was not tested, because it needs the app running inside Claude.
 
 ## New script block (added just before `</body>`)
 
@@ -219,7 +233,7 @@ The block below is the F1, F2 and F7 part. F8 adds the lines shown in the F8 sec
 | F6 | Pill name "Revelation 22, choose book and chapter"; dialog named "Translation", focus inside, focus back on the pill after Escape | Pass |
 | F7 | Desktop says "Click Bible on the left"; Escape sets `verbo.welcomed` | Pass |
 | F8 | Comic mode (Romans 8, BSB, phone): the empty-page button and the popover item both return to text (39 verses shown) | Pass |
-| F9 | Chapter overview on 6 chapters, phone and desktop, light and dark; outline tap opens the reader at the verse with no popup; axe clean on the page | Pass |
+| F9 | Chapter overview on 6 chapters, phone and desktop, light and dark; outline tap opens the reader with no popup; Meaning hidden outside Claude, button inside Claude, shown with label once written; axe clean | Pass |
 | All | No page errors. axe on the reader: before: `aria-required-children` x1 and `label-content-name-mismatch` x16. After: only `aria-required-children` on `#tabstrip` is left | Pass |
 
 Not tested: a real phone, VoiceOver or TalkBack.

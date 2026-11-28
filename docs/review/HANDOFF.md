@@ -42,6 +42,7 @@ python3 test_fixes.py http://localhost:8110/
 python3 test_strongs.py
 python3 test_comic_escape.py
 python3 test_chapter_overview.py "Romans|8"
+python3 test_chapter_overview_states.py   # Meaning hidden / button / written
 ```
 
 Expected: every line in the FIXES.md test table passes, `page_errors => []`, and axe on the reader shows only `aria-required-children` (issue 15, still open).
